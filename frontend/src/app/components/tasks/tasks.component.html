@@ -1,4 +1,19 @@
-<div class="tasks-container">
+<div class="tasks-page">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
+      <a routerLink="/tasks" class="nav-link active">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/meals" class="nav-link">Meals</a>
+      <a routerLink="/photos" class="nav-link">Photos</a>
+      <a routerLink="/lists" class="nav-link">Lists</a>
+      <a routerLink="/metrics" class="nav-link">Metrics</a>
+    </div>
+  </nav>
+
+  <div class="tasks-container">
   <div class="tasks-header">
     <h1>Task Management</h1>
     <button class="btn btn-primary" (click)="toggleCreateForm()">
@@ -136,4 +151,5 @@
       <p>No tasks found. Create your first task to get started!</p>
     </div>
   </div>
+</div>
 </div>
