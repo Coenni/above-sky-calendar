@@ -1,0 +1,61 @@
+<div class="metrics">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/metrics" class="nav-link active">Metrics</a>
+      <div class="user-info" *ngIf="currentUser">
+        <span>{{ currentUser.username }}</span>
+        <button (click)="logout()" class="btn btn-logout">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Event Metrics</h1>
+
+    <div *ngIf="isLoading" class="loading">Loading metrics...</div>
+
+    <div *ngIf="!isLoading" class="metrics-grid">
+      <div class="metric-card total">
+        <div class="metric-icon">📊</div>
+        <div class="metric-value">{{ totalEvents }}</div>
+        <div class="metric-label">Total Events</div>
+      </div>
+
+      <div class="metric-card upcoming">
+        <div class="metric-icon">📅</div>
+        <div class="metric-value">{{ upcomingEvents }}</div>
+        <div class="metric-label">Upcoming Events</div>
+      </div>
+
+      <div class="metric-card today">
+        <div class="metric-icon">🔔</div>
+        <div class="metric-value">{{ todayEvents }}</div>
+        <div class="metric-label">Today's Events</div>
+      </div>
+
+      <div class="metric-card past">
+        <div class="metric-icon">✅</div>
+        <div class="metric-value">{{ pastEvents }}</div>
+        <div class="metric-label">Past Events</div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading" class="recent-events">
+      <h2>Recent Events</h2>
+      <div *ngIf="events.length === 0" class="no-events">
+        <p>No events to display</p>
+      </div>
+      <div *ngIf="events.length > 0" class="events-list">
+        <div *ngFor="let event of events.slice(0, 5)" class="event-item">
+          <div class="event-info">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description }}</p>
+            <small>{{ event.startDate | date:'short' }} - {{ event.endDate | date:'short' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

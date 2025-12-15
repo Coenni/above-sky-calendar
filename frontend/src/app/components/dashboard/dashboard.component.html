@@ -1,0 +1,102 @@
+<div class="dashboard">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link active">Dashboard</a>
+      <a routerLink="/metrics" class="nav-link">Metrics</a>
+      <div class="user-info" *ngIf="currentUser">
+        <span>{{ currentUser.username }}</span>
+        <button (click)="logout()" class="btn btn-logout">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>My Calendar Events</h1>
+      <button (click)="toggleCreateForm()" class="btn btn-primary">
+        {{ showCreateForm ? 'Cancel' : 'Create Event' }}
+      </button>
+    </div>
+
+    <div *ngIf="showCreateForm" class="create-form">
+      <h3>Create New Event</h3>
+      <form (ngSubmit)="createEvent()">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input
+            type="text"
+            id="title"
+            [(ngModel)]="newEvent.title"
+            name="title"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="newEvent.description"
+            name="description"
+            rows="3"
+            class="form-control"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input
+              type="datetime-local"
+              id="startDate"
+              [(ngModel)]="newEvent.startDate"
+              name="startDate"
+              required
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input
+              type="datetime-local"
+              id="endDate"
+              [(ngModel)]="newEvent.endDate"
+              name="endDate"
+              required
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Event</button>
+      </form>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Loading events...</div>
+
+    <div *ngIf="!isLoading && events.length === 0" class="no-events">
+      <p>No events found. Create your first event!</p>
+    </div>
+
+    <div class="events-grid" *ngIf="!isLoading && events.length > 0">
+      <div *ngFor="let event of events" class="event-card">
+        <h3>{{ event.title }}</h3>
+        <p class="description">{{ event.description }}</p>
+        <div class="event-dates">
+          <div class="date">
+            <strong>Start:</strong> {{ event.startDate | date:'medium' }}
+          </div>
+          <div class="date">
+            <strong>End:</strong> {{ event.endDate | date:'medium' }}
+          </div>
+        </div>
+        <div class="event-actions">
+          <button (click)="deleteEvent(event.id)" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
