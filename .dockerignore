@@ -1,0 +1,35 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# Documentation
+*.md
+docs/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Environment files
+.env*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backups
+backups/
