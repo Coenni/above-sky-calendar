@@ -10,43 +10,36 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "rewards")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Reward {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(length = 1000)
+    private String description;
 
     @Column(nullable = false)
-    private String password;
+    private Integer pointsCost; // Points required to redeem
+
+    @Column
+    private String category; // e.g., "treats", "activities", "privileges"
+
+    @Column
+    private String imageUrl; // Optional image for the reward
 
     @Column(nullable = false)
-    private String roles = "ROLE_USER";
-
-    // Family member specific fields
-    @Column
-    private String displayName;
+    private Boolean isActive = true; // Whether reward is available
 
     @Column
-    private String color; // Hex color code for family member identification
-
-    @Column
-    private Integer age;
-
-    @Column
-    private Boolean isParent = false; // Admin rights
-
-    @Column
-    private Integer rewardPoints = 0;
+    private Integer stockQuantity; // -1 for unlimited, 0+ for limited stock
 
     @CreationTimestamp
     @Column(updatable = false)

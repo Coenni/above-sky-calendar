@@ -10,11 +10,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "events")
+@Table(name = "tasks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Event {
+public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,36 +23,41 @@ public class Event {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 1000)
+    @Column(length = 2000)
     private String description;
 
+    @Column
+    private LocalDateTime dueDate;
+
+    @Column
+    private Long assignedUserId; // Family member assigned to this task
+
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private String priority = "medium"; // high, medium, low
 
     @Column(nullable = false)
-    private LocalDateTime endDate;
+    private String status = "pending"; // pending, in_progress, completed
+
+    @Column
+    private String category; // Task category/tag
+
+    @Column
+    private String recurrencePattern; // JSON: {type: 'daily'|'weekly'|'monthly', interval: 1}
+
+    @Column
+    private Integer rewardPoints = 0; // Points awarded on completion
+
+    @Column
+    private String subtasks; // JSON array of subtask items
+
+    @Column
+    private Integer orderIndex = 0; // For drag-and-drop ordering
+
+    @Column
+    private LocalDateTime completedAt;
 
     @Column(nullable = false)
-    private Long userId;
-
-    // Enhanced calendar features
-    @Column
-    private String category; // appointments, activities, school, work, etc.
-
-    @Column
-    private String color; // Color coding for the event
-
-    @Column
-    private Boolean isAllDay = false;
-
-    @Column
-    private String recurrencePattern; // JSON: {type: 'daily'|'weekly'|'monthly'|'yearly', interval: 1, endDate: '2024-12-31'}
-
-    @Column
-    private String assignedMembers; // Comma-separated user IDs for multi-member events
-
-    @Column
-    private String reminderMinutes; // Comma-separated minutes before event (e.g., "15,60,1440")
+    private Long createdBy; // User who created the task
 
     @CreationTimestamp
     @Column(updatable = false)

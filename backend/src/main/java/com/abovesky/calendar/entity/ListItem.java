@@ -10,43 +10,33 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "list_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class ListItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(nullable = false)
+    private Long listId;
 
     @Column(nullable = false)
-    private String password;
+    private String content;
 
     @Column(nullable = false)
-    private String roles = "ROLE_USER";
-
-    // Family member specific fields
-    @Column
-    private String displayName;
+    private Boolean isChecked = false;
 
     @Column
-    private String color; // Hex color code for family member identification
+    private String priority; // high, medium, low, none
 
     @Column
-    private Integer age;
+    private Integer orderIndex = 0; // For manual ordering
 
     @Column
-    private Boolean isParent = false; // Admin rights
-
-    @Column
-    private Integer rewardPoints = 0;
+    private Long addedBy;
 
     @CreationTimestamp
     @Column(updatable = false)

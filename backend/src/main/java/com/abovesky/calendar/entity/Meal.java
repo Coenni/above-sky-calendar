@@ -7,46 +7,46 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "meals")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Meal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false)
-    private String password;
+    private String category; // breakfast, lunch, dinner, snack
 
-    @Column(nullable = false)
-    private String roles = "ROLE_USER";
-
-    // Family member specific fields
-    @Column
-    private String displayName;
+    @Column(length = 5000)
+    private String recipe; // Recipe instructions
 
     @Column
-    private String color; // Hex color code for family member identification
+    private String ingredients; // JSON array of ingredients
 
     @Column
-    private Integer age;
+    private LocalDate assignedDate; // Date assigned in meal planner
 
     @Column
-    private Boolean isParent = false; // Admin rights
+    private String dietaryTags; // Comma-separated tags: vegetarian, gluten-free, etc.
 
     @Column
-    private Integer rewardPoints = 0;
+    private String imageUrl; // Photo of the meal
+
+    @Column
+    private Boolean isFavorite = false;
+
+    @Column
+    private Long createdBy;
 
     @CreationTimestamp
     @Column(updatable = false)

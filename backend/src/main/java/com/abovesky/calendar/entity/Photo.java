@@ -10,47 +10,43 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "photos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Photo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(nullable = false)
+    private String fileName;
 
     @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private String roles = "ROLE_USER";
-
-    // Family member specific fields
-    @Column
-    private String displayName;
+    private String filePath; // Relative or absolute path to stored file
 
     @Column
-    private String color; // Hex color code for family member identification
+    private String caption;
+
+    @Column(length = 2000)
+    private String comments; // JSON array of comments
 
     @Column
-    private Integer age;
+    private Long eventId; // Optional association with calendar event
 
     @Column
-    private Boolean isParent = false; // Admin rights
+    private LocalDateTime photoDate; // When photo was taken
 
     @Column
-    private Integer rewardPoints = 0;
+    private Long uploadedBy;
+
+    @Column
+    private String tags; // Comma-separated tags for organization
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime uploadedAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
