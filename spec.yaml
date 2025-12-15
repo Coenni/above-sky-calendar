@@ -1938,6 +1938,7 @@ components:
           type: string
           minLength: 8
           maxLength: 100
+          description: User password. Must be at least 8 characters. Example shows strong password pattern - real passwords should be unique and not based on common patterns.
         displayName:
           type: string
           maxLength: 100
