@@ -2,6 +2,23 @@
 
 A comprehensive full-stack family task management application built with Spring Boot (backend) and Angular (frontend). Inspired by Skylight Calendar, this system provides calendar, tasks, rewards, meals, photos, and lists functionality designed for family coordination.
 
+## 🚀 API-First Development
+
+This project follows an **API-First approach** using OpenAPI 3.0 specification. All API endpoints are defined in `spec.yaml`, and both backend and frontend code are automatically generated from this specification.
+
+**📖 See the [API-First Development Guide](API_FIRST_GUIDE.md) for detailed documentation on:**
+- How to work with the OpenAPI specification
+- Code generation for backend and frontend
+- Adding new endpoints
+- Best practices and troubleshooting
+
+### Quick Start with API-First
+
+1. **View the API specification**: `spec.yaml` (root directory)
+2. **Generate backend code**: `cd backend && mvn clean generate-sources`
+3. **Generate frontend code**: `cd frontend && npm run generate-api`
+4. **View API docs**: `http://localhost:8080/swagger-ui.html` (when backend is running)
+
 ## Technology Stack
 
 ### Backend
@@ -13,6 +30,8 @@ A comprehensive full-stack family task management application built with Spring 
 - **MySQL** - Production database support
 - **Lombok** - Reduce boilerplate code
 - **Maven** - Dependency management
+- **OpenAPI Generator** - Automatic API code generation
+- **SpringDoc OpenAPI** - API documentation (Swagger UI)
 
 ### Frontend
 - **Angular 17** - Modern web framework with standalone components
@@ -20,6 +39,8 @@ A comprehensive full-stack family task management application built with Spring 
 - **RxJS** - Reactive programming
 - **Angular Router** - Navigation and routing
 - **HttpClient** - REST API communication
+- **Axios** - HTTP client for generated API code
+- **OpenAPI Generator** - Automatic TypeScript client generation
 
 ## Features
 
@@ -93,12 +114,15 @@ A comprehensive full-stack family task management application built with Spring 
 
 ```
 above-sky-calendar/
+├── spec.yaml                          # OpenAPI 3.0 API Specification (single source of truth)
+├── API_FIRST_GUIDE.md                 # Complete guide for API-First development
 ├── backend/                          # Spring Boot backend
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/abovesky/calendar/
+│   │   │   │   ├── api/              # Generated API interfaces (from spec.yaml)
 │   │   │   │   ├── config/          # Security & JWT configuration
-│   │   │   │   ├── controller/      # REST API endpoints
+│   │   │   │   ├── controller/      # REST API endpoint implementations
 │   │   │   │   ├── service/         # Business logic
 │   │   │   │   ├── repository/      # Database access
 │   │   │   │   ├── entity/          # JPA entities
@@ -106,7 +130,7 @@ above-sky-calendar/
 │   │   │   └── resources/
 │   │   │       └── application.properties
 │   │   └── test/                    # Unit tests
-│   └── pom.xml                      # Maven dependencies
+│   └── pom.xml                      # Maven dependencies + OpenAPI Generator
 │
 ├── frontend/                         # Angular frontend
 │   ├── src/
@@ -116,11 +140,14 @@ above-sky-calendar/
 │   │   │   ├── guards/              # Route guards
 │   │   │   ├── interceptors/        # HTTP interceptors
 │   │   │   └── models/              # TypeScript interfaces
+│   │   ├── generated/               # Generated TypeScript API clients (from spec.yaml)
+│   │   │   ├── api/                 # API client classes
+│   │   │   └── models/              # TypeScript models
 │   │   ├── assets/                  # Static assets
 │   │   ├── index.html               # Main HTML file
 │   │   └── main.ts                  # Application entry point
 │   ├── angular.json                 # Angular configuration
-│   ├── package.json                 # NPM dependencies
+│   ├── package.json                 # NPM dependencies + generate-api script
 │   └── tsconfig.json                # TypeScript configuration
 │
 └── README.md                         # This file
@@ -142,10 +169,15 @@ above-sky-calendar/
    cd backend
    ```
 
-2. Install dependencies and build the project:
+2. Generate API interfaces from OpenAPI spec and build:
    ```bash
    mvn clean install
    ```
+   
+   This will:
+   - Generate Java API interfaces from `spec.yaml`
+   - Compile the backend code
+   - Run tests
 
 3. Run the Spring Boot application:
    ```bash
@@ -154,7 +186,11 @@ above-sky-calendar/
 
    The backend server will start on `http://localhost:8080`
 
-4. (Optional) Access the H2 console:
+4. Access API documentation:
+   - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+   - **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+
+5. (Optional) Access the H2 console:
    - URL: `http://localhost:8080/h2-console`
    - JDBC URL: `jdbc:h2:mem:calendardb`
    - Username: `sa`
@@ -172,7 +208,14 @@ above-sky-calendar/
    npm install
    ```
 
-3. Start the development server:
+3. Generate TypeScript API clients from OpenAPI spec:
+   ```bash
+   npm run generate-api
+   ```
+   
+   This creates TypeScript API clients and models in `src/generated/`
+
+4. Start the development server:
    ```bash
    npm start
    ```
