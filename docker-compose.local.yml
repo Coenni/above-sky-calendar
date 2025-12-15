@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      # Mount source code for hot-reload (development mode)
+      - ./backend/src:/app/src
+      - ./backend/pom.xml:/app/pom.xml
+      - maven_cache:/root/.m2
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_HOST: db
+      DB_NAME: aboveskycalendar
+      DB_USER: admin
+      DB_PASSWORD: password
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # Debug port
+    command: ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      # Mount source for hot-reload
+      - ./frontend/src:/app/src
+      - ./frontend/angular.json:/app/angular.json
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:80"
+    command: ["npm", "start"]
+
+  db:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: aboveskycalendar
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+
+  elasticsearch:
+    ports:
+      - "9200:9200"
+
+  logstash:
+    ports:
+      - "5000:5000"
+      - "9600:9600"  # Logstash monitoring API
+
+  kibana:
+    ports:
+      - "5601:5601"
+
+  mailhog:
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  maven_cache:
+  node_modules:
