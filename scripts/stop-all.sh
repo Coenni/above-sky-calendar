@@ -9,13 +9,13 @@ echo "🛑 Stopping Above Sky Calendar Services"
 echo "========================================"
 
 # Stop and remove containers, networks, images, and volumes
-docker-compose -f docker-compose.yml down
+docker compose -f docker-compose.yml down
 
 echo ""
 echo "✅ All services stopped successfully!"
 echo ""
 echo "💡 To remove volumes (database data), run:"
-echo "   docker-compose -f docker-compose.yml down -v"
+echo "   docker compose -f docker-compose.yml down -v"
 echo ""
 echo "💡 To start services again:"
 echo "   ./scripts/start-local.sh    (for local development)"

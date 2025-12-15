@@ -32,4 +32,4 @@ fi
 
 echo "📊 Showing logs for: $SERVICE"
 echo "================================"
-docker-compose logs "$@" "$SERVICE"
+docker compose logs "$@" "$SERVICE"

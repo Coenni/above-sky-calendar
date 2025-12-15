@@ -27,7 +27,7 @@ done
 
 # Start services
 echo "🐳 Starting Docker containers..."
-docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.stage.yml up -d
 
 echo ""
 echo "✅ Services started successfully!"
@@ -37,7 +37,7 @@ echo "   Application:     https://stage.aboveskycalendar.com"
 echo "   Kibana:          http://[server-ip]:5601"
 echo ""
 echo "📊 View logs:"
-echo "   docker-compose logs -f [service-name]"
+echo "   docker compose logs -f [service-name]"
 echo ""
 echo "🛑 Stop all services:"
 echo "   ./scripts/stop-all.sh"

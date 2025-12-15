@@ -17,7 +17,7 @@ fi
 
 # Start services
 echo "🐳 Starting Docker containers..."
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
 
 echo ""
 echo "✅ Services started successfully!"
@@ -33,7 +33,7 @@ echo "   Elasticsearch:   http://localhost:9200"
 echo "   MailHog UI:      http://localhost:8025"
 echo ""
 echo "📊 View logs:"
-echo "   docker-compose logs -f [service-name]"
+echo "   docker compose logs -f [service-name]"
 echo ""
 echo "🛑 Stop all services:"
 echo "   ./scripts/stop-all.sh"
