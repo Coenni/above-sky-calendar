@@ -1,0 +1,226 @@
+# Prometheus Alert Rules for Above Sky Calendar
+
+groups:
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # Backend application down
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "Backend application is down"
+          description: "The backend application has been down for more than 2 minutes."
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s over the last 5 minutes."
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: process_cpu_usage > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }} for more than 10 minutes."
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High memory usage"
+          description: "Heap memory usage is {{ $value | humanizePercentage }}."
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      # Database down
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "The PostgreSQL database has been down for more than 2 minutes."
+
+      # High database connections
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High number of database connections"
+          description: "Database has {{ $value }} active connections."
+
+      # Slow queries
+      - alert: SlowQueries
+        expr: rate(pg_stat_statements_mean_time_seconds[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Average query time is {{ $value }}s."
+
+      # Database disk space
+      - alert: DatabaseDiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/var/lib/postgresql"} / node_filesystem_size_bytes{mountpoint="/var/lib/postgresql"}) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Low disk space on database volume"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining."
+
+  - name: cache_alerts
+    interval: 30s
+    rules:
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis has been down for more than 2 minutes."
+
+      # High Redis memory usage
+      - alert: HighRedisMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
+
+      # High cache miss rate
+      - alert: HighCacheMissRate
+        expr: rate(redis_keyspace_misses_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "High cache miss rate"
+          description: "Cache miss rate is {{ $value | humanizePercentage }}."
+
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # System down
+      - alert: SystemDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "System/node exporter is down"
+          description: "Node exporter has been down for more than 2 minutes."
+
+      # High system CPU
+      - alert: HighSystemCPU
+        expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High system CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }}."
+
+      # High system memory
+      - alert: HighSystemMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High system memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }}."
+
+      # Low disk space
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"}) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}."
+
+      # Critical disk space
+      - alert: CriticalDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"}) < 0.05
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical disk space"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}."
+
+  - name: nginx_alerts
+    interval: 30s
+    rules:
+      # Nginx down
+      - alert: NginxDown
+        expr: up{job="nginx"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: nginx
+        annotations:
+          summary: "Nginx is down"
+          description: "Nginx has been down for more than 2 minutes."
+
+      # High request rate
+      - alert: HighRequestRate
+        expr: rate(nginx_http_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: nginx
+        annotations:
+          summary: "High request rate"
+          description: "Request rate is {{ $value }} requests/second."

@@ -961,6 +961,152 @@ docker-compose restart elasticsearch
 | Lists | 100% | 0% | 🔴 Backend Only |
 | Dashboard | 100% | 40% | 🟡 Partial |
 
+## 🚀 Production Deployment
+
+Above Sky Calendar is production-ready with comprehensive infrastructure for VPS deployment.
+
+### Production Features
+
+- **Security Hardening**
+  - SSL/TLS with Let's Encrypt auto-renewal
+  - Rate limiting (API and authentication endpoints)
+  - JWT authentication with refresh tokens
+  - CSRF protection and security headers
+  - Secrets management with auto-generation
+
+- **CI/CD Pipeline**
+  - Automated testing (unit, integration, E2E)
+  - Security scanning (Trivy, OWASP Dependency Check)
+  - Docker image building and registry push
+  - Automated deployment to staging/production
+  - Rollback capability on failure
+
+- **Monitoring & Observability**
+  - Prometheus metrics collection
+  - Grafana dashboards for application, database, and system metrics
+  - Alertmanager with Slack integration
+  - Health checks for all services
+  - ELK stack for centralized logging
+
+- **Database Management**
+  - Automated daily backups with compression
+  - 30-day retention policy
+  - S3 upload for offsite backups
+  - Backup verification scripts
+  - One-command restore
+
+- **Performance Optimization**
+  - Redis caching with configurable TTL policies
+  - Connection pooling
+  - Resource limits and auto-scaling
+  - Gzip compression
+
+- **Email Service**
+  - SendGrid integration for production emails
+  - Rate limiting to prevent abuse
+  - Template-based emails (OTP, password reset, welcome)
+
+### Quick Production Setup
+
+```bash
+# 1. Run VPS setup script (installs Docker, configures firewall, etc.)
+sudo ./scripts/vps-setup.sh
+
+# 2. Generate secure secrets
+./scripts/generate-secrets.sh
+
+# 3. Configure environment
+cp .env.prod.example .env.prod
+nano .env.prod  # Fill in your values
+
+# 4. Setup SSL certificates
+DOMAIN_NAME=your-domain.com SSL_EMAIL=admin@your-domain.com ./scripts/setup-ssl.sh
+
+# 5. Deploy application
+./scripts/deploy.sh
+
+# 6. Start monitoring stack
+docker-compose -f docker-compose.monitoring.yml up -d
+```
+
+### Production Scripts
+
+All operations are automated with production-ready scripts:
+
+```bash
+./scripts/vps-setup.sh          # Initial VPS configuration
+./scripts/deploy.sh             # Zero-downtime deployment
+./scripts/rollback.sh           # Quick rollback to previous version
+./scripts/health-check.sh       # Check all services health
+./scripts/backup-database.sh    # Manual database backup
+./scripts/restore-database.sh   # Restore from backup
+./scripts/verify-backup.sh      # Verify backup integrity
+./scripts/setup-ssl.sh          # SSL certificate management
+./scripts/generate-secrets.sh   # Generate secure passwords
+```
+
+### Comprehensive Documentation
+
+- **[Production Deployment Guide](docs/PRODUCTION_DEPLOYMENT.md)** - Complete deployment instructions
+- **[Operations Runbook](docs/RUNBOOK.md)** - Day-to-day operations manual
+- **[Security Guide](docs/SECURITY.md)** - Security best practices and procedures
+- **[Monitoring Guide](docs/MONITORING.md)** - Dashboards, alerts, and metrics
+
+### Service Access
+
+After deployment:
+
+- **Application**: https://your-domain.com
+- **Grafana**: http://localhost:3000 (via SSH tunnel)
+- **Prometheus**: http://localhost:9090 (via SSH tunnel)
+- **Kibana**: http://localhost:5601 (via SSH tunnel)
+
+### GitHub Secrets Required
+
+For CI/CD pipeline:
+
+```
+DOCKER_USERNAME          # Docker Hub username
+DOCKER_TOKEN            # Docker Hub access token
+STAGING_SSH_KEY         # SSH key for staging server
+STAGING_USER            # SSH username for staging
+STAGING_HOST            # Staging server IP/domain
+PRODUCTION_SSH_KEY      # SSH key for production server
+PRODUCTION_USER         # SSH username for production
+PRODUCTION_HOST         # Production server IP/domain
+SLACK_WEBHOOK           # Slack webhook for notifications
+```
+
+### Monitoring & Alerts
+
+Prometheus alerts configured for:
+- Service downtime (backend, database, Redis, nginx)
+- High error rates (> 5%)
+- High response times (p95 > 1s)
+- Resource exhaustion (CPU, memory, disk)
+- Database connection issues
+- Cache performance degradation
+
+Alerts are sent to Slack channels:
+- `#critical-alerts` - Critical issues requiring immediate attention
+- `#alerts` - Warnings and degraded performance
+- `#database-alerts` - Database-specific issues
+
+### Post-Implementation Checklist
+
+- [ ] SSL certificates installed and auto-renewal configured
+- [ ] All environment variables configured in `.env.prod`
+- [ ] Database backups running automatically (cron job)
+- [ ] Monitoring dashboards accessible via SSH tunnel
+- [ ] Alerting configured and tested
+- [ ] CI/CD pipeline working (test a deployment)
+- [ ] Health checks passing for all services
+- [ ] Security headers verified (use securityheaders.com)
+- [ ] Rate limiting tested
+- [ ] Email sending works (SendGrid configured)
+- [ ] Performance metrics acceptable
+- [ ] Documentation reviewed by team
+
 ## Contributing
 
 1. Fork the repository
