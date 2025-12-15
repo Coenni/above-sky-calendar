@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title th:text="#{email.welcome.subject}">Welcome</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -94,30 +94,29 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Welcome! 🎉</h1>
-            <p>We're excited to have you onboard</p>
+            <h1 th:text="#{email.welcome.subject}">Welcome! 🎉</h1>
+            <p th:text="#{email.welcome.body}">We're excited to have you onboard</p>
         </div>
         <div class="content">
-            <h2>Hi <span th:text="${username}">User</span>,</h2>
+            <h2 th:text="#{email.welcome.greeting(${username})}">Hi User,</h2>
             <p class="info">
-                Thank you for joining <strong th:text="${applicationName}">Above Sky Calendar</strong>! 
-                Your account has been successfully created, and you're all set to start managing your family's schedule.
+                <span th:text="#{app.welcome}">Thank you for joining</span> <strong th:text="${applicationName}">Above Sky Calendar</strong>! 
+                <span th:text="#{user.created}">Your account has been successfully created</span>.
             </p>
             
             <div class="features">
-                <h3>What you can do:</h3>
+                <h3 th:text="#{email.welcome.get.started}">What you can do:</h3>
                 <ul>
-                    <li>Create and manage calendar events</li>
-                    <li>Assign and track family tasks</li>
-                    <li>Set up a rewards system for completed tasks</li>
-                    <li>Plan weekly meals</li>
-                    <li>Share photos with family members</li>
+                    <li th:text="#{email.welcome.features.calendar}">Create and manage calendar events</li>
+                    <li th:text="#{email.welcome.features.tasks}">Assign and track family tasks</li>
+                    <li th:text="#{email.welcome.features.meals}">Plan weekly meals</li>
+                    <li th:text="#{email.welcome.features.photos}">Share photos with family members</li>
                     <li>Create and manage shared lists</li>
                 </ul>
             </div>
             
             <div class="btn-container">
-                <a th:href="${loginUrl}" class="login-btn">Get Started</a>
+                <a th:href="${loginUrl}" class="login-btn" th:text="#{auth.login}">Get Started</a>
             </div>
             
             <p class="info">
@@ -125,7 +124,7 @@
             </p>
             
             <p class="info">
-                <strong>Happy organizing!</strong><br>
+                <strong th:text="#{email.welcome.footer}">Happy organizing!</strong><br>
                 The <span th:text="${applicationName}">Above Sky Calendar</span> Team
             </p>
         </div>

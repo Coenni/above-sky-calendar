@@ -13,12 +13,20 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
+  position: relative;
+}
+
+.language-switcher-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }
 
 h2 {
   text-align: center;
   color: #333;
   margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .form-group {

@@ -1,9 +1,14 @@
 <div class="login-container">
   <div class="login-card">
-    <h2>Login</h2>
+    <!-- Language Switcher -->
+    <div class="language-switcher-container">
+      <app-language-switcher></app-language-switcher>
+    </div>
+
+    <h2>{{ 'auth.login' | translate }}</h2>
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">{{ 'auth.username' | translate }}</label>
         <input
           type="text"
           id="username"
@@ -11,11 +16,12 @@
           [(ngModel)]="loginData.username"
           required
           class="form-control"
+          [placeholder]="'auth.username' | translate"
         />
       </div>
       
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ 'auth.password' | translate }}</label>
         <input
           type="password"
           id="password"
@@ -23,6 +29,7 @@
           [(ngModel)]="loginData.password"
           required
           class="form-control"
+          [placeholder]="'auth.password' | translate"
         />
       </div>
 
@@ -35,12 +42,12 @@
         class="btn btn-primary"
         [disabled]="!loginForm.valid || isLoading"
       >
-        {{ isLoading ? 'Logging in...' : 'Login' }}
+        {{ (isLoading ? 'auth.logging_in' : 'auth.login') | translate }}
       </button>
     </form>
 
     <div class="register-link">
-      Don't have an account? <a routerLink="/register">Register here</a>
+      {{ 'auth.no_account' | translate }} <a routerLink="/register">{{ 'auth.register_here' | translate }}</a>
     </div>
   </div>
 </div>
