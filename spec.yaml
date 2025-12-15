@@ -57,7 +57,7 @@ paths:
             example:
               username: john_doe
               email: john@example.com
-              password: SecurePass123!
+              password: MySecureP@ssw0rd2024!
               displayName: John Doe
       responses:
         '200':
@@ -89,7 +89,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
             example:
               username: john_doe
-              password: SecurePass123!
+              password: MySecureP@ssw0rd2024!
       responses:
         '200':
           description: Login successful
@@ -1794,7 +1794,7 @@ paths:
             example:
               username: sarah_doe
               email: sarah@example.com
-              password: SecurePass456!
+              password: Sarah$Strong2024Pwd!
               displayName: Sarah
               color: "#FF69B4"
               age: 10
