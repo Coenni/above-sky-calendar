@@ -9,6 +9,10 @@ frontend/.angular/
 dist/
 build/
 
+# Generated code
+backend/target/generated-sources/
+frontend/src/generated/
+
 # IDE files
 .idea/
 .vscode/
