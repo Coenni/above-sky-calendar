@@ -48,6 +48,9 @@ public class User {
     @Column
     private Integer rewardPoints = 0;
 
+    @Column(length = 5)
+    private String preferredLocale = "en"; // Default language: English
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
