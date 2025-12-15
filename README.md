@@ -19,6 +19,32 @@ This project follows an **API-First approach** using OpenAPI 3.0 specification. 
 3. **Generate frontend code**: `cd frontend && npm run generate-api`
 4. **View API docs**: `http://localhost:8080/swagger-ui.html` (when backend is running)
 
+## 🐳 Quick Start with Docker
+
+The easiest way to run the entire application stack:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Coenni/above-sky-calendar.git
+cd above-sky-calendar
+
+# 2. Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# 3. Start all services (backend, frontend, database, ELK, MailHog, Nginx)
+./scripts/start-local.sh
+```
+
+**Access the application:**
+- **Frontend:** http://localhost:4200
+- **Backend API:** http://localhost:8080/api
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **Kibana (Logs):** http://localhost:5601
+- **MailHog (Emails):** http://localhost:8025
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+
 ## Technology Stack
 
 ### Backend
@@ -26,12 +52,14 @@ This project follows an **API-First approach** using OpenAPI 3.0 specification. 
 - **Spring Data JPA** - Data persistence layer
 - **Spring Security** - Authentication and authorization
 - **JWT 0.12.3** - Token-based authentication
+- **PostgreSQL 15** - Production database
 - **H2 Database** - In-memory database for development
-- **MySQL** - Production database support
 - **Lombok** - Reduce boilerplate code
 - **Maven** - Dependency management
 - **OpenAPI Generator** - Automatic API code generation
 - **SpringDoc OpenAPI** - API documentation (Swagger UI)
+- **Spring Boot Actuator** - Health checks and metrics
+- **Logstash Encoder** - Structured logging for ELK stack
 
 ### Frontend
 - **Angular 17** - Modern web framework with standalone components
@@ -41,6 +69,14 @@ This project follows an **API-First approach** using OpenAPI 3.0 specification. 
 - **HttpClient** - REST API communication
 - **Axios** - HTTP client for generated API code
 - **OpenAPI Generator** - Automatic TypeScript client generation
+
+### Infrastructure
+- **Docker & Docker Compose** - Containerization and orchestration
+- **Nginx** - Reverse proxy and static file serving
+- **Elasticsearch** - Log storage and search
+- **Logstash** - Log processing and forwarding
+- **Kibana** - Log visualization and analytics
+- **MailHog** - Email testing (local development)
 
 ## Features
 
@@ -116,23 +152,41 @@ This project follows an **API-First approach** using OpenAPI 3.0 specification. 
 above-sky-calendar/
 ├── spec.yaml                          # OpenAPI 3.0 API Specification (single source of truth)
 ├── API_FIRST_GUIDE.md                 # Complete guide for API-First development
+├── DEPLOYMENT.md                      # Deployment guide for all environments
+├── docker-compose.yml                 # Main Docker Compose configuration
+├── docker-compose.local.yml           # Local development overrides
+├── docker-compose.stage.yml           # Staging environment overrides
+├── docker-compose.prod.yml            # Production environment overrides
+├── .env.example                       # Environment variables template
+│
 ├── backend/                          # Spring Boot backend
+│   ├── Dockerfile                    # Multi-stage build for backend
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/abovesky/calendar/
 │   │   │   │   ├── api/              # Generated API interfaces (from spec.yaml)
-│   │   │   │   ├── config/          # Security & JWT configuration
+│   │   │   │   ├── config/          # Security, JWT, Async configuration
 │   │   │   │   ├── controller/      # REST API endpoint implementations
-│   │   │   │   ├── service/         # Business logic
+│   │   │   │   ├── service/         # Business logic (including EmailService)
 │   │   │   │   ├── repository/      # Database access
 │   │   │   │   ├── entity/          # JPA entities
 │   │   │   │   └── dto/             # Data transfer objects
 │   │   │   └── resources/
-│   │   │       └── application.properties
+│   │   │       ├── application.yml         # Base configuration
+│   │   │       ├── application-local.yml   # Local profile
+│   │   │       ├── application-stage.yml   # Staging profile
+│   │   │       ├── application-prod.yml    # Production profile
+│   │   │       ├── logback-spring.xml      # Logging configuration
+│   │   │       └── templates/              # Email templates (Thymeleaf)
 │   │   └── test/                    # Unit tests
 │   └── pom.xml                      # Maven dependencies + OpenAPI Generator
 │
 ├── frontend/                         # Angular frontend
+│   ├── Dockerfile                    # Multi-stage build for frontend
+│   ├── nginx.conf                    # Nginx configuration for frontend container
+│   ├── .env.local                    # Local environment variables
+│   ├── .env.stage                    # Staging environment variables
+│   ├── .env.prod                     # Production environment variables
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── components/          # UI components
@@ -150,8 +204,83 @@ above-sky-calendar/
 │   ├── package.json                 # NPM dependencies + generate-api script
 │   └── tsconfig.json                # TypeScript configuration
 │
+├── nginx/                            # Nginx reverse proxy configuration
+│   ├── nginx.conf                    # Main Nginx configuration
+│   └── conf.d/
+│       └── default.conf              # Application routing configuration
+│
+├── logstash/                         # Logstash configuration for ELK
+│   ├── config/
+│   │   └── logstash.yml             # Logstash settings
+│   └── pipeline/
+│       └── logstash.conf            # Log processing pipeline
+│
+├── scripts/                          # Utility scripts
+│   ├── start-local.sh               # Start local development
+│   ├── start-stage.sh               # Start staging environment
+│   ├── stop-all.sh                  # Stop all services
+│   ├── logs.sh                      # View service logs
+│   └── reset-db.sh                  # Reset local database
+│
 └── README.md                         # This file
 ```
+
+## 🐳 Docker Deployment
+
+### Services Included
+
+The Docker setup includes the following services:
+
+1. **Backend** - Spring Boot application (port 8080)
+2. **Frontend** - Angular application served by Nginx (port 80)
+3. **Nginx** - Reverse proxy for routing (ports 80, 443)
+4. **PostgreSQL** - Database (port 5432)
+5. **Elasticsearch** - Log storage (port 9200)
+6. **Logstash** - Log processing (port 5000)
+7. **Kibana** - Log visualization (port 5601)
+8. **MailHog** - Email testing (ports 1025, 8025)
+
+### Quick Start with Docker
+
+```bash
+# Start local development environment
+./scripts/start-local.sh
+
+# Start staging environment
+./scripts/start-stage.sh
+
+# Stop all services
+./scripts/stop-all.sh
+
+# View logs
+./scripts/logs.sh backend -f
+
+# Reset database (local only)
+./scripts/reset-db.sh
+```
+
+### Environment Profiles
+
+Three profiles are configured:
+
+- **local** - H2 in-memory DB, MailHog, debug logging, hot-reload
+- **stage** - PostgreSQL, real SMTP, info logging, ELK stack
+- **prod** - PostgreSQL, real SMTP, warn logging, resource limits, ELK stack
+
+### Access Services
+
+After starting with `./scripts/start-local.sh`:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:4200 | Angular application |
+| Backend API | http://localhost:8080/api | REST API endpoints |
+| Swagger UI | http://localhost:8080/swagger-ui.html | API documentation |
+| Actuator Health | http://localhost:8080/actuator/health | Health check endpoint |
+| Kibana | http://localhost:5601 | Log visualization |
+| Elasticsearch | http://localhost:9200 | Log storage |
+| MailHog UI | http://localhost:8025 | Email testing interface |
+| PostgreSQL | localhost:5432 | Database (user: admin, db: aboveskycalendar) |
 
 ## Setup Instructions
 
@@ -344,28 +473,47 @@ Authorization: Bearer <your-jwt-token>
 
 ## Configuration
 
-### Backend Configuration (application.properties)
+### Environment Variables
 
-```properties
-# Server port
-server.port=8080
+Configuration is managed through environment files and Spring profiles. See `.env.example` for all available options.
 
-# Database (H2 for dev, MySQL for prod)
-spring.datasource.url=jdbc:h2:mem:calendardb
-spring.datasource.username=sa
-spring.datasource.password=
+**Key Configuration:**
 
-# JWT settings
-jwt.secret=your-secret-key
-jwt.expiration=86400000
+```bash
+# Database
+DB_HOST=localhost
+DB_NAME=aboveskycalendar
+DB_USER=admin
+DB_PASSWORD=your-password
 
-# CORS
-cors.allowed.origins=http://localhost:4200
+# Email (SMTP)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+
+# Application
+SPRING_PROFILES_ACTIVE=local  # local, stage, or prod
+JWT_SECRET=your-secret-key
 ```
+
+### Backend Configuration
+
+Configuration is split across multiple profile-specific files:
+
+- `application.yml` - Base configuration
+- `application-local.yml` - Local development (H2, MailHog, debug logging)
+- `application-stage.yml` - Staging (PostgreSQL, real SMTP, info logging)
+- `application-prod.yml` - Production (PostgreSQL, optimized settings, warn logging)
 
 ### Frontend Configuration
 
-Edit `frontend/proxy.conf.json` to configure the backend API URL:
+Environment-specific configuration files:
+- `.env.local` - Local development
+- `.env.stage` - Staging environment
+- `.env.prod` - Production environment
+
+Edit `frontend/proxy.conf.json` to configure the backend API URL for development:
 ```json
 {
   "/api": {
@@ -376,24 +524,151 @@ Edit `frontend/proxy.conf.json` to configure the backend API URL:
 }
 ```
 
+## 📧 Email Integration
+
+The application includes a comprehensive email system with template support:
+
+### Email Features
+
+1. **OTP (One-Time Password)**
+   - 6-digit verification codes
+   - 10-minute expiration
+   - Secure generation and validation
+
+2. **Password Reset**
+   - Secure token-based reset links
+   - 1-hour expiration
+   - Email verification
+
+3. **Welcome Emails**
+   - Automatic on user registration
+   - Branded templates
+   - Getting started information
+
+4. **Marketing Emails**
+   - Newsletter support
+   - Unsubscribe functionality
+   - Custom HTML templates
+
+### Email Testing (Local Development)
+
+MailHog is included for local email testing:
+- **SMTP Server:** localhost:1025
+- **Web Interface:** http://localhost:8025
+- All emails are captured and viewable in the web UI
+
+### Email Service Usage
+
+```java
+@Autowired
+private EmailService emailService;
+
+// Send OTP
+emailService.sendOtpEmail("user@example.com", "John");
+
+// Send password reset
+emailService.sendPasswordResetEmail("user@example.com", "John", "https://yourapp.com");
+
+// Send welcome email
+emailService.sendWelcomeEmail("user@example.com", "John");
+```
+
+### Email Templates
+
+Templates are located in `backend/src/main/resources/templates/`:
+- `otp-email.html` - OTP verification email
+- `password-reset-email.html` - Password reset email
+- `welcome-email.html` - Welcome email for new users
+- `marketing-email.html` - Marketing/newsletter template
+
+All templates use Thymeleaf and are fully customizable.
+
+## 📊 Monitoring and Logging
+
+### ELK Stack Integration
+
+The application integrates with the ELK (Elasticsearch, Logstash, Kibana) stack for centralized logging:
+
+- **Elasticsearch:** Stores and indexes logs
+- **Logstash:** Processes and forwards logs
+- **Kibana:** Visualizes logs with dashboards
+
+**Access Kibana:** http://localhost:5601
+
+### Structured Logging
+
+Logs are structured in JSON format with:
+- Timestamp
+- Log level (DEBUG, INFO, WARN, ERROR)
+- Logger name
+- Message
+- Thread information
+- MDC context (trace IDs, etc.)
+
+### Log Levels by Environment
+
+- **Local:** DEBUG level, console output
+- **Stage:** INFO level, console + file + ELK
+- **Production:** WARN level, file + ELK only
+
+### Health Checks
+
+Spring Boot Actuator provides health checks:
+
+```bash
+# Overall health
+curl http://localhost:8080/actuator/health
+
+# Detailed health (requires authorization)
+curl http://localhost:8080/actuator/health -H "Authorization: Bearer <token>"
+
+# Metrics
+curl http://localhost:8080/actuator/metrics
+```
+
 ## Building for Production
 
-### Backend
+### With Docker (Recommended)
+
+```bash
+# Build and start production environment
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+# Or use a specific environment
+docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d --build
+```
+
+The Docker build uses multi-stage builds for optimized images:
+- **Backend:** Maven build → JRE runtime (Alpine Linux)
+- **Frontend:** Node build → Nginx serving static files (Alpine Linux)
+
+### Manual Build
+
+#### Backend
 
 ```bash
 cd backend
-mvn clean package
+mvn clean package -DskipTests
 java -jar target/calendar-0.0.1-SNAPSHOT.jar
 ```
 
-### Frontend
+#### Frontend
 
 ```bash
 cd frontend
-npm run build
+npm run build -- --configuration production
 ```
 
 The build artifacts will be in the `frontend/dist/` directory.
+
+### Production Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for comprehensive deployment instructions including:
+- Server setup and configuration
+- SSL/TLS certificate installation
+- Database migration strategies
+- Backup and recovery procedures
+- Monitoring and maintenance
 
 ## Testing
 
@@ -414,24 +689,113 @@ npm test
 ## Security Features
 
 - **Password Hashing**: BCrypt algorithm for secure password storage
-- **JWT Authentication**: Stateless authentication with JSON Web Tokens
+- **JWT Authentication**: Stateless authentication with JSON Web Tokens (0.12.3)
 - **CORS Protection**: Configured to only allow requests from trusted origins
 - **SQL Injection Prevention**: JPA/Hibernate parameterized queries
 - **XSS Protection**: Angular's built-in sanitization
+- **Security Headers**: Nginx configured with X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+- **Environment Isolation**: Separate configurations for local/stage/prod
+- **Secrets Management**: Environment variables for sensitive data
+
+### Security Best Practices
+
+1. **Change default passwords** in `.env` file
+2. **Generate strong JWT secret** (at least 64 characters)
+3. **Use HTTPS in production** with valid SSL certificates
+4. **Enable firewall** and limit exposed ports
+5. **Regular security updates** for all dependencies
+6. **Monitor logs** for suspicious activity
+7. **Backup database regularly**
 
 ## Troubleshooting
 
+### Docker Issues
+
+#### Containers won't start
+```bash
+# Check logs
+docker-compose logs [service-name]
+
+# Check status
+docker-compose ps
+
+# Rebuild containers
+docker-compose up -d --build
+```
+
+#### Port conflicts
+```bash
+# Find process using port
+sudo lsof -i :8080
+
+# Stop all containers
+./scripts/stop-all.sh
+
+# Or modify port in docker-compose.yml
+```
+
+#### Out of memory
+```bash
+# Check Docker stats
+docker stats
+
+# Increase Docker Desktop memory limit
+# Settings → Resources → Memory → 4GB+
+
+# Or add resource limits to docker-compose.prod.yml
+```
+
 ### Backend Issues
 
-- **Port 8080 already in use**: Change `server.port` in application.properties
-- **Database connection errors**: Verify H2 configuration or MySQL credentials
-- **JWT errors**: Check jwt.secret and jwt.expiration values
+- **Port 8080 already in use**: Check Docker containers or change `server.port` in application.yml
+- **Database connection errors**: 
+  - Verify `.env` configuration
+  - Check if PostgreSQL container is running: `docker-compose ps db`
+  - Check database logs: `docker-compose logs db`
+- **JWT errors**: Ensure JWT_SECRET is set in `.env` and is at least 256 bits (32+ characters)
+- **Email not sending**: 
+  - Local: Check MailHog at http://localhost:8025
+  - Stage/Prod: Verify MAIL_* variables in `.env`
 
 ### Frontend Issues
 
-- **Cannot connect to backend**: Verify backend is running on port 8080
-- **CORS errors**: Check CORS configuration in SecurityConfig.java
+- **Cannot connect to backend**: 
+  - Verify backend is running: `curl http://localhost:8080/actuator/health`
+  - Check proxy configuration in `proxy.conf.json`
+- **CORS errors**: Check CORS configuration in `application-*.yml`
 - **Module not found**: Run `npm install` to install dependencies
+- **Build errors**: 
+  - Delete `node_modules` and `package-lock.json`
+  - Run `npm install` again
+  - Ensure Node.js 18+ is installed
+
+### ELK Stack Issues
+
+#### Elasticsearch won't start
+```bash
+# Increase vm.max_map_count (Linux)
+sudo sysctl -w vm.max_map_count=262144
+
+# Make permanent
+echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+
+# Restart Elasticsearch
+docker-compose restart elasticsearch
+```
+
+#### Logs not appearing in Kibana
+1. Check Logstash is running: `docker-compose ps logstash`
+2. Check Logstash logs: `docker-compose logs logstash`
+3. Verify backend is using correct profile (stage/prod)
+4. Create index pattern in Kibana: `above-sky-calendar-*`
+
+### Getting Help
+
+1. **Check logs**: `./scripts/logs.sh [service] -f`
+2. **Review documentation**: [DEPLOYMENT.md](DEPLOYMENT.md)
+3. **Check Docker status**: `docker-compose ps`
+4. **GitHub Issues**: https://github.com/Coenni/above-sky-calendar/issues
+5. **Health checks**: `curl http://localhost:8080/actuator/health`
 
 ## Implementation Status
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        .header p {
+            margin: 0;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .info {
+            color: #666;
+            line-height: 1.8;
+            margin: 20px 0;
+        }
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .login-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .features {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .features h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome! 🎉</h1>
+            <p>We're excited to have you onboard</p>
+        </div>
+        <div class="content">
+            <h2>Hi <span th:text="${username}">User</span>,</h2>
+            <p class="info">
+                Thank you for joining <strong th:text="${applicationName}">Above Sky Calendar</strong>! 
+                Your account has been successfully created, and you're all set to start managing your family's schedule.
+            </p>
+            
+            <div class="features">
+                <h3>What you can do:</h3>
+                <ul>
+                    <li>Create and manage calendar events</li>
+                    <li>Assign and track family tasks</li>
+                    <li>Set up a rewards system for completed tasks</li>
+                    <li>Plan weekly meals</li>
+                    <li>Share photos with family members</li>
+                    <li>Create and manage shared lists</li>
+                </ul>
+            </div>
+            
+            <div class="btn-container">
+                <a th:href="${loginUrl}" class="login-btn">Get Started</a>
+            </div>
+            
+            <p class="info">
+                If you have any questions or need help getting started, don't hesitate to reach out to our support team.
+            </p>
+            
+            <p class="info">
+                <strong>Happy organizing!</strong><br>
+                The <span th:text="${applicationName}">Above Sky Calendar</span> Team
+            </p>
+        </div>
+        <div class="footer">
+            <p>
+                This is an automated welcome message from <span th:text="${applicationName}">Above Sky Calendar</span>.<br>
+                Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
