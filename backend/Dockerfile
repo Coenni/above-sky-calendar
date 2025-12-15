@@ -1,14 +1,16 @@
 # Stage 1: Build
 FROM maven:3.9-eclipse-temurin-17 AS build
-WORKDIR /app
+WORKDIR /build
 
-# Copy pom.xml and download dependencies (for better caching)
-COPY pom.xml .
+# Copy OpenAPI spec
+COPY spec.yaml .
+
+# Copy backend files
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy source code and OpenAPI spec
-COPY src ./src
-COPY ../spec.yaml ../spec.yaml
+# Copy source code
+COPY backend/src ./src
 
 # Build the application
 RUN mvn clean package -DskipTests
@@ -22,7 +24,7 @@ RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 # Copy JAR from build stage
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /build/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080

@@ -29,12 +29,20 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
+    // Reusable SecureRandom instance for better performance
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     @Value("${spring.mail.username:noreply@aboveskycalendar.com}")
     private String fromEmail;
 
     @Value("${spring.application.name:Above Sky Calendar}")
     private String applicationName;
 
+    // TODO: For production, replace with Redis or database storage
+    // In-memory storage is not suitable for production as it:
+    // 1. Won't survive application restarts
+    // 2. Doesn't work in multi-instance deployments
+    // 3. Not suitable for horizontal scaling
     // Store for OTP verification (in production, use Redis or database)
     private final Map<String, OtpData> otpStore = new HashMap<>();
 
@@ -218,8 +226,7 @@ public class EmailService {
      * Generate 6-digit OTP
      */
     private String generateOtp() {
-        SecureRandom random = new SecureRandom();
-        int otp = 100000 + random.nextInt(900000);
+        int otp = 100000 + SECURE_RANDOM.nextInt(900000);
         return String.valueOf(otp);
     }
 

@@ -1,17 +1,19 @@
 # Stage 1: Build
 FROM node:18-alpine AS build
-WORKDIR /app
+WORKDIR /build
 
-# Copy package files and install dependencies
-COPY package*.json ./
+# Copy OpenAPI spec
+COPY spec.yaml .
+
+# Copy frontend package files
+COPY frontend/package*.json ./
 RUN npm ci
 
-# Copy OpenAPI spec and generate API clients
-COPY ../spec.yaml ../spec.yaml
+# Generate API clients
 RUN npm run generate-api
 
-# Copy source code and build
-COPY . .
+# Copy frontend source and build
+COPY frontend/ .
 RUN npm run build -- --configuration production
 
 # Stage 2: Runtime with Nginx
@@ -22,10 +24,10 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./* /etc/nginx/conf.d/default.conf
 
 # Copy built application
-COPY --from=build /app/dist/above-sky-calendar-frontend/browser ./
+COPY --from=build /build/dist/above-sky-calendar-frontend/browser ./
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 80
