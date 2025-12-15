@@ -1,0 +1,139 @@
+<div class="tasks-container">
+  <div class="tasks-header">
+    <h1>Task Management</h1>
+    <button class="btn btn-primary" (click)="toggleCreateForm()">
+      {{ showCreateForm ? 'Cancel' : '+ New Task' }}
+    </button>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <label>Filter by Status:</label>
+    <select [(ngModel)]="filterStatus" (change)="applyFilter()" class="filter-select">
+      <option value="all">All Tasks</option>
+      <option value="pending">Pending</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+    </select>
+  </div>
+
+  <!-- Create Task Form -->
+  <div class="create-form" *ngIf="showCreateForm">
+    <h2>Create New Task</h2>
+    <form (ngSubmit)="createTask()">
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input
+          type="text"
+          id="title"
+          [(ngModel)]="newTask.title"
+          name="title"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          [(ngModel)]="newTask.description"
+          name="description"
+          class="form-control"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <select
+            id="priority"
+            [(ngModel)]="newTask.priority"
+            name="priority"
+            class="form-control"
+          >
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="rewardPoints">Reward Points</label>
+          <input
+            type="number"
+            id="rewardPoints"
+            [(ngModel)]="newTask.rewardPoints"
+            name="rewardPoints"
+            class="form-control"
+            min="0"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <input
+            type="text"
+            id="category"
+            [(ngModel)]="newTask.category"
+            name="category"
+            class="form-control"
+            placeholder="e.g., Chores, Homework"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create Task</button>
+        <button type="button" class="btn btn-secondary" (click)="toggleCreateForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="isLoading">
+    <p>Loading tasks...</p>
+  </div>
+
+  <!-- Tasks List -->
+  <div class="tasks-list" *ngIf="!isLoading">
+    <div class="task-card" *ngFor="let task of filteredTasks" [class]="getPriorityClass(task.priority)">
+      <div class="task-header">
+        <h3>{{ task.title }}</h3>
+        <span class="badge" [class]="getStatusBadge(task.status)">
+          {{ task.status }}
+        </span>
+      </div>
+
+      <p class="task-description" *ngIf="task.description">{{ task.description }}</p>
+
+      <div class="task-meta">
+        <span class="priority-badge">Priority: {{ task.priority }}</span>
+        <span class="points-badge" *ngIf="task.rewardPoints && task.rewardPoints > 0">
+          🏆 {{ task.rewardPoints }} points
+        </span>
+        <span class="category-badge" *ngIf="task.category">{{ task.category }}</span>
+      </div>
+
+      <div class="task-actions">
+        <button
+          class="btn btn-success"
+          (click)="completeTask(task)"
+          *ngIf="task.status !== 'completed'"
+        >
+          ✓ Complete
+        </button>
+        <button class="btn btn-danger" (click)="deleteTask(task.id)">
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredTasks.length === 0">
+      <p>No tasks found. Create your first task to get started!</p>
+    </div>
+  </div>
+</div>
