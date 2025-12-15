@@ -1,0 +1,60 @@
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { User } from '../models/user.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly TOKEN_KEY = 'auth_token';
+  private readonly USER_KEY = 'current_user';
+
+  constructor(
+    private apiService: ApiService,
+    private router: Router
+  ) {}
+
+  register(request: RegisterRequest): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/register', request).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  login(request: LoginRequest): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/login', request).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.router.navigate(['/login']);
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getCurrentUser(): User | null {
+    const userStr = localStorage.getItem(this.USER_KEY);
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  private handleAuthResponse(response: AuthResponse): void {
+    localStorage.setItem(this.TOKEN_KEY, response.token);
+    const user: User = {
+      id: response.id,
+      username: response.username,
+      email: response.email
+    };
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  }
+}
