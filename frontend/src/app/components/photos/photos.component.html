@@ -1,0 +1,126 @@
+<div class="photos-page" (keydown)="handleKeydown($event)">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/meals" class="nav-link">Meals</a>
+      <a routerLink="/photos" class="nav-link active">Photos</a>
+      <a routerLink="/lists" class="nav-link">Lists</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
+      <div class="user-info" *ngIf="currentUser">
+        <span>{{ currentUser.username }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>Photo Gallery</h1>
+        <p class="subtitle">Share and view family memories</p>
+      </div>
+      <div class="header-actions">
+        <button (click)="toggleUploadForm()" class="btn btn-primary">
+          {{ showUploadForm ? 'Cancel' : 'Upload Photo' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div *ngIf="showUploadForm" class="upload-form-card">
+      <h3>Upload New Photo</h3>
+      <form (ngSubmit)="uploadPhoto()">
+        <div class="form-group">
+          <label for="filePath">Image URL</label>
+          <input
+            type="url"
+            id="filePath"
+            [(ngModel)]="newPhoto.filePath"
+            name="filePath"
+            required
+            class="form-control"
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="caption">Caption (optional)</label>
+          <textarea
+            id="caption"
+            [(ngModel)]="newPhoto.caption"
+            name="caption"
+            rows="2"
+            class="form-control"
+            placeholder="Add a caption for this photo..."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Photo</button>
+      </form>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Loading photos...</div>
+
+    <div *ngIf="!isLoading && filteredPhotos.length === 0" class="no-photos">
+      <p>No photos yet. Upload your first photo!</p>
+    </div>
+
+    <!-- Photo Grid -->
+    <div class="photo-grid" *ngIf="!isLoading && filteredPhotos.length > 0">
+      <div 
+        *ngFor="let photo of filteredPhotos; let i = index" 
+        class="photo-item"
+        (click)="openLightbox(i)"
+      >
+        <div class="photo-wrapper">
+          <img [src]="photo.filePath" [alt]="photo.caption || 'Photo'" />
+          <div class="photo-overlay">
+            <div class="photo-caption" *ngIf="photo.caption">{{ photo.caption }}</div>
+            <div class="photo-date">{{ photo.uploadedAt | date:'medium' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox-overlay" *ngIf="showLightbox" (click)="closeLightbox()"></div>
+  <div class="lightbox" *ngIf="showLightbox && getCurrentPhoto()">
+    <button class="lightbox-close" (click)="closeLightbox()">&times;</button>
+    <button 
+      class="lightbox-nav lightbox-prev" 
+      (click)="previousPhoto(); $event.stopPropagation()"
+      [disabled]="currentPhotoIndex === 0"
+    >
+      ‹
+    </button>
+    <button 
+      class="lightbox-nav lightbox-next" 
+      (click)="nextPhoto(); $event.stopPropagation()"
+      [disabled]="currentPhotoIndex === filteredPhotos.length - 1"
+    >
+      ›
+    </button>
+    
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <img [src]="getCurrentPhoto()?.filePath" [alt]="getCurrentPhoto()?.caption || 'Photo'" />
+      
+      <div class="lightbox-info">
+        <div class="lightbox-caption" *ngIf="getCurrentPhoto()?.caption">
+          {{ getCurrentPhoto()?.caption }}
+        </div>
+        <div class="lightbox-meta">
+          <span class="lightbox-date">{{ getCurrentPhoto()?.uploadedAt | date:'medium' }}</span>
+          <span class="lightbox-counter">{{ currentPhotoIndex + 1 }} / {{ filteredPhotos.length }}</span>
+        </div>
+        <div class="lightbox-actions">
+          <button (click)="deletePhoto(getCurrentPhoto()?.id)" class="btn btn-danger btn-sm">
+            Delete Photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div class="lists-page">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/meals" class="nav-link">Meals</a>
+      <a routerLink="/photos" class="nav-link">Photos</a>
+      <a routerLink="/lists" class="nav-link active">Lists</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
+      <div class="user-info" *ngIf="currentUser">
+        <span>{{ currentUser.username }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>Lists</h1>
+        <p class="subtitle">Manage your family lists</p>
+      </div>
+      <div class="header-actions">
+        <button (click)="toggleListForm()" class="btn btn-primary">
+          {{ showListForm ? 'Cancel' : 'Create List' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- List Form -->
+    <div *ngIf="showListForm" class="list-form-card">
+      <h3>Create New List</h3>
+      <form (ngSubmit)="createList()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">List Name</label>
+            <input
+              type="text"
+              id="name"
+              [(ngModel)]="newList.name"
+              name="name"
+              required
+              class="form-control"
+              placeholder="e.g., Grocery Shopping"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="type">List Type</label>
+            <select id="type" [(ngModel)]="newList.type" name="type" class="form-control">
+              <option value="shopping">Shopping</option>
+              <option value="todo">To-Do</option>
+              <option value="packing">Packing</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="newList.isShared" name="isShared" />
+            Share with family
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create List</button>
+      </form>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Loading lists...</div>
+
+    <div class="lists-container" *ngIf="!isLoading">
+      <!-- Lists Grid -->
+      <div class="lists-grid" [ngClass]="{'with-detail': selectedList}">
+        <div *ngIf="lists.length === 0" class="no-lists">
+          <p>No lists yet. Create your first list!</p>
+        </div>
+
+        <div *ngFor="let list of lists" class="list-card" [ngClass]="{'selected': selectedList?.id === list.id}">
+          <div class="list-header" (click)="selectList(list)">
+            <div class="list-icon">
+              {{ list.type === 'shopping' ? '🛒' : list.type === 'todo' ? '✓' : list.type === 'packing' ? '🎒' : '📋' }}
+            </div>
+            <div class="list-info">
+              <h3 class="list-name">{{ list.name }}</h3>
+              <div class="list-meta">
+                <span class="list-type">{{ list.type }}</span>
+                <span class="list-shared" *ngIf="list.isShared">👥 Shared</span>
+              </div>
+            </div>
+          </div>
+          <div class="list-actions">
+            <button (click)="deleteList(list.id); $event.stopPropagation()" class="btn-icon" title="Delete">
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- List Detail Panel -->
+      <div class="list-detail" *ngIf="selectedList">
+        <div class="detail-header">
+          <div class="detail-title">
+            <h2>{{ selectedList.name }}</h2>
+            <button (click)="closeListDetail()" class="btn-close">×</button>
+          </div>
+          <div class="detail-meta">
+            <span class="detail-type">{{ selectedList.type }}</span>
+            <span class="detail-shared" *ngIf="selectedList.isShared">👥 Shared</span>
+          </div>
+        </div>
+
+        <div class="add-item-form">
+          <input
+            type="text"
+            [(ngModel)]="newItemName"
+            (keyup.enter)="addItem()"
+            class="form-control"
+            placeholder="Add new item..."
+          />
+          <button (click)="addItem()" class="btn btn-primary">Add</button>
+        </div>
+
+        <div class="items-list">
+          <div *ngIf="listItems.length === 0" class="no-items">
+            <p>No items yet. Add your first item!</p>
+          </div>
+
+          <div *ngFor="let item of listItems" class="list-item" [ngClass]="{'completed': item.isChecked}">
+            <label class="item-checkbox">
+              <input 
+                type="checkbox" 
+                [checked]="item.isChecked"
+                (change)="toggleItem(item)"
+              />
+              <span class="checkmark"></span>
+            </label>
+            <span class="item-name">{{ item.content }}</span>
+            <button (click)="deleteItem(item.id)" class="btn-icon" title="Delete">
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
