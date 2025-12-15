@@ -1,0 +1,143 @@
+<div class="calendar-page">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/meals" class="nav-link">Meals</a>
+      <a routerLink="/photos" class="nav-link">Photos</a>
+      <a routerLink="/lists" class="nav-link">Lists</a>
+      <a routerLink="/calendar" class="nav-link active">Calendar</a>
+      <div class="user-info" *ngIf="currentUser">
+        <span>{{ currentUser.username }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>Calendar</h1>
+        <p class="subtitle">Manage your family events</p>
+      </div>
+    </div>
+
+    <!-- Month Navigation -->
+    <div class="month-navigation">
+      <button (click)="previousMonth()" class="btn btn-secondary">
+        ← Previous
+      </button>
+      <h2 class="month-title">{{ currentMonthName() }}</h2>
+      <button (click)="nextMonth()" class="btn btn-secondary">
+        Next →
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Loading events...</div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid" *ngIf="!isLoading">
+      <!-- Week day headers -->
+      <div *ngFor="let day of weekDays" class="calendar-header">
+        {{ day }}
+      </div>
+
+      <!-- Calendar days -->
+      <div 
+        *ngFor="let date of daysInMonth" 
+        class="calendar-day"
+        [ngClass]="{
+          'empty': !date,
+          'today': isToday(date),
+          'selected': isSelected(date),
+          'has-events': date && getEventsForDate(date).length > 0
+        }"
+        (click)="selectDate(date)"
+      >
+        <div class="day-number" *ngIf="date">{{ date.getDate() }}</div>
+        <div class="day-events" *ngIf="date">
+          <div 
+            *ngFor="let event of getEventsForDate(date).slice(0, 3)" 
+            class="event-dot"
+            [title]="event.title"
+            (click)="deleteEvent(event.id, $event)"
+          >
+            {{ event.title }}
+          </div>
+          <div *ngIf="getEventsForDate(date).length > 3" class="more-events">
+            +{{ getEventsForDate(date).length - 3 }} more
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Form Modal -->
+  <div class="modal-overlay" *ngIf="showEventForm" (click)="closeEventForm()"></div>
+  <div class="modal" *ngIf="showEventForm">
+    <div class="modal-header">
+      <h2>Create Event</h2>
+      <button class="modal-close" (click)="closeEventForm()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="createEvent()">
+        <div class="form-group">
+          <label for="title">Event Title</label>
+          <input
+            type="text"
+            id="title"
+            [(ngModel)]="newEvent.title"
+            name="title"
+            required
+            class="form-control"
+            placeholder="Enter event title"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="newEvent.description"
+            name="description"
+            rows="3"
+            class="form-control"
+            placeholder="Event description..."
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date & Time</label>
+            <input
+              type="datetime-local"
+              id="startDate"
+              [(ngModel)]="newEvent.startDate"
+              name="startDate"
+              required
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">End Date & Time</label>
+            <input
+              type="datetime-local"
+              id="endDate"
+              [(ngModel)]="newEvent.endDate"
+              name="endDate"
+              required
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeEventForm()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

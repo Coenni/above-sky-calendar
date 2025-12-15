@@ -3,7 +3,12 @@
     <div class="navbar-brand">Above Sky Calendar</div>
     <div class="navbar-menu">
       <a routerLink="/dashboard" class="nav-link active">Dashboard</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
       <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/meals" class="nav-link">Meals</a>
+      <a routerLink="/photos" class="nav-link">Photos</a>
+      <a routerLink="/lists" class="nav-link">Lists</a>
       <a routerLink="/metrics" class="nav-link">Metrics</a>
       <div class="user-info" *ngIf="currentUser">
         <span>{{ currentUser.username }}</span>
@@ -14,11 +19,52 @@
 
   <div class="container">
     <div class="header">
-      <h1>My Calendar Events</h1>
+      <h1>Dashboard</h1>
       <button (click)="toggleCreateForm()" class="btn btn-primary">
         {{ showCreateForm ? 'Cancel' : 'Create Event' }}
       </button>
     </div>
+
+    <!-- Quick Access Features -->
+    <div class="features-grid">
+      <a routerLink="/calendar" class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Calendar</h3>
+        <p>View and manage events</p>
+      </a>
+      
+      <a routerLink="/tasks" class="feature-card">
+        <div class="feature-icon">✓</div>
+        <h3>Tasks</h3>
+        <p>Track family chores</p>
+      </a>
+      
+      <a routerLink="/rewards" class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>Rewards</h3>
+        <p>Redeem points</p>
+      </a>
+      
+      <a routerLink="/meals" class="feature-card">
+        <div class="feature-icon">🍽️</div>
+        <h3>Meals</h3>
+        <p>Plan weekly meals</p>
+      </a>
+      
+      <a routerLink="/photos" class="feature-card">
+        <div class="feature-icon">📷</div>
+        <h3>Photos</h3>
+        <p>Share memories</p>
+      </a>
+      
+      <a routerLink="/lists" class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Lists</h3>
+        <p>Shopping & to-do lists</p>
+      </a>
+    </div>
+
+    <h2 class="section-title">Upcoming Events</h2>
 
     <div *ngIf="showCreateForm" class="create-form">
       <h3>Create New Event</h3>
