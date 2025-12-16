@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { TaskService } from '../../services/task.service';
-import { AuthService } from '../../services/auth.service';
+import { TasksStateService } from '../../services/state/tasks-state.service';
+import { TasksApiService } from '../../services/api/tasks-api.service';
+import { AuthStateService } from '../../services/state/auth-state.service';
 import { Task } from '../../models/task.model';
 
 @Component({
@@ -14,11 +15,20 @@ import { Task } from '../../models/task.model';
   styleUrls: ['./tasks.component.css']
 })
 export class TasksComponent implements OnInit {
-  tasks: Task[] = [];
-  filteredTasks: Task[] = [];
-  isLoading = false;
-  showCreateForm = false;
-  filterStatus = 'all';
+  // Inject services using inject()
+  private tasksState = inject(TasksStateService);
+  private tasksApi = inject(TasksApiService);
+  private authState = inject(AuthStateService);
+  
+  // Expose signals to template
+  readonly sortedTasks = this.tasksState.sortedTasks;
+  readonly loading = this.tasksState.loading;
+  readonly error = this.tasksState.error;
+  readonly stats = this.tasksState.taskStats;
+  readonly filterStatus = this.tasksState.filter;
+  
+  // Local component state
+  showCreateForm = signal(false);
   
   newTask: Task = {
     title: '',
@@ -29,42 +39,32 @@ export class TasksComponent implements OnInit {
     orderIndex: 0
   };
 
-  constructor(
-    private taskService: TaskService,
-    private authService: AuthService
-  ) {}
-
   ngOnInit(): void {
     this.loadTasks();
   }
 
-  loadTasks(): void {
-    this.isLoading = true;
-    this.taskService.getAllTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = tasks;
-        this.applyFilter();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading tasks:', error);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  applyFilter(): void {
-    if (this.filterStatus === 'all') {
-      this.filteredTasks = this.tasks;
-    } else {
-      this.filteredTasks = this.tasks.filter(t => t.status === this.filterStatus);
+  async loadTasks(): Promise<void> {
+    this.tasksState.setLoading(true);
+    this.tasksState.setError(null);
+    try {
+      const tasks = await this.tasksApi.getTasks();
+      this.tasksState.setTasks(tasks);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      this.tasksState.setError('Failed to load tasks');
+    } finally {
+      this.tasksState.setLoading(false);
     }
   }
 
+  onFilterChange(newFilter: string): void {
+    this.tasksState.setFilter(newFilter);
+  }
+
   toggleCreateForm(): void {
-    this.showCreateForm = !this.showCreateForm;
-    if (this.showCreateForm) {
-      const currentUser = this.authService.getCurrentUser();
+    this.showCreateForm.update(v => !v);
+    if (this.showCreateForm()) {
+      const currentUser = this.authState.currentUser();
       this.newTask = {
         title: '',
         description: '',
@@ -77,61 +77,51 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  createTask(): void {
+  async createTask(): Promise<void> {
     if (!this.newTask.title) {
       alert('Please enter a task title');
       return;
     }
 
-    this.taskService.createTask(this.newTask).subscribe({
-      next: (task) => {
-        this.tasks.push(task);
-        this.applyFilter();
-        this.toggleCreateForm();
-      },
-      error: (error) => {
-        console.error('Error creating task:', error);
-        alert('Failed to create task');
-      }
-    });
+    try {
+      const task = await this.tasksApi.createTask(this.newTask);
+      this.tasksState.addTask(task);
+      this.toggleCreateForm();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      alert('Failed to create task');
+    }
   }
 
-  completeTask(task: Task): void {
+  async completeTask(task: Task): Promise<void> {
     if (!task.id) return;
     
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.authState.currentUser();
     if (!currentUser) return;
 
-    this.taskService.completeTask(task.id, currentUser.id).subscribe({
-      next: (updatedTask) => {
-        const index = this.tasks.findIndex(t => t.id === task.id);
-        if (index !== -1) {
-          this.tasks[index] = updatedTask;
-        }
-        this.applyFilter();
-      },
-      error: (error) => {
-        console.error('Error completing task:', error);
-        alert('Failed to complete task');
-      }
-    });
+    try {
+      const updatedTask = await this.tasksApi.completeTask(task.id, currentUser.id);
+      this.tasksState.updateTask(task.id, updatedTask);
+      // Update user points
+      this.authState.addUserPoints(task.rewardPoints);
+    } catch (error) {
+      console.error('Error completing task:', error);
+      alert('Failed to complete task');
+    }
   }
 
-  deleteTask(id: number | undefined): void {
+  async deleteTask(id: number | undefined): Promise<void> {
     if (!id || !confirm('Are you sure you want to delete this task?')) {
       return;
     }
 
-    this.taskService.deleteTask(id).subscribe({
-      next: () => {
-        this.tasks = this.tasks.filter(t => t.id !== id);
-        this.applyFilter();
-      },
-      error: (error) => {
-        console.error('Error deleting task:', error);
-        alert('Failed to delete task');
-      }
-    });
+    try {
+      await this.tasksApi.deleteTask(id);
+      this.tasksState.removeTask(id);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      alert('Failed to delete task');
+    }
   }
 
   getPriorityClass(priority: string): string {
