@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { RewardService } from '../../services/reward.service';
-import { AuthService } from '../../services/auth.service';
-import { Reward, RewardRedemption } from '../../models/reward.model';
-import { User } from '../../models/user.model';
+import { RewardsStateService } from '../../services/state/rewards-state.service';
+import { RewardsApiService } from '../../services/api/rewards-api.service';
+import { AuthStateService } from '../../services/state/auth-state.service';
+import { Reward } from '../../models/reward.model';
 
 @Component({
   selector: 'app-rewards',
@@ -15,146 +15,150 @@ import { User } from '../../models/user.model';
   styleUrls: ['./rewards.component.css']
 })
 export class RewardsComponent implements OnInit {
-  rewards: Reward[] = [];
-  filteredRewards: Reward[] = [];
-  currentUser: User | null = null;
-  userPoints: number = 0;
-  isLoading = false;
-  showRedeemModal = false;
-  selectedReward: Reward | null = null;
-  redemptionNotes = '';
-  filterCategory = 'all';
-  searchQuery = '';
-  showHistory = false;
-  redemptionHistory: RewardRedemption[] = [];
+  // Inject services using inject()
+  private rewardsState = inject(RewardsStateService);
+  private rewardsApi = inject(RewardsApiService);
+  protected authState = inject(AuthStateService);
+  
+  // Expose signals to template
+  readonly rewards = this.rewardsState.filteredRewards;
+  readonly loading = this.rewardsState.loading;
+  readonly error = this.rewardsState.error;
+  readonly userPoints = this.rewardsState.userPoints;
+  readonly redemptions = this.rewardsState.redemptions;
+  readonly filterValue = this.rewardsState.filter;
+  
+  // Local component state
+  showRedeemModal = signal(false);
+  selectedReward = signal<Reward | null>(null);
+  redemptionNotes = signal('');
+  searchQuery = signal('');
+  showHistory = signal(false);
+  
+  // Computed signals
+  readonly filteredBySearch = computed(() => {
+    const rewards = this.rewards();
+    const query = this.searchQuery().trim().toLowerCase();
+    
+    if (!query) return rewards;
+    
+    return rewards.filter(r => 
+      r.name.toLowerCase().includes(query) || 
+      r.description.toLowerCase().includes(query)
+    );
+  });
+  
+  readonly uniqueCategories = computed(() => {
+    const rewards = this.rewardsState.rewards();
+    const categories = new Set(rewards.map(r => r.category).filter(c => c));
+    return Array.from(categories) as string[];
+  });
 
-  constructor(
-    private rewardService: RewardService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    if (this.currentUser) {
-      this.loadRewards();
+  async ngOnInit(): Promise<void> {
+    const currentUser = this.authState.currentUser();
+    if (currentUser) {
+      await this.loadRewards();
       this.loadUserPoints();
     }
   }
 
-  loadRewards(): void {
-    this.isLoading = true;
-    this.rewardService.getAllRewards().subscribe({
-      next: (rewards) => {
-        this.rewards = rewards.filter(r => r.isActive);
-        this.applyFilters();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading rewards:', error);
-        this.isLoading = false;
-      }
-    });
+  async loadRewards(): Promise<void> {
+    this.rewardsState.setLoading(true);
+    this.rewardsState.setError(null);
+    try {
+      const rewards = await this.rewardsApi.getAllRewards();
+      this.rewardsState.setRewards(rewards);
+    } catch (error) {
+      console.error('Error loading rewards:', error);
+      this.rewardsState.setError('Failed to load rewards');
+    } finally {
+      this.rewardsState.setLoading(false);
+    }
   }
 
   loadUserPoints(): void {
-    if (this.currentUser?.id) {
+    const currentUser = this.authState.currentUser();
+    if (currentUser?.id) {
       // For now, use the points from the user object
       // In production, this would fetch from the API
-      this.userPoints = this.currentUser.rewardPoints || 0;
+      this.rewardsState.setUserPoints(currentUser.rewardPoints || 0);
     }
   }
 
-  loadRedemptionHistory(): void {
-    if (this.currentUser?.id) {
-      this.rewardService.getUserRedemptions(this.currentUser.id).subscribe({
-        next: (history) => {
-          this.redemptionHistory = history;
-        },
-        error: (error) => {
-          console.error('Error loading redemption history:', error);
-        }
-      });
+  async loadRedemptionHistory(): Promise<void> {
+    const currentUser = this.authState.currentUser();
+    if (currentUser?.id) {
+      try {
+        const history = await this.rewardsApi.getUserRedemptions(currentUser.id);
+        this.rewardsState.setRedemptions(history);
+      } catch (error) {
+        console.error('Error loading redemption history:', error);
+      }
     }
   }
 
-  applyFilters(): void {
-    let filtered = this.rewards;
-
-    // Apply category filter
-    if (this.filterCategory !== 'all') {
-      filtered = filtered.filter(r => r.category === this.filterCategory);
-    }
-
-    // Apply search filter
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(r => 
-        r.name.toLowerCase().includes(query) || 
-        r.description.toLowerCase().includes(query)
-      );
-    }
-
-    this.filteredRewards = filtered;
+  onSearchChange(query: string): void {
+    this.searchQuery.set(query);
   }
 
-  onSearchChange(): void {
-    this.applyFilters();
-  }
-
-  onCategoryChange(): void {
-    this.applyFilters();
+  onCategoryChange(category: string): void {
+    this.rewardsState.setFilter(category);
   }
 
   canAfford(reward: Reward): boolean {
-    return this.userPoints >= reward.pointsCost;
+    return this.rewardsState.canAfford(reward);
   }
 
   openRedeemModal(reward: Reward): void {
     if (!this.canAfford(reward)) {
-      alert(`You need ${reward.pointsCost - this.userPoints} more points to redeem this reward.`);
+      const pointsNeeded = reward.pointsCost - this.userPoints();
+      alert(`You need ${pointsNeeded} more points to redeem this reward.`);
       return;
     }
-    this.selectedReward = reward;
-    this.redemptionNotes = '';
-    this.showRedeemModal = true;
+    this.selectedReward.set(reward);
+    this.redemptionNotes.set('');
+    this.showRedeemModal.set(true);
   }
 
   closeRedeemModal(): void {
-    this.showRedeemModal = false;
-    this.selectedReward = null;
-    this.redemptionNotes = '';
+    this.showRedeemModal.set(false);
+    this.selectedReward.set(null);
+    this.redemptionNotes.set('');
   }
 
-  confirmRedemption(): void {
-    if (!this.selectedReward || !this.currentUser?.id) return;
+  async confirmRedemption(): Promise<void> {
+    const reward = this.selectedReward();
+    const currentUser = this.authState.currentUser();
+    
+    if (!reward || !currentUser?.id) return;
 
-    this.rewardService.redeemReward(
-      this.currentUser.id, 
-      this.selectedReward.id!, 
-      this.redemptionNotes
-    ).subscribe({
-      next: (redemption) => {
-        alert('Reward redeemed successfully! Your redemption is pending approval.');
-        this.userPoints -= this.selectedReward!.pointsCost;
-        this.closeRedeemModal();
-        this.loadRedemptionHistory();
-      },
-      error: (error) => {
-        console.error('Error redeeming reward:', error);
-        alert('Failed to redeem reward. Please try again.');
-      }
-    });
+    try {
+      const redemption = await this.rewardsApi.redeemReward(
+        currentUser.id, 
+        reward.id!, 
+        this.redemptionNotes()
+      );
+      
+      alert('Reward redeemed successfully! Your redemption is pending approval.');
+      this.rewardsState.addRedemption(redemption);
+      // Update auth state user points
+      this.authState.updateUserPoints(this.userPoints());
+      this.closeRedeemModal();
+      await this.loadRedemptionHistory();
+    } catch (error) {
+      console.error('Error redeeming reward:', error);
+      alert('Failed to redeem reward. Please try again.');
+    }
   }
 
-  toggleHistory(): void {
-    this.showHistory = !this.showHistory;
-    if (this.showHistory && this.redemptionHistory.length === 0) {
-      this.loadRedemptionHistory();
+  async toggleHistory(): Promise<void> {
+    this.showHistory.update(v => !v);
+    if (this.showHistory() && this.redemptions().length === 0) {
+      await this.loadRedemptionHistory();
     }
   }
 
   getUniqueCategories(): string[] {
-    const categories = new Set(this.rewards.map(r => r.category).filter(c => c));
-    return Array.from(categories) as string[];
+    return this.uniqueCategories();
   }
 }

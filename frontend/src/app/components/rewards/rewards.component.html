@@ -9,10 +9,12 @@
       <a routerLink="/photos" class="nav-link">Photos</a>
       <a routerLink="/lists" class="nav-link">Lists</a>
       <a routerLink="/calendar" class="nav-link">Calendar</a>
-      <div class="user-info" *ngIf="currentUser">
-        <span class="points-badge">{{ userPoints }} Points</span>
-        <span>{{ currentUser.username }}</span>
-      </div>
+      @if (authState.currentUser(); as user) {
+        <div class="user-info">
+          <span class="points-badge">{{ userPoints() }} Points</span>
+          <span>{{ user.username }}</span>
+        </div>
+      }
     </div>
   </nav>
 
@@ -24,7 +26,7 @@
       </div>
       <div class="header-actions">
         <button (click)="toggleHistory()" class="btn btn-secondary">
-          {{ showHistory ? 'Hide History' : 'View History' }}
+          {{ showHistory() ? 'Hide History' : 'View History' }}
         </button>
       </div>
     </div>
@@ -34,116 +36,146 @@
         <div class="points-icon">🏆</div>
         <div class="points-info">
           <div class="points-label">Your Points</div>
-          <div class="points-value">{{ userPoints }}</div>
+          <div class="points-value">{{ userPoints() }}</div>
         </div>
       </div>
     </div>
 
-    <div class="filters" *ngIf="!showHistory">
-      <div class="search-box">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          (ngModelChange)="onSearchChange()"
-          placeholder="Search rewards..." 
-          class="form-control"
-        />
-      </div>
-      <div class="category-filter">
-        <select [(ngModel)]="filterCategory" (ngModelChange)="onCategoryChange()" class="form-control">
-          <option value="all">All Categories</option>
-          <option *ngFor="let category of getUniqueCategories()" [value]="category">
-            {{ category }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div *ngIf="showHistory" class="history-section">
-      <h2>Redemption History</h2>
-      <div *ngIf="redemptionHistory.length === 0" class="no-data">
-        <p>No redemptions yet. Start redeeming rewards!</p>
-      </div>
-      <div class="history-list" *ngIf="redemptionHistory.length > 0">
-        <div *ngFor="let redemption of redemptionHistory" class="history-item">
-          <div class="history-info">
-            <div class="history-date">{{ redemption.redeemedAt | date:'medium' }}</div>
-            <div class="history-points">{{ redemption.pointsSpent }} points</div>
-          </div>
-          <div class="history-status" [ngClass]="'status-' + redemption.status">
-            {{ redemption.status }}
-          </div>
+    @if (!showHistory()) {
+      <div class="filters">
+        <div class="search-box">
+          <input 
+            type="text" 
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search rewards..." 
+            class="form-control"
+          />
+        </div>
+        <div class="category-filter">
+          <select [ngModel]="filterValue()" (ngModelChange)="onCategoryChange($event)" class="form-control">
+            <option value="all">All Categories</option>
+            @for (category of getUniqueCategories(); track category) {
+              <option [value]="category">
+                {{ category }}
+              </option>
+            }
+          </select>
         </div>
       </div>
-    </div>
+    }
 
-    <div *ngIf="!showHistory">
-      <div *ngIf="isLoading" class="loading">Loading rewards...</div>
-
-      <div *ngIf="!isLoading && filteredRewards.length === 0" class="no-rewards">
-        <p>No rewards available at this time.</p>
-      </div>
-
-      <div class="rewards-grid" *ngIf="!isLoading && filteredRewards.length > 0">
-        <div *ngFor="let reward of filteredRewards" class="reward-card" [ngClass]="{ 'affordable': canAfford(reward), 'not-affordable': !canAfford(reward) }">
-          <div class="reward-image" *ngIf="reward.imageUrl" [style.background-image]="'url(' + reward.imageUrl + ')'"></div>
-          <div class="reward-image-placeholder" *ngIf="!reward.imageUrl">
-            <span class="placeholder-icon">🎁</span>
+    @if (showHistory()) {
+      <div class="history-section">
+        <h2>Redemption History</h2>
+        @if (redemptions().length === 0) {
+          <div class="no-data">
+            <p>No redemptions yet. Start redeeming rewards!</p>
           </div>
-          <div class="reward-content">
-            <h3 class="reward-name">{{ reward.name }}</h3>
-            <p class="reward-description">{{ reward.description }}</p>
-            <div class="reward-footer">
-              <div class="reward-points">
-                <span class="points-icon">⭐</span>
-                <span class="points-text">{{ reward.pointsCost }} points</span>
+        }
+        @if (redemptions().length > 0) {
+          <div class="history-list">
+            @for (redemption of redemptions(); track redemption.id) {
+              <div class="history-item">
+                <div class="history-info">
+                  <div class="history-date">{{ redemption.redeemedAt | date:'medium' }}</div>
+                  <div class="history-points">{{ redemption.pointsSpent }} points</div>
+                </div>
+                <div class="history-status" [ngClass]="'status-' + redemption.status">
+                  {{ redemption.status }}
+                </div>
               </div>
-              <button 
-                (click)="openRedeemModal(reward)" 
-                class="btn btn-primary btn-sm"
-                [disabled]="!canAfford(reward)"
-              >
-                {{ canAfford(reward) ? 'Redeem' : 'Not Enough Points' }}
-              </button>
-            </div>
+            }
           </div>
-        </div>
+        }
       </div>
-    </div>
+    }
+
+    @if (!showHistory()) {
+      <div>
+        @if (loading()) {
+          <div class="loading">Loading rewards...</div>
+        }
+
+        @if (!loading() && filteredBySearch().length === 0) {
+          <div class="no-rewards">
+            <p>No rewards available at this time.</p>
+          </div>
+        }
+
+        @if (!loading() && filteredBySearch().length > 0) {
+          <div class="rewards-grid">
+            @for (reward of filteredBySearch(); track reward.id) {
+              <div class="reward-card" [ngClass]="{ 'affordable': canAfford(reward), 'not-affordable': !canAfford(reward) }">
+                @if (reward.imageUrl) {
+                  <div class="reward-image" [style.background-image]="'url(' + reward.imageUrl + ')'"></div>
+                } @else {
+                  <div class="reward-image-placeholder">
+                    <span class="placeholder-icon">🎁</span>
+                  </div>
+                }
+                <div class="reward-content">
+                  <h3 class="reward-name">{{ reward.name }}</h3>
+                  <p class="reward-description">{{ reward.description }}</p>
+                  <div class="reward-footer">
+                    <div class="reward-points">
+                      <span class="points-icon">⭐</span>
+                      <span class="points-text">{{ reward.pointsCost }} points</span>
+                    </div>
+                    <button 
+                      (click)="openRedeemModal(reward)" 
+                      class="btn btn-primary btn-sm"
+                      [disabled]="!canAfford(reward)"
+                    >
+                      {{ canAfford(reward) ? 'Redeem' : 'Not Enough Points' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- Redemption Modal -->
-  <div class="modal-overlay" *ngIf="showRedeemModal" (click)="closeRedeemModal()"></div>
-  <div class="modal" *ngIf="showRedeemModal">
-    <div class="modal-header">
-      <h2>Confirm Redemption</h2>
-      <button class="modal-close" (click)="closeRedeemModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="reward-summary" *ngIf="selectedReward">
-        <h3>{{ selectedReward.name }}</h3>
-        <p>{{ selectedReward.description }}</p>
-        <div class="redemption-cost">
-          <strong>Cost:</strong> {{ selectedReward.pointsCost }} points
-        </div>
-        <div class="remaining-points">
-          <strong>Remaining Points:</strong> {{ userPoints - selectedReward.pointsCost }}
-        </div>
-        <div class="form-group">
-          <label for="notes">Notes (optional)</label>
-          <textarea 
-            id="notes"
-            [(ngModel)]="redemptionNotes" 
-            class="form-control" 
-            rows="3"
-            placeholder="Any special requests or notes..."
-          ></textarea>
-        </div>
+  @if (showRedeemModal()) {
+    <div class="modal-overlay" (click)="closeRedeemModal()"></div>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Confirm Redemption</h2>
+        <button class="modal-close" (click)="closeRedeemModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (selectedReward(); as reward) {
+          <div class="reward-summary">
+            <h3>{{ reward.name }}</h3>
+            <p>{{ reward.description }}</p>
+            <div class="redemption-cost">
+              <strong>Cost:</strong> {{ reward.pointsCost }} points
+            </div>
+            <div class="remaining-points">
+              <strong>Remaining Points:</strong> {{ userPoints() - reward.pointsCost }}
+            </div>
+            <div class="form-group">
+              <label for="notes">Notes (optional)</label>
+              <textarea 
+                id="notes"
+                [ngModel]="redemptionNotes()"
+                (ngModelChange)="redemptionNotes.set($event)"
+                class="form-control" 
+                rows="3"
+                placeholder="Any special requests or notes..."
+              ></textarea>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeRedeemModal()" class="btn btn-secondary">Cancel</button>
+        <button (click)="confirmRedemption()" class="btn btn-primary">Confirm Redemption</button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button (click)="closeRedeemModal()" class="btn btn-secondary">Cancel</button>
-      <button (click)="confirmRedemption()" class="btn btn-primary">Confirm Redemption</button>
-    </div>
-  </div>
+  }
 </div>
