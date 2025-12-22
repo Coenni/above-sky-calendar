@@ -1,13 +1,14 @@
 # Stage 1: Build
-FROM node:18-alpine AS build
+FROM timbru31/java-node:17-jre-18 AS build
 WORKDIR /build
-
-# Copy OpenAPI spec
-COPY spec.yaml .
 
 # Copy frontend package files
 COPY frontend/package*.json ./
 RUN npm ci
+
+# Copy OpenAPI spec to parent directory (as expected by npm script: ../spec.yaml)
+# When WORKDIR is /build, ../spec.yaml resolves to /spec.yaml
+COPY spec.yaml /spec.yaml
 
 # Generate API clients
 RUN npm run generate-api
@@ -24,7 +25,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./* /etc/nginx/conf.d/default.conf
 
 # Copy built application
-COPY --from=build /build/dist/above-sky-calendar-frontend/browser ./
+COPY --from=build /build/dist/frontend ./
 
 # Copy nginx configuration
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf

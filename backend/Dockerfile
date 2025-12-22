@@ -2,8 +2,9 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
-# Copy OpenAPI spec
-COPY spec.yaml .
+# Copy OpenAPI spec to parent directory (as expected by pom.xml: ${project.basedir}/../spec.yaml)
+# When project.basedir is /build, it looks for /build/../spec.yaml which is /spec.yaml
+COPY spec.yaml /spec.yaml
 
 # Copy backend files
 COPY backend/pom.xml .
