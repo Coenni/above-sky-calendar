@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { User } from '../models/user.model';
+import { ModeService } from './mode.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class AuthService {
 
   constructor(
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private modeService: ModeService
   ) {}
 
   register(request: RegisterRequest): Observable<AuthResponse> {
@@ -25,13 +27,20 @@ export class AuthService {
 
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.apiService.post<AuthResponse>('/auth/login', request).pipe(
-      tap(response => this.handleAuthResponse(response))
+      tap(response => {
+        this.handleAuthResponse(response);
+        // Load user mode after login
+        this.modeService.getCurrentMode().subscribe({
+          error: (err) => console.error('Failed to load user mode', err)
+        });
+      })
     );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    this.modeService.clearMode();
     this.router.navigate(['/login']);
   }
 
