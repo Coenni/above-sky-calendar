@@ -49,7 +49,7 @@ public class ModeService {
     /**
      * Switch to Parent Mode (requires PIN if set)
      * @param pin The PIN to validate (null if PIN not yet set)
-     * @return true if switched successfully
+     * @return true if switched successfully, false if PIN validation failed
      */
     @Transactional
     public boolean switchToParentMode(String pin) {
@@ -61,10 +61,10 @@ public class ModeService {
                 log.warn("Invalid PIN attempt for user: {}", user.getUsername());
                 return false;
             }
-        } else if (pin == null) {
-            // PIN not set yet, require PIN to be provided for first-time setup
-            log.warn("PIN required for first-time Parent Mode activation for user: {}", user.getUsername());
-            throw new IllegalStateException("PIN must be set before enabling Parent Mode");
+        } else {
+            // PIN not set yet - cannot switch to Parent Mode without PIN
+            log.warn("Cannot switch to Parent Mode without PIN set for user: {}", user.getUsername());
+            return false;
         }
         
         user.setIsParentMode(true);
