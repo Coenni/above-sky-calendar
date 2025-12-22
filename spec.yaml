@@ -32,6 +32,8 @@ tags:
     description: Family member management
   - name: Auth
     description: Authentication and authorization
+  - name: Settings
+    description: User settings including Parent/Silent Mode and PIN management
 
 security:
   - bearerAuth: []
@@ -1906,6 +1908,156 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  # ============================================================================
+  # SETTINGS ENDPOINTS
+  # ============================================================================
+  /api/settings/mode:
+    get:
+      tags:
+        - Settings
+      summary: Get current mode
+      description: Retrieve the current mode (Parent/Silent) and whether a PIN has been set
+      operationId: getCurrentMode
+      responses:
+        '200':
+          description: Mode information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Settings
+      summary: Switch mode
+      description: Switch between Parent Mode and Silent Mode. Requires PIN when switching to Parent Mode.
+      operationId: switchMode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeSwitchRequest'
+      responses:
+        '200':
+          description: Mode switched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeResponse'
+        '401':
+          description: Invalid PIN or unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Bad request (e.g., missing PIN when required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/settings/pin:
+    post:
+      tags:
+        - Settings
+      summary: Set or update PIN
+      description: Set a new PIN for Parent Mode access or update existing PIN
+      operationId: setupPin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinSetupRequest'
+      responses:
+        '200':
+          description: PIN set/updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: PIN set successfully
+        '401':
+          description: Invalid current PIN when updating
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid PIN format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/settings/pin/reset-request:
+    post:
+      tags:
+        - Settings
+      summary: Request PIN reset
+      description: Send a PIN reset email with a secure token
+      operationId: requestPinReset
+      responses:
+        '200':
+          description: Reset email sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reset email sent successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/settings/pin/reset:
+    post:
+      tags:
+        - Settings
+      summary: Reset PIN with token
+      description: Reset PIN using the token received via email
+      operationId: resetPin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinResetRequest'
+      responses:
+        '200':
+          description: PIN reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: PIN reset successfully
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 # ==============================================================================
 # COMPONENT SCHEMAS
 # ==============================================================================
@@ -2617,6 +2769,67 @@ components:
 
     # =========================================================================
     # Common Schemas
+    # =========================================================================
+    # =========================================================================
+    # Settings Schemas
+    # =========================================================================
+    ModeResponse:
+      type: object
+      properties:
+        isParentMode:
+          type: boolean
+          description: True if in Parent Mode, false if in Silent Mode
+        hasPinSet:
+          type: boolean
+          description: True if user has set a PIN
+      required:
+        - isParentMode
+        - hasPinSet
+
+    ModeSwitchRequest:
+      type: object
+      required:
+        - targetMode
+      properties:
+        targetMode:
+          type: string
+          enum: [PARENT, SILENT]
+          description: Target mode to switch to
+        pin:
+          type: string
+          pattern: '^\d{4}$'
+          description: 4-digit PIN (required when switching to PARENT mode)
+
+    PinSetupRequest:
+      type: object
+      required:
+        - newPin
+      properties:
+        currentPin:
+          type: string
+          pattern: '^\d{4}$'
+          description: Current PIN (required when changing existing PIN)
+        newPin:
+          type: string
+          pattern: '^\d{4}$'
+          description: New 4-digit PIN
+
+    PinResetRequest:
+      type: object
+      required:
+        - token
+        - newPin
+      properties:
+        token:
+          type: string
+          description: Reset token received via email
+        newPin:
+          type: string
+          pattern: '^\d{4}$'
+          description: New 4-digit PIN
+
+    # =========================================================================
+    # Error Schemas
     # =========================================================================
     ErrorResponse:
       type: object
