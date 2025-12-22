@@ -1,5 +1,5 @@
 # Development Dockerfile for frontend with hot-reload support
-FROM node:18-alpine
+FROM timbru31/java-node:17-jre-18
 WORKDIR /app
 
 # Copy frontend package files
@@ -10,7 +10,7 @@ RUN npm ci
 # When WORKDIR is /app, ../spec.yaml resolves to /spec.yaml
 COPY spec.yaml /spec.yaml
 
-# Generate API clients
+# Generate API clients (requires Java!)
 RUN npm run generate-api
 
 # Copy frontend source
@@ -19,5 +19,5 @@ COPY frontend/ .
 # Expose port for development server
 EXPOSE 4200
 
-# Start development server
-CMD ["npm", "start"]
+# Start development server with host binding for Docker
+CMD ["npm", "start", "--", "--host", "0.0.0.0"]
