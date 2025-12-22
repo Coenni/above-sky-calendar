@@ -51,6 +51,19 @@ public class User {
     @Column(length = 5)
     private String preferredLocale = "en"; // Default language: English
 
+    // Parent Mode / Silent Mode fields
+    @Column
+    private String parentModePin; // Hashed PIN for Parent Mode access
+
+    @Column
+    private Boolean isParentMode = false; // Current mode: true = Parent Mode, false = Silent Mode
+
+    @Column
+    private String pinResetToken; // Token for PIN reset via email
+
+    @Column
+    private LocalDateTime pinResetTokenExpiry; // Expiry time for reset token
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

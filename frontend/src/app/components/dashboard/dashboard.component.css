@@ -43,6 +43,11 @@
   gap: 1rem;
 }
 
+.mode-badge {
+  font-size: 1.2rem;
+  cursor: help;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

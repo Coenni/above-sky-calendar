@@ -122,13 +122,17 @@
                       <span class="points-icon">⭐</span>
                       <span class="points-text">{{ reward.pointsCost }} points</span>
                     </div>
-                    <button 
-                      (click)="openRedeemModal(reward)" 
-                      class="btn btn-primary btn-sm"
-                      [disabled]="!canAfford(reward)"
-                    >
-                      {{ canAfford(reward) ? 'Redeem' : 'Not Enough Points' }}
-                    </button>
+                    @if (isParentMode()) {
+                      <button 
+                        (click)="openRedeemModal(reward)" 
+                        class="btn btn-primary btn-sm"
+                        [disabled]="!canAfford(reward)"
+                      >
+                        {{ canAfford(reward) ? 'Redeem' : 'Not Enough Points' }}
+                      </button>
+                    } @else {
+                      <span class="silent-mode-notice">🔒 Silent Mode</span>
+                    }
                   </div>
                 </div>
               </div>

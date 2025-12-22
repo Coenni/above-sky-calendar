@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DashboardStateService } from '../../services/state/dashboard-state.service';
 import { DashboardApiService } from '../../services/api/dashboard-api.service';
 import { AuthStateService } from '../../services/state/auth-state.service';
+import { ModeService } from '../../services/mode.service';
 import { Event } from '../../models/event.model';
 import { EventService } from '../../services/event.service';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,7 @@ export class DashboardComponent implements OnInit {
   private dashboardApi = inject(DashboardApiService);
   protected authState = inject(AuthStateService);
   private eventService = inject(EventService);
+  private modeService = inject(ModeService);
   
   // Expose signals to template
   readonly widgets = this.dashboardState.enabledWidgets;
@@ -29,6 +31,12 @@ export class DashboardComponent implements OnInit {
   readonly loading = this.dashboardState.loading;
   readonly error = this.dashboardState.error;
   readonly currentUser = this.authState.currentUser;
+  
+  // Mode indicator
+  readonly modeIcon = computed(() => {
+    const mode = this.modeService.getCurrentModeValue();
+    return mode?.isParentMode ? '🔓' : '🔒';
+  });
   
   // Local component state
   showCreateForm = signal(false);

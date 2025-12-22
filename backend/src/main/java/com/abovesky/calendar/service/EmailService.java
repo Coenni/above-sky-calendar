@@ -208,6 +208,32 @@ public class EmailService {
     }
 
     /**
+     * Send PIN reset email with secure token
+     */
+    @Async
+    public void sendPinResetEmail(String to, String username, String resetToken, String baseUrl) {
+        try {
+            LocalDateTime expiryTime = LocalDateTime.now().plusHours(1);
+            
+            String resetLink = baseUrl + "/reset-pin?token=" + resetToken;
+            
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("resetLink", resetLink);
+            context.setVariable("expiryHours", "1");
+            context.setVariable("applicationName", applicationName);
+            
+            String htmlContent = templateEngine.process("pin-reset-email", context);
+            
+            sendEmail(to, "PIN Reset Request", htmlContent);
+            log.info("PIN reset email sent successfully to: {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send PIN reset email to: {}", to, e);
+            throw new RuntimeException("Failed to send PIN reset email", e);
+        }
+    }
+
+    /**
      * Send generic email
      */
     private void sendEmail(String to, String subject, String htmlContent) throws MessagingException {

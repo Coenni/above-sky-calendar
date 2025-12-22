@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { RewardsStateService } from '../../services/state/rewards-state.service';
 import { RewardsApiService } from '../../services/api/rewards-api.service';
 import { AuthStateService } from '../../services/state/auth-state.service';
+import { ModeService } from '../../services/mode.service';
 import { Reward } from '../../models/reward.model';
 
 @Component({
@@ -19,6 +20,7 @@ export class RewardsComponent implements OnInit {
   private rewardsState = inject(RewardsStateService);
   private rewardsApi = inject(RewardsApiService);
   protected authState = inject(AuthStateService);
+  private modeService = inject(ModeService);
   
   // Expose signals to template
   readonly rewards = this.rewardsState.filteredRewards;
@@ -27,6 +29,9 @@ export class RewardsComponent implements OnInit {
   readonly userPoints = this.rewardsState.userPoints;
   readonly redemptions = this.rewardsState.redemptions;
   readonly filterValue = this.rewardsState.filter;
+  
+  // Check if in Parent Mode (buttons should be visible)
+  readonly isParentMode = computed(() => this.modeService.isParentMode());
   
   // Local component state
   showRedeemModal = signal(false);

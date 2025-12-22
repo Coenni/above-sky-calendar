@@ -434,3 +434,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+.silent-mode-notice {
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 0.25rem 0.5rem;
+}
