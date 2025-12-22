@@ -10,8 +10,10 @@
       <a routerLink="/photos" class="nav-link">Photos</a>
       <a routerLink="/lists" class="nav-link">Lists</a>
       <a routerLink="/metrics" class="nav-link">Metrics</a>
+      <a routerLink="/settings" class="nav-link">Settings</a>
       @if (currentUser(); as user) {
         <div class="user-info">
+          <span class="mode-badge">{{ modeIcon() }}</span>
           <span>{{ user.username }}</span>
           <button (click)="logout()" class="btn btn-logout">Logout</button>
         </div>

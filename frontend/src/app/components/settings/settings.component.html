@@ -1,0 +1,164 @@
+<div class="settings">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
+      <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/settings" class="nav-link active">Settings</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Settings</h1>
+
+    <!-- Success/Error Messages -->
+    @if (success()) {
+      <div class="alert alert-success">{{ success() }}</div>
+    }
+    @if (error()) {
+      <div class="alert alert-error">{{ error() }}</div>
+    }
+
+    <!-- Mode Settings Section -->
+    <div class="settings-section">
+      <h2>Parent / Silent Mode</h2>
+      
+      <div class="mode-indicator">
+        <div class="mode-status">
+          <span class="mode-icon">{{ isParentMode() ? '🔓' : '🔒' }}</span>
+          <span class="mode-text">
+            Current Mode: <strong>{{ isParentMode() ? 'Parent Mode' : 'Silent Mode' }}</strong>
+          </span>
+        </div>
+        <div class="mode-description">
+          @if (isParentMode()) {
+            <p>Full access to all features including completing tasks, claiming rewards, and modifying settings.</p>
+          } @else {
+            <p>Read-only mode. You can view content but cannot complete tasks, claim rewards, or modify settings.</p>
+          }
+        </div>
+      </div>
+
+      <div class="mode-actions">
+        @if (isParentMode()) {
+          <button (click)="switchToSilentMode()" class="btn btn-secondary" [disabled]="loading()">
+            {{ loading() ? 'Switching...' : 'Switch to Silent Mode' }}
+          </button>
+        } @else {
+          <button (click)="switchToParentMode()" class="btn btn-primary" [disabled]="loading()">
+            {{ loading() ? 'Switching...' : 'Switch to Parent Mode' }}
+          </button>
+        }
+        
+        <button (click)="showPinSetup.set(true)" class="btn btn-outline">
+          {{ hasPinSet() ? 'Change PIN' : 'Set PIN' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- PIN Entry Dialog -->
+    @if (showPinEntry()) {
+      <div class="modal-overlay" (click)="closePinEntry()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h2>Enter PIN</h2>
+          <p>Enter your 4-digit PIN to switch to Parent Mode</p>
+          
+          <input 
+            type="password" 
+            inputmode="numeric" 
+            pattern="[0-9]*"
+            maxlength="4"
+            [(ngModel)]="pin"
+            placeholder="Enter 4-digit PIN"
+            class="pin-input"
+            (keyup.enter)="submitPin()"
+          />
+          
+          <div class="modal-actions">
+            <button (click)="submitPin()" class="btn btn-primary" [disabled]="loading() || pin().length !== 4">
+              {{ loading() ? 'Verifying...' : 'Submit' }}
+            </button>
+            <button (click)="closePinEntry()" class="btn btn-secondary" [disabled]="loading()">
+              Cancel
+            </button>
+          </div>
+          
+          <div class="forgot-pin-link">
+            <a (click)="openForgotPin()">Forgot PIN?</a>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- PIN Setup Dialog -->
+    @if (showPinSetup()) {
+      <div class="modal-overlay" (click)="closePinSetup()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h2>{{ hasPinSet() ? 'Change PIN' : 'Set PIN' }}</h2>
+          
+          @if (hasPinSet()) {
+            <input 
+              type="password" 
+              inputmode="numeric" 
+              pattern="[0-9]*"
+              maxlength="4"
+              [(ngModel)]="currentPin"
+              placeholder="Current PIN"
+              class="pin-input"
+            />
+          }
+          
+          <input 
+            type="password" 
+            inputmode="numeric" 
+            pattern="[0-9]*"
+            maxlength="4"
+            [(ngModel)]="newPin"
+            placeholder="New 4-digit PIN"
+            class="pin-input"
+          />
+          
+          <input 
+            type="password" 
+            inputmode="numeric" 
+            pattern="[0-9]*"
+            maxlength="4"
+            [(ngModel)]="confirmPin"
+            placeholder="Confirm PIN"
+            class="pin-input"
+          />
+          
+          <div class="modal-actions">
+            <button (click)="setupNewPin()" class="btn btn-primary" [disabled]="loading()">
+              {{ loading() ? 'Setting...' : 'Set PIN' }}
+            </button>
+            <button (click)="closePinSetup()" class="btn btn-secondary" [disabled]="loading()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Forgot PIN Dialog -->
+    @if (showForgotPin()) {
+      <div class="modal-overlay" (click)="closeForgotPin()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h2>Forgot PIN?</h2>
+          <p>We'll send a reset link to your email address. The link will expire in 1 hour.</p>
+          
+          <div class="modal-actions">
+            <button (click)="requestPinReset()" class="btn btn-primary" [disabled]="loading()">
+              {{ loading() ? 'Sending...' : 'Send Reset Email' }}
+            </button>
+            <button (click)="closeForgotPin()" class="btn btn-secondary" [disabled]="loading()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
