@@ -85,6 +85,12 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 - Family member profiles with custom colors and display names
 - Role-based access (Parent/Admin vs Child/Standard)
 - Reward points tracking per user
+- **Parent Mode / Silent Mode**: PIN-protected mode switching to prevent children from manipulating tasks/rewards
+  - **Parent Mode**: Full access to complete tasks, claim rewards, and modify settings
+  - **Silent Mode**: Read-only access; children can view but not modify content
+  - **PIN Protection**: 4-digit PIN required to switch to Parent Mode
+  - **Forgot PIN**: Email-based PIN reset with 1-hour expiration tokens
+  - **Security**: PINs hashed with BCrypt, same security as passwords
 
 ### 2. **Calendar System** (Enhanced)
 - Create, read, update, and delete calendar events
