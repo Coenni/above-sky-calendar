@@ -10,10 +10,12 @@
       <a routerLink="/photos" class="nav-link">Photos</a>
       <a routerLink="/lists" class="nav-link">Lists</a>
       <a routerLink="/metrics" class="nav-link">Metrics</a>
-      <div class="user-info" *ngIf="currentUser">
-        <span>{{ currentUser.username }}</span>
-        <button (click)="logout()" class="btn btn-logout">Logout</button>
-      </div>
+      @if (currentUser(); as user) {
+        <div class="user-info">
+          <span>{{ user.username }}</span>
+          <button (click)="logout()" class="btn btn-logout">Logout</button>
+        </div>
+      }
     </div>
   </nav>
 
@@ -21,7 +23,7 @@
     <div class="header">
       <h1>Dashboard</h1>
       <button (click)="toggleCreateForm()" class="btn btn-primary">
-        {{ showCreateForm ? 'Cancel' : 'Create Event' }}
+        {{ showCreateForm() ? 'Cancel' : 'Create Event' }}
       </button>
     </div>
 
@@ -66,84 +68,94 @@
 
     <h2 class="section-title">Upcoming Events</h2>
 
-    <div *ngIf="showCreateForm" class="create-form">
-      <h3>Create New Event</h3>
-      <form (ngSubmit)="createEvent()">
-        <div class="form-group">
-          <label for="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            [(ngModel)]="newEvent.title"
-            name="title"
-            required
-            class="form-control"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea
-            id="description"
-            [(ngModel)]="newEvent.description"
-            name="description"
-            rows="3"
-            class="form-control"
-          ></textarea>
-        </div>
-
-        <div class="form-row">
+    @if (showCreateForm()) {
+      <div class="create-form">
+        <h3>Create New Event</h3>
+        <form (ngSubmit)="createEvent()">
           <div class="form-group">
-            <label for="startDate">Start Date</label>
+            <label for="title">Title</label>
             <input
-              type="datetime-local"
-              id="startDate"
-              [(ngModel)]="newEvent.startDate"
-              name="startDate"
+              type="text"
+              id="title"
+              [(ngModel)]="newEvent.title"
+              name="title"
               required
               class="form-control"
             />
           </div>
 
           <div class="form-group">
-            <label for="endDate">End Date</label>
-            <input
-              type="datetime-local"
-              id="endDate"
-              [(ngModel)]="newEvent.endDate"
-              name="endDate"
-              required
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              [(ngModel)]="newEvent.description"
+              name="description"
+              rows="3"
               class="form-control"
-            />
+            ></textarea>
           </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary">Create Event</button>
-      </form>
-    </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="startDate">Start Date</label>
+              <input
+                type="datetime-local"
+                id="startDate"
+                [(ngModel)]="newEvent.startDate"
+                name="startDate"
+                required
+                class="form-control"
+              />
+            </div>
 
-    <div *ngIf="isLoading" class="loading">Loading events...</div>
-
-    <div *ngIf="!isLoading && events.length === 0" class="no-events">
-      <p>No events found. Create your first event!</p>
-    </div>
-
-    <div class="events-grid" *ngIf="!isLoading && events.length > 0">
-      <div *ngFor="let event of events" class="event-card">
-        <h3>{{ event.title }}</h3>
-        <p class="description">{{ event.description }}</p>
-        <div class="event-dates">
-          <div class="date">
-            <strong>Start:</strong> {{ event.startDate | date:'medium' }}
+            <div class="form-group">
+              <label for="endDate">End Date</label>
+              <input
+                type="datetime-local"
+                id="endDate"
+                [(ngModel)]="newEvent.endDate"
+                name="endDate"
+                required
+                class="form-control"
+              />
+            </div>
           </div>
-          <div class="date">
-            <strong>End:</strong> {{ event.endDate | date:'medium' }}
-          </div>
-        </div>
-        <div class="event-actions">
-          <button (click)="deleteEvent(event.id)" class="btn btn-danger">Delete</button>
-        </div>
+
+          <button type="submit" class="btn btn-primary">Create Event</button>
+        </form>
       </div>
-    </div>
+    }
+
+    @if (loading()) {
+      <div class="loading">Loading events...</div>
+    }
+
+    @if (!loading() && events().length === 0) {
+      <div class="no-events">
+        <p>No events found. Create your first event!</p>
+      </div>
+    }
+
+    @if (!loading() && events().length > 0) {
+      <div class="events-grid">
+        @for (event of events(); track event.id) {
+          <div class="event-card">
+            <h3>{{ event.title }}</h3>
+            <p class="description">{{ event.description }}</p>
+            <div class="event-dates">
+              <div class="date">
+                <strong>Start:</strong> {{ event.startDate | date:'medium' }}
+              </div>
+              <div class="date">
+                <strong>End:</strong> {{ event.endDate | date:'medium' }}
+              </div>
+            </div>
+            <div class="event-actions">
+              <button (click)="deleteEvent(event.id)" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 </div>

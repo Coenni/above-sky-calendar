@@ -9,9 +9,11 @@
       <a routerLink="/photos" class="nav-link">Photos</a>
       <a routerLink="/lists" class="nav-link">Lists</a>
       <a routerLink="/calendar" class="nav-link">Calendar</a>
-      <div class="user-info" *ngIf="currentUser">
-        <span>{{ currentUser.username }}</span>
-      </div>
+      @if (authState.currentUser(); as user) {
+        <div class="user-info">
+          <span>{{ user.username }}</span>
+        </div>
+      }
     </div>
   </nav>
 
@@ -23,74 +25,76 @@
       </div>
       <div class="header-actions">
         <button (click)="toggleMealForm()" class="btn btn-primary">
-          {{ showMealForm ? 'Cancel' : 'Add Meal' }}
+          {{ showMealForm() ? 'Cancel' : 'Add Meal' }}
         </button>
       </div>
     </div>
 
     <!-- Quick Meal Form -->
-    <div *ngIf="showMealForm" class="meal-form-card">
-      <h3>Add New Meal</h3>
-      <form (ngSubmit)="createMeal()">
-        <div class="form-row">
+    @if (showMealForm()) {
+      <div class="meal-form-card">
+        <h3>Add New Meal</h3>
+        <form (ngSubmit)="createMeal()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Meal Name</label>
+              <input
+                type="text"
+                id="name"
+                [(ngModel)]="newMeal.name"
+                name="name"
+                required
+                class="form-control"
+                placeholder="e.g., Spaghetti Bolognese"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="category">Meal Type</label>
+              <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-control">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snack</option>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="name">Meal Name</label>
-            <input
-              type="text"
-              id="name"
-              [(ngModel)]="newMeal.name"
-              name="name"
-              required
+            <label for="ingredients">Ingredients (optional)</label>
+            <textarea
+              id="ingredients"
+              [(ngModel)]="newMeal.ingredients"
+              name="ingredients"
+              rows="2"
               class="form-control"
-              placeholder="e.g., Spaghetti Bolognese"
-            />
+              placeholder="List ingredients..."
+            ></textarea>
           </div>
 
           <div class="form-group">
-            <label for="category">Meal Type</label>
-            <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-control">
-              <option value="breakfast">Breakfast</option>
-              <option value="lunch">Lunch</option>
-              <option value="dinner">Dinner</option>
-              <option value="snack">Snack</option>
-            </select>
+            <label for="recipe">Recipe Notes (optional)</label>
+            <textarea
+              id="recipe"
+              [(ngModel)]="newMeal.recipe"
+              name="recipe"
+              rows="3"
+              class="form-control"
+              placeholder="Cooking instructions..."
+            ></textarea>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="ingredients">Ingredients (optional)</label>
-          <textarea
-            id="ingredients"
-            [(ngModel)]="newMeal.ingredients"
-            name="ingredients"
-            rows="2"
-            class="form-control"
-            placeholder="List ingredients..."
-          ></textarea>
-        </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="newMeal.isFavorite" name="isFavorite" />
+              Mark as Favorite
+            </label>
+          </div>
 
-        <div class="form-group">
-          <label for="recipe">Recipe Notes (optional)</label>
-          <textarea
-            id="recipe"
-            [(ngModel)]="newMeal.recipe"
-            name="recipe"
-            rows="3"
-            class="form-control"
-            placeholder="Cooking instructions..."
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>
-            <input type="checkbox" [(ngModel)]="newMeal.isFavorite" name="isFavorite" />
-            Mark as Favorite
-          </label>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Add Meal</button>
-      </form>
-    </div>
+          <button type="submit" class="btn btn-primary">Add Meal</button>
+        </form>
+      </div>
+    }
 
     <!-- Week Navigation -->
     <div class="week-navigation">
@@ -108,38 +112,51 @@
       </button>
     </div>
 
-    <div *ngIf="isLoading" class="loading">Loading meals...</div>
+    @if (loading()) {
+      <div class="loading">Loading meals...</div>
+    }
 
     <!-- Weekly Meal Grid -->
-    <div class="weekly-grid" *ngIf="!isLoading">
-      <div class="grid-header">
-        <div class="meal-type-column">Meal Type</div>
-        <div *ngFor="let day of daysOfWeek; let i = index" class="day-column">
-          <div class="day-name">{{ day }}</div>
-          <div class="day-date">{{ getDateForDay(i) | date:'MMM d' }}</div>
+    @if (!loading()) {
+      <div class="weekly-grid">
+        <div class="grid-header">
+          <div class="meal-type-column">Meal Type</div>
+          @for (day of daysOfWeek; track day; let i = $index) {
+            <div class="day-column">
+              <div class="day-name">{{ day }}</div>
+              <div class="day-date">{{ getDateForDay(i) | date:'MMM d' }}</div>
+            </div>
+          }
         </div>
-      </div>
 
-      <div *ngFor="let mealType of mealTypes" class="grid-row">
-        <div class="meal-type-label">
-          {{ mealType | titlecase }}
-        </div>
-        <div *ngFor="let day of daysOfWeek; let i = index" class="meal-cell">
-          <div class="meal-slot">
-            <div *ngFor="let meal of getMealsByType(i, mealType)" class="meal-item">
-              <div class="meal-name">{{ meal.name }}</div>
-              <div class="meal-actions">
-                <button (click)="deleteMeal(meal.id)" class="btn-icon" title="Delete">
-                  🗑️
-                </button>
+        @for (mealType of mealTypes; track mealType) {
+          <div class="grid-row">
+            <div class="meal-type-label">
+              {{ mealType | titlecase }}
+            </div>
+            @for (day of daysOfWeek; track day; let i = $index) {
+              <div class="meal-cell">
+                <div class="meal-slot">
+                  @for (meal of getMealsByType(i, mealType); track meal.id) {
+                    <div class="meal-item">
+                      <div class="meal-name">{{ meal.name }}</div>
+                      <div class="meal-actions">
+                        <button (click)="deleteMeal(meal.id)" class="btn-icon" title="Delete">
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="empty-slot">
+                      <span class="empty-text">No meal planned</span>
+                    </div>
+                  }
+                </div>
               </div>
-            </div>
-            <div *ngIf="getMealsByType(i, mealType).length === 0" class="empty-slot">
-              <span class="empty-text">No meal planned</span>
-            </div>
+            }
           </div>
-        </div>
+        }
       </div>
-    </div>
+    }
   </div>
 </div>
