@@ -328,3 +328,10 @@
 .empty-state p {
   font-size: 1.1rem;
 }
+
+.silent-mode-notice {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: 0.5rem;
+}

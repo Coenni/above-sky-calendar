@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TasksStateService } from '../../services/state/tasks-state.service';
 import { TasksApiService } from '../../services/api/tasks-api.service';
 import { AuthStateService } from '../../services/state/auth-state.service';
+import { ModeService } from '../../services/mode.service';
 import { Task } from '../../models/task.model';
 
 @Component({
@@ -19,6 +20,7 @@ export class TasksComponent implements OnInit {
   private tasksState = inject(TasksStateService);
   private tasksApi = inject(TasksApiService);
   private authState = inject(AuthStateService);
+  private modeService = inject(ModeService);
   
   // Expose signals to template
   readonly sortedTasks = this.tasksState.sortedTasks;
@@ -26,6 +28,9 @@ export class TasksComponent implements OnInit {
   readonly error = this.tasksState.error;
   readonly stats = this.tasksState.taskStats;
   readonly filterStatus = this.tasksState.filter;
+  
+  // Check if in Parent Mode (buttons should be visible)
+  readonly isParentMode = computed(() => this.modeService.isParentMode());
   
   // Local component state
   showCreateForm = signal(false);

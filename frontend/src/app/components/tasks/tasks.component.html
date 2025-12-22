@@ -16,9 +16,11 @@
   <div class="tasks-container">
   <div class="tasks-header">
     <h1>Task Management</h1>
-    <button class="btn btn-primary" (click)="toggleCreateForm()">
-      {{ showCreateForm() ? 'Cancel' : '+ New Task' }}
-    </button>
+    @if (isParentMode()) {
+      <button class="btn btn-primary" (click)="toggleCreateForm()">
+        {{ showCreateForm() ? 'Cancel' : '+ New Task' }}
+      </button>
+    }
   </div>
 
   <!-- Filter Bar -->
@@ -160,17 +162,21 @@
           </div>
 
           <div class="task-actions">
-            @if (task.status !== 'completed') {
-              <button
-                class="btn btn-success"
-                (click)="completeTask(task)"
-              >
-                ✓ Complete
+            @if (isParentMode()) {
+              @if (task.status !== 'completed') {
+                <button
+                  class="btn btn-success"
+                  (click)="completeTask(task)"
+                >
+                  ✓ Complete
+                </button>
+              }
+              <button class="btn btn-danger" (click)="deleteTask(task.id)">
+                Delete
               </button>
+            } @else {
+              <span class="silent-mode-notice">🔒 Silent Mode - Actions disabled</span>
             }
-            <button class="btn btn-danger" (click)="deleteTask(task.id)">
-              Delete
-            </button>
           </div>
         </div>
       } @empty {
