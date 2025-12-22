@@ -1,0 +1,23 @@
+# Development Dockerfile for frontend with hot-reload support
+FROM node:18-alpine
+WORKDIR /app
+
+# Copy frontend package files
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Copy OpenAPI spec to parent directory (as expected by npm script: ../spec.yaml)
+# When WORKDIR is /app, ../spec.yaml resolves to /spec.yaml
+COPY spec.yaml /spec.yaml
+
+# Generate API clients
+RUN npm run generate-api
+
+# Copy frontend source
+COPY frontend/ .
+
+# Expose port for development server
+EXPOSE 4200
+
+# Start development server
+CMD ["npm", "start"]
