@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { EventService } from '../../services/event.service';
+import { DashboardStateService } from '../../services/state/dashboard-state.service';
+import { DashboardApiService } from '../../services/api/dashboard-api.service';
+import { AuthStateService } from '../../services/state/auth-state.service';
 import { Event } from '../../models/event.model';
-import { User } from '../../models/user.model';
+import { EventService } from '../../services/event.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,10 +17,22 @@ import { User } from '../../models/user.model';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  currentUser: User | null = null;
-  events: Event[] = [];
-  isLoading = true;
-  showCreateForm = false;
+  // Inject services using inject()
+  private dashboardState = inject(DashboardStateService);
+  private dashboardApi = inject(DashboardApiService);
+  protected authState = inject(AuthStateService);
+  private eventService = inject(EventService);
+  
+  // Expose signals to template
+  readonly widgets = this.dashboardState.enabledWidgets;
+  readonly activities = this.dashboardState.recentActivities;
+  readonly loading = this.dashboardState.loading;
+  readonly error = this.dashboardState.error;
+  readonly currentUser = this.authState.currentUser;
+  
+  // Local component state
+  showCreateForm = signal(false);
+  events = signal<Event[]>([]);
   
   newEvent: Event = {
     title: '',
@@ -27,33 +41,35 @@ export class DashboardComponent implements OnInit {
     endDate: new Date()
   };
 
-  constructor(
-    private authService: AuthService,
-    private eventService: EventService
-  ) {}
-
-  ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    this.loadEvents();
+  async ngOnInit(): Promise<void> {
+    await this.loadDashboardData();
   }
 
-  loadEvents(): void {
-    this.isLoading = true;
-    this.eventService.getEvents().subscribe({
-      next: (events) => {
-        this.events = events;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading events:', error);
-        this.isLoading = false;
-      }
-    });
+  async loadDashboardData(): Promise<void> {
+    this.dashboardState.setLoading(true);
+    this.dashboardState.setError(null);
+    try {
+      // Load recent events
+      const events = await this.dashboardApi.getRecentEvents();
+      this.events.set(events);
+      
+      // Add activity for dashboard view
+      this.dashboardState.addActivity({
+        type: 'view',
+        message: 'Dashboard viewed',
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      this.dashboardState.setError('Failed to load dashboard data');
+    } finally {
+      this.dashboardState.setLoading(false);
+    }
   }
 
   toggleCreateForm(): void {
-    this.showCreateForm = !this.showCreateForm;
-    if (this.showCreateForm) {
+    this.showCreateForm.update(v => !v);
+    if (this.showCreateForm()) {
       this.newEvent = {
         title: '',
         description: '',
@@ -63,34 +79,42 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  createEvent(): void {
-    this.eventService.createEvent(this.newEvent).subscribe({
-      next: (event) => {
-        this.events.push(event);
-        this.toggleCreateForm();
-      },
-      error: (error) => {
-        console.error('Error creating event:', error);
-      }
-    });
+  async createEvent(): Promise<void> {
+    try {
+      const event = await firstValueFrom(this.eventService.createEvent(this.newEvent));
+      this.events.update(events => [...events, event]);
+      this.dashboardState.addActivity({
+        type: 'event',
+        message: `Created event: ${event.title}`,
+        timestamp: new Date()
+      });
+      this.toggleCreateForm();
+    } catch (error) {
+      console.error('Error creating event:', error);
+      this.dashboardState.setError('Failed to create event');
+    }
   }
 
-  deleteEvent(id: number | undefined): void {
+  async deleteEvent(id: number | undefined): Promise<void> {
     if (!id || !confirm('Are you sure you want to delete this event?')) {
       return;
     }
 
-    this.eventService.deleteEvent(id).subscribe({
-      next: () => {
-        this.events = this.events.filter(e => e.id !== id);
-      },
-      error: (error) => {
-        console.error('Error deleting event:', error);
-      }
-    });
+    try {
+      await firstValueFrom(this.eventService.deleteEvent(id));
+      this.events.update(events => events.filter(e => e.id !== id));
+      this.dashboardState.addActivity({
+        type: 'event',
+        message: 'Deleted event',
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      this.dashboardState.setError('Failed to delete event');
+    }
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authState.logout();
   }
 }

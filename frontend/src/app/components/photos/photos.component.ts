@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { PhotoService } from '../../services/photo.service';
-import { AuthService } from '../../services/auth.service';
+import { PhotosStateService } from '../../services/state/photos-state.service';
+import { PhotosApiService } from '../../services/api/photos-api.service';
+import { AuthStateService } from '../../services/state/auth-state.service';
 import { Photo } from '../../models/photo.model';
-import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-photos',
@@ -15,13 +15,23 @@ import { User } from '../../models/user.model';
   styleUrls: ['./photos.component.css']
 })
 export class PhotosComponent implements OnInit {
-  photos: Photo[] = [];
-  filteredPhotos: Photo[] = [];
-  currentUser: User | null = null;
-  isLoading = false;
-  showLightbox = false;
-  currentPhotoIndex = 0;
-  showUploadForm = false;
+  // Inject services using inject()
+  private photosState = inject(PhotosStateService);
+  private photosApi = inject(PhotosApiService);
+  protected authState = inject(AuthStateService);
+  
+  // Expose signals to template
+  readonly photos = this.photosState.sortedPhotos;
+  readonly loading = this.photosState.loading;
+  readonly error = this.photosState.error;
+  readonly selectedPhoto = this.photosState.selectedPhoto;
+  readonly tagFilter = this.photosState.tagFilter;
+  readonly allTags = this.photosState.allTags;
+  
+  // Local component state
+  showLightbox = signal(false);
+  currentPhotoIndex = signal(0);
+  showUploadForm = signal(false);
   
   newPhoto: Photo = {
     fileName: '',
@@ -30,44 +40,38 @@ export class PhotosComponent implements OnInit {
     uploadedBy: 0
   };
 
-  constructor(
-    private photoService: PhotoService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    this.loadPhotos();
+  async ngOnInit(): Promise<void> {
+    await this.loadPhotos();
   }
 
-  loadPhotos(): void {
-    this.isLoading = true;
-    this.photoService.getAllPhotos().subscribe({
-      next: (photos) => {
-        this.photos = photos;
-        this.filteredPhotos = photos;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading photos:', error);
-        this.isLoading = false;
-      }
-    });
+  async loadPhotos(): Promise<void> {
+    this.photosState.setLoading(true);
+    this.photosState.setError(null);
+    try {
+      const photos = await this.photosApi.getAllPhotos();
+      this.photosState.setPhotos(photos);
+    } catch (error) {
+      console.error('Error loading photos:', error);
+      this.photosState.setError('Failed to load photos');
+    } finally {
+      this.photosState.setLoading(false);
+    }
   }
 
   toggleUploadForm(): void {
-    this.showUploadForm = !this.showUploadForm;
-    if (this.showUploadForm) {
+    this.showUploadForm.update(v => !v);
+    if (this.showUploadForm()) {
+      const currentUser = this.authState.currentUser();
       this.newPhoto = {
         fileName: '',
         filePath: '',
         caption: '',
-        uploadedBy: this.currentUser?.id || 0
+        uploadedBy: currentUser?.id || 0
       };
     }
   }
 
-  uploadPhoto(): void {
+  async uploadPhoto(): Promise<void> {
     if (!this.newPhoto.filePath) {
       alert('Please provide an image URL');
       return;
@@ -78,66 +82,80 @@ export class PhotosComponent implements OnInit {
       this.newPhoto.fileName = this.newPhoto.filePath.split('/').pop() || 'photo.jpg';
     }
 
-    this.photoService.createPhoto(this.newPhoto).subscribe({
-      next: (photo) => {
-        this.photos.unshift(photo);
-        this.filteredPhotos = this.photos;
-        this.toggleUploadForm();
-      },
-      error: (error) => {
-        console.error('Error uploading photo:', error);
-        alert('Failed to upload photo');
-      }
-    });
+    try {
+      const photo = await this.photosApi.createPhoto(this.newPhoto);
+      this.photosState.addPhoto(photo);
+      this.toggleUploadForm();
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      alert('Failed to upload photo');
+    }
   }
 
   openLightbox(index: number): void {
-    this.currentPhotoIndex = index;
-    this.showLightbox = true;
+    this.currentPhotoIndex.set(index);
+    const photo = this.photos()[index];
+    if (photo) {
+      this.photosState.setSelectedPhoto(photo);
+      this.showLightbox.set(true);
+    }
   }
 
   closeLightbox(): void {
-    this.showLightbox = false;
+    this.showLightbox.set(false);
+    this.photosState.setSelectedPhoto(null);
   }
 
   previousPhoto(): void {
-    if (this.currentPhotoIndex > 0) {
-      this.currentPhotoIndex--;
+    const current = this.currentPhotoIndex();
+    if (current > 0) {
+      this.currentPhotoIndex.set(current - 1);
+      const photo = this.photos()[current - 1];
+      if (photo) {
+        this.photosState.setSelectedPhoto(photo);
+      }
     }
   }
 
   nextPhoto(): void {
-    if (this.currentPhotoIndex < this.filteredPhotos.length - 1) {
-      this.currentPhotoIndex++;
+    const current = this.currentPhotoIndex();
+    const photos = this.photos();
+    if (current < photos.length - 1) {
+      this.currentPhotoIndex.set(current + 1);
+      const photo = photos[current + 1];
+      if (photo) {
+        this.photosState.setSelectedPhoto(photo);
+      }
     }
   }
 
   getCurrentPhoto(): Photo | null {
-    return this.filteredPhotos[this.currentPhotoIndex] || null;
+    return this.photos()[this.currentPhotoIndex()] || null;
   }
 
-  deletePhoto(id: number | undefined): void {
+  async deletePhoto(id: number | undefined): Promise<void> {
     if (!id || !confirm('Are you sure you want to delete this photo?')) {
       return;
     }
 
-    this.photoService.deletePhoto(id).subscribe({
-      next: () => {
-        this.photos = this.photos.filter(p => p.id !== id);
-        this.filteredPhotos = this.photos;
-        if (this.showLightbox) {
-          this.closeLightbox();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting photo:', error);
-        alert('Failed to delete photo');
+    try {
+      await this.photosApi.deletePhoto(id);
+      this.photosState.removePhoto(id);
+      if (this.showLightbox()) {
+        this.closeLightbox();
       }
-    });
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Failed to delete photo');
+    }
+  }
+
+  setTagFilter(tag: string): void {
+    this.photosState.setTagFilter(tag);
   }
 
   handleKeydown(event: KeyboardEvent): void {
-    if (!this.showLightbox) return;
+    if (!this.showLightbox()) return;
     
     if (event.key === 'Escape') {
       this.closeLightbox();

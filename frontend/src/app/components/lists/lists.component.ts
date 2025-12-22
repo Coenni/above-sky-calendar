@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ListService } from '../../services/list.service';
-import { AuthService } from '../../services/auth.service';
+import { ListsStateService } from '../../services/state/lists-state.service';
+import { ListsApiService } from '../../services/api/lists-api.service';
+import { AuthStateService } from '../../services/state/auth-state.service';
 import { FamilyList, ListItem } from '../../models/list.model';
-import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-lists',
@@ -15,13 +15,23 @@ import { User } from '../../models/user.model';
   styleUrls: ['./lists.component.css']
 })
 export class ListsComponent implements OnInit {
-  lists: FamilyList[] = [];
-  currentUser: User | null = null;
-  isLoading = false;
-  showListForm = false;
-  selectedList: FamilyList | null = null;
-  listItems: ListItem[] = [];
-  newItemName = '';
+  // Inject services using inject()
+  private listsState = inject(ListsStateService);
+  private listsApi = inject(ListsApiService);
+  protected authState = inject(AuthStateService);
+  
+  // Expose signals to template
+  readonly lists = this.listsState.filteredLists;
+  readonly activeList = this.listsState.activeList;
+  readonly activeListItems = this.listsState.activeListItems;
+  readonly loading = this.listsState.loading;
+  readonly error = this.listsState.error;
+  readonly listProgress = this.listsState.listProgress;
+  readonly listStats = this.listsState.listStats;
+  
+  // Local component state
+  showListForm = signal(false);
+  newItemName = signal('');
   
   newList: FamilyList = {
     name: '',
@@ -30,163 +40,160 @@ export class ListsComponent implements OnInit {
     isArchived: false
   };
 
-  constructor(
-    private listService: ListService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    this.loadLists();
+  async ngOnInit(): Promise<void> {
+    await this.loadLists();
   }
 
-  loadLists(): void {
-    this.isLoading = true;
-    this.listService.getAllLists().subscribe({
-      next: (lists) => {
-        this.lists = lists;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading lists:', error);
-        this.isLoading = false;
+  async loadLists(): Promise<void> {
+    this.listsState.setLoading(true);
+    this.listsState.setError(null);
+    try {
+      const lists = await this.listsApi.getAllLists();
+      this.listsState.setLists(lists);
+      
+      // Load items for all lists
+      const allItems: ListItem[] = [];
+      for (const list of lists) {
+        if (list.id) {
+          const items = await this.listsApi.getListItems(list.id);
+          allItems.push(...items);
+        }
       }
-    });
+      this.listsState.setItems(allItems);
+    } catch (error) {
+      console.error('Error loading lists:', error);
+      this.listsState.setError('Failed to load lists');
+    } finally {
+      this.listsState.setLoading(false);
+    }
   }
 
   toggleListForm(): void {
-    this.showListForm = !this.showListForm;
-    if (this.showListForm) {
+    this.showListForm.update(v => !v);
+    if (this.showListForm()) {
+      const currentUser = this.authState.currentUser();
       this.newList = {
         name: '',
         type: 'todo',
         isShared: false,
         isArchived: false,
-        createdBy: this.currentUser?.id
+        createdBy: currentUser?.id
       };
     }
   }
 
-  createList(): void {
+  async createList(): Promise<void> {
     if (!this.newList.name) {
       alert('Please enter a list name');
       return;
     }
 
-    this.listService.createList(this.newList).subscribe({
-      next: (list) => {
-        this.lists.push(list);
-        this.toggleListForm();
-      },
-      error: (error) => {
-        console.error('Error creating list:', error);
-        alert('Failed to create list');
-      }
-    });
+    try {
+      const list = await this.listsApi.createList(this.newList);
+      this.listsState.addList(list);
+      this.toggleListForm();
+    } catch (error) {
+      console.error('Error creating list:', error);
+      alert('Failed to create list');
+    }
   }
 
-  selectList(list: FamilyList): void {
-    this.selectedList = list;
-    this.loadListItems(list.id!);
+  async selectList(list: FamilyList): Promise<void> {
+    this.listsState.setActiveListId(list.id || null);
+    if (list.id) {
+      await this.loadListItems(list.id);
+    }
   }
 
   closeListDetail(): void {
-    this.selectedList = null;
-    this.listItems = [];
+    this.listsState.setActiveListId(null);
   }
 
-  loadListItems(listId: number): void {
-    this.listService.getListItems(listId).subscribe({
-      next: (items) => {
-        this.listItems = items;
-      },
-      error: (error) => {
-        console.error('Error loading list items:', error);
-      }
-    });
+  async loadListItems(listId: number): Promise<void> {
+    try {
+      const items = await this.listsApi.getListItems(listId);
+      // Update items in state for this list
+      const currentItems = this.listsState.items();
+      const otherItems = currentItems.filter(i => i.listId !== listId);
+      this.listsState.setItems([...otherItems, ...items]);
+    } catch (error) {
+      console.error('Error loading list items:', error);
+    }
   }
 
-  addItem(): void {
-    if (!this.newItemName.trim() || !this.selectedList?.id) {
+  async addItem(): Promise<void> {
+    const itemName = this.newItemName().trim();
+    const activeList = this.activeList();
+    
+    if (!itemName || !activeList?.id) {
       return;
     }
 
+    const items = this.activeListItems();
     const newItem: ListItem = {
-      listId: this.selectedList.id,
-      content: this.newItemName,
+      listId: activeList.id,
+      content: itemName,
       isChecked: false,
-      orderIndex: this.listItems.length
+      orderIndex: items.length
     };
 
-    this.listService.createListItem(newItem).subscribe({
-      next: (item) => {
-        this.listItems.push(item);
-        this.newItemName = '';
-      },
-      error: (error) => {
-        console.error('Error adding item:', error);
-        alert('Failed to add item');
-      }
-    });
+    try {
+      const item = await this.listsApi.createListItem(newItem);
+      this.listsState.addItem(item);
+      this.newItemName.set('');
+    } catch (error) {
+      console.error('Error adding item:', error);
+      alert('Failed to add item');
+    }
   }
 
-  toggleItem(item: ListItem): void {
+  async toggleItem(item: ListItem): Promise<void> {
     if (!item.id) return;
 
-    const updatedItem = { ...item, isChecked: !item.isChecked };
-    this.listService.updateListItem(item.id, updatedItem).subscribe({
-      next: (updated) => {
-        const index = this.listItems.findIndex(i => i.id === item.id);
-        if (index !== -1) {
-          this.listItems[index] = updated;
-        }
-      },
-      error: (error) => {
-        console.error('Error updating item:', error);
-      }
-    });
+    try {
+      const updatedItem = { ...item, isChecked: !item.isChecked };
+      const updated = await this.listsApi.updateListItem(item.id, updatedItem);
+      this.listsState.updateItem(item.id, updated);
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
   }
 
-  deleteItem(id: number | undefined): void {
+  async deleteItem(id: number | undefined): Promise<void> {
     if (!id) return;
 
-    this.listService.deleteListItem(id).subscribe({
-      next: () => {
-        this.listItems = this.listItems.filter(i => i.id !== id);
-      },
-      error: (error) => {
-        console.error('Error deleting item:', error);
-      }
-    });
+    try {
+      await this.listsApi.deleteListItem(id);
+      this.listsState.removeItem(id);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
   }
 
-  deleteList(id: number | undefined): void {
+  async deleteList(id: number | undefined): Promise<void> {
     if (!id || !confirm('Are you sure you want to delete this list?')) {
       return;
     }
 
-    this.listService.deleteList(id).subscribe({
-      next: () => {
-        this.lists = this.lists.filter(l => l.id !== id);
-        if (this.selectedList?.id === id) {
-          this.closeListDetail();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting list:', error);
-        alert('Failed to delete list');
+    try {
+      await this.listsApi.deleteList(id);
+      this.listsState.removeList(id);
+      if (this.activeList()?.id === id) {
+        this.closeListDetail();
       }
-    });
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      alert('Failed to delete list');
+    }
   }
 
   getCompletedCount(listId: number): number {
-    // This would ideally come from the API
-    return 0;
+    const items = this.listsState.getItemsForList(listId);
+    return items.filter(i => i.isChecked).length;
   }
 
   getTotalCount(listId: number): number {
-    // This would ideally come from the API
-    return 0;
+    return this.listsState.getItemsForList(listId).length;
   }
 
   getProgressPercentage(listId: number): number {
