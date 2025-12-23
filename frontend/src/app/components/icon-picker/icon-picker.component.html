@@ -1,0 +1,48 @@
+<div class="icon-picker">
+  <div class="icon-picker-trigger" (click)="togglePicker()">
+    <div class="selected-icon">
+      <span class="emoji">{{ selectedIcon || '😊' }}</span>
+      <span class="label">Choose Icon</span>
+    </div>
+    <button type="button" class="picker-button">
+      {{ selectedIcon ? 'Change' : 'Select' }}
+    </button>
+  </div>
+
+  <div class="icon-picker-dropdown" *ngIf="isOpen">
+    <div class="picker-header">
+      <h3>Choose an Icon</h3>
+      <button type="button" class="close-button" (click)="closePicker()">✕</button>
+    </div>
+
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Search emojis..." 
+        [(ngModel)]="searchTerm"
+        class="search-input"
+      />
+    </div>
+
+    <div class="emoji-grid">
+      <button
+        type="button"
+        *ngFor="let emoji of displayedEmojis"
+        class="emoji-button"
+        [class.selected]="emoji === selectedIcon"
+        (click)="selectIcon(emoji)"
+      >
+        {{ emoji }}
+      </button>
+    </div>
+
+    <div class="picker-footer">
+      <button type="button" class="clear-button" (click)="selectIcon('')">
+        Clear Icon
+      </button>
+    </div>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="picker-backdrop" *ngIf="isOpen" (click)="closePicker()"></div>
+</div>
