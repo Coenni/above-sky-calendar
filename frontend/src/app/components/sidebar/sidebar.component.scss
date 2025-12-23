@@ -1,0 +1,232 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 240px;
+  background: linear-gradient(180deg, $color-cream 0%, $color-warm-white 100%);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: width $transition-base, transform $transition-base;
+  z-index: $z-index-sticky;
+  border-right: 3px solid $color-sage-green;
+  
+  &.collapsed {
+    width: 80px;
+    
+    .sidebar-profile {
+      padding: $spacing-md;
+      
+      .profile-avatar {
+        margin: 0 auto;
+      }
+    }
+    
+    .nav-item {
+      justify-content: center;
+      padding: $spacing-md;
+    }
+    
+    .nav-icon {
+      margin-right: 0;
+    }
+  }
+}
+
+// Toggle Button
+.sidebar-toggle {
+  position: absolute;
+  top: $spacing-md;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+  background: $color-sage-green;
+  border: 2px solid $color-soft-brown;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  color: white;
+  transition: all $transition-base;
+  z-index: 10;
+  
+  &:hover {
+    background: $color-soft-brown;
+    transform: scale(1.1);
+  }
+  
+  .hamburger-icon {
+    display: block;
+    line-height: 1;
+  }
+}
+
+// User Profile
+.sidebar-profile {
+  padding: $spacing-xl $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  border-bottom: 2px dashed $color-sage-green;
+  margin-bottom: $spacing-lg;
+  background: rgba($color-mint, 0.3);
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  border: 3px solid white;
+  box-shadow: $shadow-md;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-weight: $font-weight-bold;
+  font-size: $font-size-base;
+  color: $color-soft-brown;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-role {
+  font-size: $font-size-sm;
+  color: $color-gray;
+}
+
+// Navigation
+.sidebar-nav {
+  flex: 1;
+  padding: 0 $spacing-sm;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $color-sage-green;
+    border-radius: $radius-full;
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-sm;
+  border-radius: $radius-lg;
+  color: $color-soft-brown;
+  text-decoration: none;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-base;
+  transition: all $transition-base;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: transparent;
+  width: 100%;
+  
+  &:hover {
+    background: rgba($color-sage-green, 0.2);
+    transform: translateX(4px);
+    border-color: $color-sage-green;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, rgba($color-sage-green, 0.4) 0%, rgba($color-mint, 0.4) 100%);
+    color: $color-soft-brown;
+    font-weight: $font-weight-bold;
+    border-color: $color-sage-green;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.nav-icon {
+  font-size: $font-size-2xl;
+  margin-right: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+}
+
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Footer
+.sidebar-footer {
+  padding: $spacing-lg $spacing-sm;
+  border-top: 2px dashed $color-sage-green;
+  background: rgba($color-peach, 0.2);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 2px solid $color-terracotta;
+  
+  &:hover {
+    background: rgba($color-terracotta, 0.2);
+    border-color: $color-terracotta;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+    
+    &.collapsed {
+      width: 80px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    
+    &.collapsed {
+      transform: translateX(0);
+      width: 80px;
+    }
+  }
+  
+  .sidebar-toggle {
+    display: flex;
+    right: -40px;
+  }
+}
+
+// Animations
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
