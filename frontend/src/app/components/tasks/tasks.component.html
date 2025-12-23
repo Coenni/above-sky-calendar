@@ -172,7 +172,7 @@
             name="assignedUserId"
             class="form-control"
           >
-            <option [value]="undefined">Unassigned</option>
+            <option [value]="null">Unassigned</option>
             @for (member of familyMembers(); track member.id) {
               <option [value]="member.id">
                 {{ member.username }}
