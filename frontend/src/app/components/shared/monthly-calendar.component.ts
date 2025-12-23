@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, TemplateRef, ContentChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, TemplateRef, ContentChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, isSameMonth } from 'date-fns';
 
@@ -16,7 +16,7 @@ export interface CalendarDay {
   templateUrl: './monthly-calendar.component.html',
   styleUrls: ['./monthly-calendar.component.scss']
 })
-export class MonthlyCalendarComponent {
+export class MonthlyCalendarComponent implements OnInit {
   @Input() currentDate: Date = new Date();
   @Input() dayContentTemplate?: TemplateRef<any>;
   @Output() dateSelected = new EventEmitter<Date>();
