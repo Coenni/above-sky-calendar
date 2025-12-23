@@ -261,17 +261,15 @@
 
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(-100%);
+    transform: translateX(0);
     
     &.collapsed {
-      transform: translateX(0);
-      width: 80px;
+      transform: translateX(-100%);
     }
   }
   
   .sidebar-toggle {
     display: flex;
-    right: -40px;
   }
 }
 

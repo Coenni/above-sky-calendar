@@ -207,8 +207,90 @@
 
   <!-- Tasks List -->
   @if (!loading()) {
-    <div class="tasks-grid">
-      @for (task of filteredTasks(); track task.id) {
+    <!-- Column View by Assignee -->
+    @if (groupByAssignee()) {
+      <div class="tasks-columns">
+        <!-- Unassigned Column -->
+        <div class="task-column">
+          <div class="column-header">
+            <div class="column-avatar unassigned">?</div>
+            <h3 class="column-title">Unassigned</h3>
+            <span class="task-count">{{ getTasksForAssignee(null).length }}</span>
+          </div>
+          <div class="column-tasks">
+            @for (task of getTasksForAssignee(null); track task.id) {
+              <div 
+                class="task-card-compact" 
+                [class.completed]="task.status === 'completed'"
+              >
+                <div class="task-header-compact">
+                  <span class="task-priority-badge" [class]="task.priority">{{ task.priority }}</span>
+                </div>
+                <h4 class="task-title-compact">{{ task.title }}</h4>
+                @if (task.rewardPoints && task.rewardPoints > 0) {
+                  <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
+                }
+                <div class="task-actions-compact">
+                  @if (isParentMode() && task.status !== 'completed') {
+                    <button class="btn-icon-compact btn-complete" (click)="completeTask(task)">✓</button>
+                  }
+                  @if (isParentMode()) {
+                    <button class="btn-icon-compact btn-delete" (click)="deleteTask(task.id)">🗑️</button>
+                  }
+                </div>
+              </div>
+            }
+            @if (getTasksForAssignee(null).length === 0) {
+              <div class="empty-column">No unassigned tasks</div>
+            }
+          </div>
+        </div>
+        
+        <!-- Family Member Columns -->
+        @for (member of familyMembers(); track member.id) {
+          <div class="task-column">
+            <div class="column-header">
+              <div class="column-avatar" [style.background]="member.color">
+                {{ member.username.charAt(0) }}
+              </div>
+              <h3 class="column-title">{{ member.username }}</h3>
+              <span class="task-count">{{ getTasksForAssignee(member.id).length }}</span>
+            </div>
+            <div class="column-tasks">
+              @for (task of getTasksForAssignee(member.id); track task.id) {
+                <div 
+                  class="task-card-compact" 
+                  [class.completed]="task.status === 'completed'"
+                  [style.border-left]="'4px solid ' + member.color"
+                >
+                  <div class="task-header-compact">
+                    <span class="task-priority-badge" [class]="task.priority">{{ task.priority }}</span>
+                  </div>
+                  <h4 class="task-title-compact">{{ task.title }}</h4>
+                  @if (task.rewardPoints && task.rewardPoints > 0) {
+                    <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
+                  }
+                  <div class="task-actions-compact">
+                    @if (isParentMode() && task.status !== 'completed') {
+                      <button class="btn-icon-compact btn-complete" (click)="completeTask(task)">✓</button>
+                    }
+                    @if (isParentMode()) {
+                      <button class="btn-icon-compact btn-delete" (click)="deleteTask(task.id)">🗑️</button>
+                    }
+                  </div>
+                </div>
+              }
+              @if (getTasksForAssignee(member.id).length === 0) {
+                <div class="empty-column">No tasks assigned</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Grid View (default) -->
+      <div class="tasks-grid">
+        @for (task of filteredTasks(); track task.id) {
         <div 
           class="task-card" 
           [class.completed]="task.status === 'completed'"
@@ -269,7 +351,8 @@
           <p>Create your first task to get started!</p>
         </div>
       }
-    </div>
+      </div>
+    }
   }
 </div>
 </div>

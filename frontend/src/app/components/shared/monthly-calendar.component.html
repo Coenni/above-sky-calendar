@@ -29,7 +29,7 @@
         <div class="day-number">{{ day.dayNumber }}</div>
         <div class="day-content">
           @if (dayContentTemplate) {
-            <ng-container *ngTemplateOutlet="dayContentTemplate; context: {day: day}"></ng-container>
+            <ng-container *ngTemplateOutlet="dayContentTemplate; context: {$implicit: day, day: day}"></ng-container>
           }
         </div>
       </div>

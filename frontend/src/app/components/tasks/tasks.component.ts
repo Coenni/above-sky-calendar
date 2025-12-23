@@ -195,4 +195,12 @@ export class TasksComponent implements OnInit {
     const name = this.getAssigneeName(userId);
     return name.charAt(0).toUpperCase();
   }
+  
+  getTasksForAssignee(userId: number | null): Task[] {
+    const tasks = this.sortedTasks();
+    if (userId === null) {
+      return tasks.filter(task => !task.assignedUserId);
+    }
+    return tasks.filter(task => task.assignedUserId === userId);
+  }
 }
