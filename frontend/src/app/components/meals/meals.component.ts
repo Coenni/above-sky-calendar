@@ -32,7 +32,6 @@ export class MealsComponent implements OnInit {
   currentPage = signal(0);
   pageSize = 12;
   showImagePreview = signal(false);
-  Math = Math; // Expose Math to template
   
   newMeal: Meal = {
     name: '',
@@ -90,6 +89,14 @@ export class MealsComponent implements OnInit {
     const total = this.totalMeals();
     const pages = Math.ceil(total / this.pageSize);
     return Array.from({ length: pages }, (_, i) => i);
+  });
+  
+  readonly paginationEnd = computed(() => {
+    return Math.min((this.currentPage() + 1) * this.pageSize, this.totalMeals());
+  });
+  
+  readonly paginationStart = computed(() => {
+    return (this.currentPage() * this.pageSize) + 1;
   });
 
   async ngOnInit(): Promise<void> {

@@ -3,6 +3,7 @@ package com.abovesky.calendar.service;
 import com.abovesky.calendar.dto.MealDto;
 import com.abovesky.calendar.entity.Meal;
 import com.abovesky.calendar.entity.MealType;
+import com.abovesky.calendar.exception.ResourceNotFoundException;
 import com.abovesky.calendar.repository.MealRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class MealService {
 
     public MealDto getMealById(Long id) {
         Meal meal = mealRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + id));
         return convertToDto(meal);
     }
 
@@ -72,7 +73,7 @@ public class MealService {
     @Transactional
     public MealDto updateMeal(Long id, MealDto mealDto) {
         Meal meal = mealRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + id));
 
         meal.setName(mealDto.getName());
         meal.setCategory(mealDto.getCategory());
@@ -91,7 +92,7 @@ public class MealService {
     @Transactional
     public void deleteMeal(Long id) {
         if (!mealRepository.existsById(id)) {
-            throw new RuntimeException("Meal not found with id: " + id);
+            throw new ResourceNotFoundException("Meal not found with id: " + id);
         }
         mealRepository.deleteById(id);
     }
@@ -99,7 +100,7 @@ public class MealService {
     @Transactional
     public MealDto assignMealToDate(Long id, LocalDate date, MealType mealType) {
         Meal meal = mealRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + id));
         
         meal.setAssignedDate(date);
         meal.setMealType(mealType);
