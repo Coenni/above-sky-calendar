@@ -92,6 +92,7 @@ public class MealService {
         dto.setDietaryTags(meal.getDietaryTags());
         dto.setImageUrl(meal.getImageUrl());
         dto.setIsFavorite(meal.getIsFavorite());
+        dto.setIcon(meal.getIcon());
         dto.setCreatedBy(meal.getCreatedBy());
         dto.setCreatedAt(meal.getCreatedAt());
         dto.setUpdatedAt(meal.getUpdatedAt());
@@ -108,6 +109,7 @@ public class MealService {
         meal.setDietaryTags(dto.getDietaryTags());
         meal.setImageUrl(dto.getImageUrl());
         meal.setIsFavorite(dto.getIsFavorite() != null ? dto.getIsFavorite() : false);
+        meal.setIcon(dto.getIcon());
         meal.setCreatedBy(dto.getCreatedBy());
         return meal;
     }

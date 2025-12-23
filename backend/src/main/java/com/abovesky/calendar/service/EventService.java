@@ -42,6 +42,13 @@ public class EventService {
         event.setDescription(eventDto.getDescription());
         event.setStartDate(eventDto.getStartDate());
         event.setEndDate(eventDto.getEndDate());
+        event.setCategory(eventDto.getCategory());
+        event.setColor(eventDto.getColor());
+        event.setIsAllDay(eventDto.getIsAllDay());
+        event.setRecurrencePattern(eventDto.getRecurrencePattern());
+        event.setAssignedMembers(eventDto.getAssignedMembers());
+        event.setReminderMinutes(eventDto.getReminderMinutes());
+        event.setIcon(eventDto.getIcon());
 
         event = eventRepository.save(event);
         return convertToDto(event);
@@ -58,7 +65,16 @@ public class EventService {
                 event.getDescription(),
                 event.getStartDate(),
                 event.getEndDate(),
-                event.getUserId()
+                event.getUserId(),
+                event.getCategory(),
+                event.getColor(),
+                event.getIsAllDay(),
+                event.getRecurrencePattern(),
+                event.getAssignedMembers(),
+                event.getReminderMinutes(),
+                event.getIcon(),
+                event.getCreatedAt(),
+                event.getUpdatedAt()
         );
     }
 
@@ -70,6 +86,13 @@ public class EventService {
         event.setStartDate(dto.getStartDate());
         event.setEndDate(dto.getEndDate());
         event.setUserId(dto.getUserId());
+        event.setCategory(dto.getCategory());
+        event.setColor(dto.getColor());
+        event.setIsAllDay(dto.getIsAllDay());
+        event.setRecurrencePattern(dto.getRecurrencePattern());
+        event.setAssignedMembers(dto.getAssignedMembers());
+        event.setReminderMinutes(dto.getReminderMinutes());
+        event.setIcon(dto.getIcon());
         return event;
     }
 }

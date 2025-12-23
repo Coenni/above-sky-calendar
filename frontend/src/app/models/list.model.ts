@@ -7,6 +7,7 @@ export interface FamilyList {
   createdBy?: number;
   isArchived: boolean;
   archivedAt?: Date;
+  icon?: string; // Emoji or icon identifier
   createdAt?: Date;
   updatedAt?: Date;
 }

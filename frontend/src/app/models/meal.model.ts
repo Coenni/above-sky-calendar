@@ -8,6 +8,7 @@ export interface Meal {
   dietaryTags?: string;
   imageUrl?: string;
   isFavorite: boolean;
+  icon?: string; // Emoji or icon identifier
   createdBy?: number;
   createdAt?: Date;
   updatedAt?: Date;

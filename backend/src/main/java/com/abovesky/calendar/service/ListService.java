@@ -57,6 +57,7 @@ public class ListService {
         list.setType(listDto.getType());
         list.setDescription(listDto.getDescription());
         list.setIsShared(listDto.getIsShared());
+        list.setIcon(listDto.getIcon());
 
         FamilyList updatedList = listRepository.save(list);
         return convertListToDto(updatedList);
@@ -127,6 +128,7 @@ public class ListService {
         dto.setCreatedBy(list.getCreatedBy());
         dto.setIsArchived(list.getIsArchived());
         dto.setArchivedAt(list.getArchivedAt());
+        dto.setIcon(list.getIcon());
         dto.setCreatedAt(list.getCreatedAt());
         dto.setUpdatedAt(list.getUpdatedAt());
         return dto;
@@ -140,6 +142,7 @@ public class ListService {
         list.setIsShared(dto.getIsShared() != null ? dto.getIsShared() : true);
         list.setCreatedBy(dto.getCreatedBy());
         list.setIsArchived(false);
+        list.setIcon(dto.getIcon());
         return list;
     }
 

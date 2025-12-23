@@ -114,6 +114,7 @@ public class TaskService {
         dto.setRewardPoints(task.getRewardPoints());
         dto.setSubtasks(task.getSubtasks());
         dto.setOrderIndex(task.getOrderIndex());
+        dto.setIcon(task.getIcon());
         dto.setCompletedAt(task.getCompletedAt());
         dto.setCreatedBy(task.getCreatedBy());
         dto.setCreatedAt(task.getCreatedAt());
@@ -134,6 +135,7 @@ public class TaskService {
         task.setRewardPoints(dto.getRewardPoints() != null ? dto.getRewardPoints() : 0);
         task.setSubtasks(dto.getSubtasks());
         task.setOrderIndex(dto.getOrderIndex() != null ? dto.getOrderIndex() : 0);
+        task.setIcon(dto.getIcon());
         task.setCreatedBy(dto.getCreatedBy());
         return task;
     }

@@ -68,6 +68,7 @@ public class RewardService {
         reward.setImageUrl(rewardDto.getImageUrl());
         reward.setIsActive(rewardDto.getIsActive());
         reward.setStockQuantity(rewardDto.getStockQuantity());
+        reward.setIcon(rewardDto.getIcon());
 
         Reward updatedReward = rewardRepository.save(reward);
         return convertRewardToDto(updatedReward);
@@ -146,6 +147,7 @@ public class RewardService {
         dto.setImageUrl(reward.getImageUrl());
         dto.setIsActive(reward.getIsActive());
         dto.setStockQuantity(reward.getStockQuantity());
+        dto.setIcon(reward.getIcon());
         dto.setCreatedAt(reward.getCreatedAt());
         dto.setUpdatedAt(reward.getUpdatedAt());
         return dto;
@@ -160,6 +162,7 @@ public class RewardService {
         reward.setImageUrl(dto.getImageUrl());
         reward.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         reward.setStockQuantity(dto.getStockQuantity());
+        reward.setIcon(dto.getIcon());
         return reward;
     }
 

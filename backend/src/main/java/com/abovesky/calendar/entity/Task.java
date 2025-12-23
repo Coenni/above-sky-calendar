@@ -54,6 +54,9 @@ public class Task {
     private Integer orderIndex = 0; // For drag-and-drop ordering
 
     @Column
+    private String icon; // Emoji or icon identifier for child-friendly UI
+
+    @Column
     private LocalDateTime completedAt;
 
     @Column(nullable = false)

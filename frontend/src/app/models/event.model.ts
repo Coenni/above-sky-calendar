@@ -11,6 +11,7 @@ export interface Event {
   recurrencePattern?: string;
   assignedMembers?: string;
   reminderMinutes?: string;
+  icon?: string; // Emoji or icon identifier
   createdAt?: Date;
   updatedAt?: Date;
 }

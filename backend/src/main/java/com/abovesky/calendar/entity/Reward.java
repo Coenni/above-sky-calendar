@@ -41,6 +41,9 @@ public class Reward {
     @Column
     private Integer stockQuantity; // -1 for unlimited, 0+ for limited stock
 
+    @Column
+    private String icon; // Emoji or icon identifier for child-friendly UI
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

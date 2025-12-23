@@ -7,6 +7,7 @@ export interface Reward {
   imageUrl?: string;
   isActive: boolean;
   stockQuantity?: number;
+  icon?: string; // Emoji or icon identifier
   createdAt?: Date;
   updatedAt?: Date;
 }

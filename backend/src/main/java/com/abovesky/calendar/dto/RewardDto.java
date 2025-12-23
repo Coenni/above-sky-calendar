@@ -18,6 +18,7 @@ public class RewardDto {
     private String imageUrl;
     private Boolean isActive;
     private Integer stockQuantity;
+    private String icon;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

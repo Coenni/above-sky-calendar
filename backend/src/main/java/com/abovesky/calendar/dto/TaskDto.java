@@ -22,6 +22,7 @@ public class TaskDto {
     private Integer rewardPoints;
     private String subtasks;
     private Integer orderIndex;
+    private String icon;
     private LocalDateTime completedAt;
     private Long createdBy;
     private LocalDateTime createdAt;
