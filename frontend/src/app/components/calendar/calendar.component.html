@@ -25,13 +25,49 @@
       </div>
     </div>
 
-    <!-- Month Navigation -->
+    <!-- View Mode Selector -->
+    <div class="view-mode-selector">
+      <button 
+        (click)="setViewMode('daily')" 
+        class="view-mode-btn"
+        [class.active]="viewMode() === 'daily'"
+      >
+        Daily
+      </button>
+      <button 
+        (click)="setViewMode('5-day')" 
+        class="view-mode-btn"
+        [class.active]="viewMode() === '5-day'"
+      >
+        5-Day
+      </button>
+      <button 
+        (click)="setViewMode('weekly')" 
+        class="view-mode-btn"
+        [class.active]="viewMode() === 'weekly'"
+      >
+        Weekly
+      </button>
+      <button 
+        (click)="setViewMode('monthly')" 
+        class="view-mode-btn"
+        [class.active]="viewMode() === 'monthly'"
+      >
+        Monthly
+      </button>
+    </div>
+
+    <!-- Period Navigation -->
     <div class="month-navigation">
-      <button (click)="previousMonth()" class="btn btn-secondary">
+      <button (click)="previousPeriod()" class="btn btn-secondary">
         ← Previous
       </button>
-      <h2 class="month-title">{{ currentMonthName() }}</h2>
-      <button (click)="nextMonth()" class="btn btn-secondary">
+      @if (viewMode() === 'monthly') {
+        <h2 class="month-title">{{ currentMonthName() }}</h2>
+      } @else {
+        <h2 class="month-title">{{ viewMode() | titlecase }} View</h2>
+      }
+      <button (click)="nextPeriod()" class="btn btn-secondary">
         Next →
       </button>
     </div>
@@ -42,23 +78,26 @@
 
     <!-- Calendar Grid -->
     @if (!loading()) {
-      <div class="calendar-grid">
-        <!-- Week day headers -->
-        @for (day of weekDays; track day) {
-          <div class="calendar-header">
-            {{ day }}
-          </div>
+      <div class="calendar-grid" [class.compact-view]="viewMode() !== 'monthly'">
+        <!-- Week day headers (show only for non-daily view) -->
+        @if (viewMode() !== 'daily') {
+          @for (day of weekDays; track day) {
+            <div class="calendar-header">
+              {{ day }}
+            </div>
+          }
         }
 
         <!-- Calendar days -->
-        @for (date of daysInMonth(); track date?.getTime() || 'null') {
+        @for (date of getCurrentViewDates(); track date?.getTime() || 'null') {
           <div 
             class="calendar-day"
             [ngClass]="{
           'empty': !date,
           'today': isToday(date),
           'selected': isSelected(date),
-          'has-events': date && getEventsForDate(date).length > 0
+          'has-events': date && getEventsForDate(date).length > 0,
+          'daily-view': viewMode() === 'daily'
         }"
         (click)="selectDate(date)"
       >

@@ -12,7 +12,7 @@ import { Event } from '../../models/event.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.css']
+  styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent implements OnInit {
   // Inject services using inject()
@@ -34,6 +34,9 @@ export class CalendarComponent implements OnInit {
   // Local component state
   showEventForm = signal(false);
   weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  // Calendar view mode
+  viewMode = signal<'daily' | '5-day' | 'weekly' | 'monthly'>('monthly');
   
   newEvent: Event = {
     title: '',
@@ -132,6 +135,100 @@ export class CalendarComponent implements OnInit {
     } catch (error) {
       console.error('Error deleting event:', error);
       alert('Failed to delete event');
+    }
+  }
+
+  setViewMode(mode: 'daily' | '5-day' | 'weekly' | 'monthly'): void {
+    this.viewMode.set(mode);
+  }
+
+  // Get dates for different view modes
+  getDailyView(): Date[] {
+    const selected = this.selectedDate() || new Date();
+    return [selected];
+  }
+
+  get5DayView(): Date[] {
+    const selected = this.selectedDate() || new Date();
+    const dates: Date[] = [];
+    const startOfWeek = new Date(selected);
+    const day = startOfWeek.getDay();
+    // Adjust to Monday if not already
+    const diff = day === 0 ? -6 : 1 - day;
+    startOfWeek.setDate(startOfWeek.getDate() + diff);
+    
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  }
+
+  getWeeklyView(): Date[] {
+    const selected = this.selectedDate() || new Date();
+    const dates: Date[] = [];
+    const startOfWeek = new Date(selected);
+    startOfWeek.setDate(selected.getDate() - selected.getDay());
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  }
+
+  // Helper to get the current view dates based on mode
+  getCurrentViewDates(): (Date | null)[] {
+    switch (this.viewMode()) {
+      case 'daily':
+        return this.getDailyView();
+      case '5-day':
+        return this.get5DayView();
+      case 'weekly':
+        return this.getWeeklyView();
+      case 'monthly':
+      default:
+        return this.daysInMonth();
+    }
+  }
+
+  // Navigate to previous period based on view mode
+  previousPeriod(): void {
+    const mode = this.viewMode();
+    if (mode === 'monthly') {
+      this.previousMonth();
+    } else {
+      const selected = this.selectedDate() || new Date();
+      const newDate = new Date(selected);
+      if (mode === 'daily') {
+        newDate.setDate(newDate.getDate() - 1);
+      } else if (mode === '5-day') {
+        newDate.setDate(newDate.getDate() - 5);
+      } else if (mode === 'weekly') {
+        newDate.setDate(newDate.getDate() - 7);
+      }
+      this.calendarState.setSelectedDate(newDate);
+    }
+  }
+
+  // Navigate to next period based on view mode
+  nextPeriod(): void {
+    const mode = this.viewMode();
+    if (mode === 'monthly') {
+      this.nextMonth();
+    } else {
+      const selected = this.selectedDate() || new Date();
+      const newDate = new Date(selected);
+      if (mode === 'daily') {
+        newDate.setDate(newDate.getDate() + 1);
+      } else if (mode === '5-day') {
+        newDate.setDate(newDate.getDate() + 5);
+      } else if (mode === 'weekly') {
+        newDate.setDate(newDate.getDate() + 7);
+      }
+      this.calendarState.setSelectedDate(newDate);
     }
   }
 }
