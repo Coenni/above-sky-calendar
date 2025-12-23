@@ -23,6 +23,20 @@
     </div>
   }
 
+  <!-- Create Event Button -->
+  <div class="sidebar-create">
+    <button 
+      [routerLink]="'/dashboard'" 
+      class="btn-create-event"
+      [attr.title]="isCollapsed() ? 'Create Event' : null"
+    >
+      <span class="nav-icon">+</span>
+      @if (!isCollapsed()) {
+        <span class="nav-label">Create Event</span>
+      }
+    </button>
+  </div>
+
   <!-- Navigation Items -->
   <nav class="sidebar-nav">
     @for (item of navItems; track item.route) {

@@ -1,0 +1,40 @@
+<div class="family-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>👨‍👩‍👧‍👦 Family Members</h1>
+      <p class="subtitle">Manage your family members</p>
+    </div>
+    <button (click)="toggleAddForm()" class="btn-add-member">
+      {{ showAddForm() ? '✕ Cancel' : '+ Add Member' }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Loading family members...</div>
+  }
+
+  @if (!loading()) {
+    <div class="family-grid">
+      @for (member of familyMembers(); track member.id) {
+        <div class="family-card watercolor-card">
+          <div class="member-avatar" [style.background]="getMemberColor(member.color)">
+            {{ member.username.charAt(0).toUpperCase() }}
+          </div>
+          <div class="member-info">
+            <h3 class="member-name">{{ member.username }}</h3>
+            <p class="member-role">{{ member.isParent ? 'Parent' : 'Child' }}</p>
+            @if (member.rewardPoints !== undefined) {
+              <div class="member-points">🏆 {{ member.rewardPoints }} points</div>
+            }
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">👨‍👩‍👧‍👦</div>
+          <h3>No family members found</h3>
+          <p>Add your first family member to get started!</p>
+        </div>
+      }
+    </div>
+  }
+</div>
