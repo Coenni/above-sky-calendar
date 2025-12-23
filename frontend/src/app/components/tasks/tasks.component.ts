@@ -13,7 +13,7 @@ import { Task } from '../../models/task.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './tasks.component.html',
-  styleUrls: ['./tasks.component.css']
+  styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent implements OnInit {
   // Inject services using inject()
