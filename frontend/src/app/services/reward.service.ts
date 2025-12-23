@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Reward, RewardRedemption } from '../models/reward.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RewardService {
-  private apiUrl = '/api/rewards';
+  private apiUrl = `${environment.apiUrl}/rewards`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FamilyList, ListItem } from '../models/list.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ListService {
-  private apiUrl = '/api/lists';
+  private apiUrl = `${environment.apiUrl}/lists`;
 
   constructor(private http: HttpClient) {}
 
