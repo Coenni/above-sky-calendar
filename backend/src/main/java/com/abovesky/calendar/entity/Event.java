@@ -54,6 +54,9 @@ public class Event {
     @Column
     private String reminderMinutes; // Comma-separated minutes before event (e.g., "15,60,1440")
 
+    @Column
+    private String icon; // Emoji or icon identifier for child-friendly UI
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

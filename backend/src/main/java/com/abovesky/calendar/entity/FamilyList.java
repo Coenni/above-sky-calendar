@@ -41,6 +41,9 @@ public class FamilyList {
     @Column
     private LocalDateTime archivedAt;
 
+    @Column
+    private String icon; // Emoji or icon identifier for child-friendly UI
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

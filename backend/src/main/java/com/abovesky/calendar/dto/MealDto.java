@@ -20,6 +20,7 @@ public class MealDto {
     private String dietaryTags;
     private String imageUrl;
     private Boolean isFavorite;
+    private String icon;
     private Long createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

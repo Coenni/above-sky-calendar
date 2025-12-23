@@ -18,6 +18,7 @@ public class FamilyListDto {
     private Long createdBy;
     private Boolean isArchived;
     private LocalDateTime archivedAt;
+    private String icon;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

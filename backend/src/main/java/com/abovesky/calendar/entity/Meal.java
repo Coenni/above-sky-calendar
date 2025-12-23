@@ -46,6 +46,9 @@ public class Meal {
     private Boolean isFavorite = false;
 
     @Column
+    private String icon; // Emoji or icon identifier for child-friendly UI
+
+    @Column
     private Long createdBy;
 
     @CreationTimestamp
