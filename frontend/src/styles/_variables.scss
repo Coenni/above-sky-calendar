@@ -1,0 +1,158 @@
+// ===================================
+// Child-Friendly Color Palette
+// ===================================
+
+// Primary Colors - Vibrant and Playful
+$color-primary: #7c3aed; // Playful Purple
+$color-primary-light: #a78bfa;
+$color-primary-dark: #5b21b6;
+$color-secondary: #f59e0b; // Sunny Yellow
+$color-secondary-light: #fbbf24;
+$color-secondary-dark: #d97706;
+
+// Rainbow Accent Colors
+$color-red: #ef4444;
+$color-pink: #ec4899;
+$color-purple: #a855f7;
+$color-blue: #3b82f6;
+$color-cyan: #06b6d4;
+$color-green: #10b981;
+$color-yellow: #eab308;
+$color-orange: #f97316;
+
+// Pastel Backgrounds
+$color-bg-pastel-purple: #f3e8ff;
+$color-bg-pastel-pink: #fce7f3;
+$color-bg-pastel-blue: #dbeafe;
+$color-bg-pastel-green: #d1fae5;
+$color-bg-pastel-yellow: #fef3c7;
+$color-bg-pastel-orange: #ffedd5;
+
+// Neutral Colors
+$color-white: #ffffff;
+$color-light-gray: #f3f4f6;
+$color-gray: #9ca3af;
+$color-dark-gray: #4b5563;
+$color-text: #1f2937;
+
+// Status Colors
+$color-success: #10b981;
+$color-warning: #f59e0b;
+$color-error: #ef4444;
+$color-info: #3b82f6;
+
+// ===================================
+// Typography - Friendly & Readable
+// ===================================
+
+// Font Families
+$font-primary: 'Poppins', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+$font-heading: 'Quicksand', 'Comic Sans MS', 'Poppins', sans-serif;
+
+// Font Sizes - Larger for young readers
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+$font-size-4xl: 36px;
+$font-size-5xl: 48px;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ===================================
+// Spacing - Comfortable & Playful
+// ===================================
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 48px;
+$spacing-4xl: 64px;
+
+// ===================================
+// Border Radius - Round & Friendly
+// ===================================
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-2xl: 24px;
+$radius-full: 9999px;
+
+// ===================================
+// Shadows - Soft & Playful
+// ===================================
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+$shadow-playful: 0 8px 16px rgba(124, 58, 237, 0.3);
+$shadow-colorful: 0 8px 20px rgba(124, 58, 237, 0.4);
+
+// ===================================
+// Transitions - Smooth & Fun
+// ===================================
+
+$transition-fast: 150ms ease-in-out;
+$transition-base: 300ms ease-in-out;
+$transition-slow: 500ms ease-in-out;
+$transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+// ===================================
+// Touch Targets - Large for Kids
+// ===================================
+
+$touch-target-min: 48px;
+$button-height-sm: 40px;
+$button-height-md: 48px;
+$button-height-lg: 56px;
+
+// ===================================
+// Z-Index Layers
+// ===================================
+
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// ===================================
+// Gradients - Vibrant & Fun
+// ===================================
+
+$gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$gradient-blue: linear-gradient(135deg, #667eea 0%, #06b6d4 100%);
+$gradient-pink: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+$gradient-orange: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+$gradient-green: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+$gradient-rainbow: linear-gradient(135deg, 
+  #667eea 0%, 
+  #764ba2 20%, 
+  #f093fb 40%, 
+  #f5576c 60%, 
+  #ffd89b 80%, 
+  #19547b 100%
+);

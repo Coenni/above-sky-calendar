@@ -1,0 +1,332 @@
+// Import design system
+@import 'styles/variables';
+@import 'styles/animations';
+
+// ===================================
+// Global Styles - Child-Friendly UI
+// ===================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $color-text;
+  background: linear-gradient(to bottom, $color-bg-pastel-purple, $color-bg-pastel-blue);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+// ===================================
+// Typography - Fun & Readable
+// ===================================
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-heading;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-md;
+  color: $color-primary-dark;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+  margin-bottom: $spacing-xl;
+}
+
+h2 {
+  font-size: $font-size-3xl;
+}
+
+h3 {
+  font-size: $font-size-2xl;
+}
+
+h4 {
+  font-size: $font-size-xl;
+}
+
+h5 {
+  font-size: $font-size-lg;
+}
+
+h6 {
+  font-size: $font-size-base;
+}
+
+p {
+  margin-bottom: $spacing-md;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color $transition-fast;
+  
+  &:hover {
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+}
+
+// ===================================
+// Buttons - Large & Colorful
+// ===================================
+
+button, .button {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  padding: $spacing-md $spacing-xl;
+  min-height: $button-height-md;
+  border: none;
+  border-radius: $radius-lg;
+  background: $gradient-purple;
+  color: $color-white;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-playful;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-colorful;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.button-success {
+  background: linear-gradient(135deg, $color-green 0%, #059669 100%);
+}
+
+.button-warning {
+  background: linear-gradient(135deg, $color-orange 0%, $color-yellow 100%);
+}
+
+.button-danger {
+  background: linear-gradient(135deg, $color-red 0%, #dc2626 100%);
+}
+
+.button-secondary {
+  background: $color-light-gray;
+  color: $color-text;
+  box-shadow: $shadow-md;
+}
+
+// ===================================
+// Cards - Playful & Colorful
+// ===================================
+
+.card {
+  background: $color-white;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: $shadow-lg;
+  transition: all $transition-base;
+  border: 3px solid transparent;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-2xl;
+    border-color: $color-primary-light;
+  }
+}
+
+.card-colorful {
+  background: linear-gradient(135deg, $color-bg-pastel-purple 0%, $color-bg-pastel-blue 100%);
+  border: 3px solid $color-primary-light;
+}
+
+// ===================================
+// Forms - Kid-Friendly
+// ===================================
+
+input, textarea, select {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-primary-light;
+  border-radius: $radius-md;
+  background: $color-white;
+  color: $color-text;
+  transition: all $transition-base;
+  min-height: $touch-target-min;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+  }
+  
+  &::placeholder {
+    color: $color-gray;
+  }
+}
+
+label {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-primary-dark;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+// ===================================
+// Badges & Tags - Colorful
+// ===================================
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  background: $color-primary-light;
+  color: $color-white;
+}
+
+.badge-success {
+  background: $color-green;
+}
+
+.badge-warning {
+  background: $color-orange;
+}
+
+.badge-error {
+  background: $color-red;
+}
+
+.badge-info {
+  background: $color-blue;
+}
+
+// ===================================
+// Utility Classes
+// ===================================
+
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: $color-primary;
+}
+
+.text-success {
+  color: $color-success;
+}
+
+.text-warning {
+  color: $color-warning;
+}
+
+.text-error {
+  color: $color-error;
+}
+
+.rounded {
+  border-radius: $radius-lg;
+}
+
+.rounded-full {
+  border-radius: $radius-full;
+}
+
+.shadow {
+  box-shadow: $shadow-lg;
+}
+
+.shadow-playful {
+  box-shadow: $shadow-playful;
+}
+
+// ===================================
+// Layout Helpers
+// ===================================
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-xl;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.gap-sm {
+  gap: $spacing-sm;
+}
+
+.gap-md {
+  gap: $spacing-md;
+}
+
+.gap-lg {
+  gap: $spacing-lg;
+}
+
+.gap-xl {
+  gap: $spacing-xl;
+}
+
+// ===================================
+// Responsive Utilities
+// ===================================
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: $spacing-md;
+  }
+  
+  h1 {
+    font-size: $font-size-3xl;
+  }
+  
+  h2 {
+    font-size: $font-size-2xl;
+  }
+}
+
