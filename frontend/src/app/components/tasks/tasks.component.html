@@ -208,7 +208,7 @@
   <!-- Tasks List -->
   @if (!loading()) {
     <div class="tasks-grid">
-      @for (task of sortedTasks(); track task.id) {
+      @for (task of filteredTasks(); track task.id) {
         <div 
           class="task-card" 
           [class.completed]="task.status === 'completed'"

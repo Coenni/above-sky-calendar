@@ -38,12 +38,25 @@ export class TasksComponent implements OnInit {
   groupByAssignee = signal(false);
   
   // Mock family members (in real app, would come from a service)
+  // Colors from design system: sage green, terracotta, mint, peach
   familyMembers = signal([
-    { id: 1, username: 'Mom', color: '#A8B5A0' },
-    { id: 2, username: 'Dad', color: '#D4906C' },
-    { id: 3, username: 'Emma', color: '#B8D4C1' },
-    { id: 4, username: 'Noah', color: '#F4C7AB' }
+    { id: 1, username: 'Mom', color: '#A8B5A0' },    // $color-sage-green
+    { id: 2, username: 'Dad', color: '#D4906C' },    // $color-terracotta
+    { id: 3, username: 'Emma', color: '#B8D4C1' },   // $color-mint
+    { id: 4, username: 'Noah', color: '#F4C7AB' }    // $color-peach
   ]);
+  
+  // Filtered tasks based on assignee selection
+  readonly filteredTasks = computed(() => {
+    const tasks = this.sortedTasks();
+    const assigneeFilter = this.filterAssignee();
+    
+    if (assigneeFilter === null) {
+      return tasks;
+    }
+    
+    return tasks.filter(task => task.assignedUserId === assigneeFilter);
+  });
   
   newTask: Task = {
     title: '',
