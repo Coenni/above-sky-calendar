@@ -38,4 +38,16 @@ export class MealsApiService {
   async deleteMeal(id: number): Promise<void> {
     return firstValueFrom(this.mealService.deleteMeal(id));
   }
+
+  async searchMealsByName(name: string): Promise<Meal[]> {
+    return firstValueFrom(this.mealService.searchMealsByName(name));
+  }
+
+  async assignMealToDate(id: number, date: Date, mealType: string): Promise<Meal> {
+    return firstValueFrom(this.mealService.assignMealToDate(id, date, mealType));
+  }
+
+  async getMealsForCalendar(startDate: Date, endDate: Date): Promise<Meal[]> {
+    return firstValueFrom(this.mealService.getMealsForCalendar(startDate, endDate));
+  }
 }
