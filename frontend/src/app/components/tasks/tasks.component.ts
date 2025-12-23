@@ -34,6 +34,16 @@ export class TasksComponent implements OnInit {
   
   // Local component state
   showCreateForm = signal(false);
+  filterAssignee = signal<number | null>(null);
+  groupByAssignee = signal(false);
+  
+  // Mock family members (in real app, would come from a service)
+  familyMembers = signal([
+    { id: 1, username: 'Mom', color: '#A8B5A0' },
+    { id: 2, username: 'Dad', color: '#D4906C' },
+    { id: 3, username: 'Emma', color: '#B8D4C1' },
+    { id: 4, username: 'Noah', color: '#F4C7AB' }
+  ]);
   
   newTask: Task = {
     title: '',
@@ -145,5 +155,31 @@ export class TasksComponent implements OnInit {
       case 'pending': return 'badge-secondary';
       default: return 'badge-secondary';
     }
+  }
+  
+  // Family member assignment methods
+  setAssigneeFilter(userId: number | null): void {
+    this.filterAssignee.set(userId);
+  }
+  
+  toggleGroupByAssignee(): void {
+    this.groupByAssignee.update(v => !v);
+  }
+  
+  getAssigneeName(userId?: number): string {
+    if (!userId) return 'Unassigned';
+    const member = this.familyMembers().find(m => m.id === userId);
+    return member ? member.username : 'Unknown';
+  }
+  
+  getAssigneeColor(userId?: number): string {
+    if (!userId) return '#9ca3af';
+    const member = this.familyMembers().find(m => m.id === userId);
+    return member ? member.color : '#9ca3af';
+  }
+  
+  getAssigneeInitial(userId?: number): string {
+    const name = this.getAssigneeName(userId);
+    return name.charAt(0).toUpperCase();
   }
 }

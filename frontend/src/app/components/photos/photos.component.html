@@ -1,31 +1,13 @@
 <div class="photos-page" (keydown)="handleKeydown($event)">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link active">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      @if (authState.currentUser(); as user) {
-        <div class="user-info">
-          <span>{{ user.username }}</span>
-        </div>
-      }
-    </div>
-  </nav>
-
   <div class="container">
     <div class="header">
       <div class="header-content">
-        <h1>Photo Gallery</h1>
+        <h1>📷 Photo Gallery</h1>
         <p class="subtitle">Share and view family memories</p>
       </div>
       <div class="header-actions">
         <button (click)="toggleUploadForm()" class="btn btn-primary">
-          {{ showUploadForm() ? 'Cancel' : 'Upload Photo' }}
+          {{ showUploadForm() ? '✕ Cancel' : '+ Upload Photo' }}
         </button>
       </div>
     </div>

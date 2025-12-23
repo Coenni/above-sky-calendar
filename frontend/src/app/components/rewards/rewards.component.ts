@@ -13,7 +13,7 @@ import { Reward } from '../../models/reward.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './rewards.component.html',
-  styleUrls: ['./rewards.component.css']
+  styleUrls: ['./rewards.component.scss']
 })
 export class RewardsComponent implements OnInit {
   // Inject services using inject()

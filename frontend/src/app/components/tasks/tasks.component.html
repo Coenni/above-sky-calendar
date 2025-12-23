@@ -1,59 +1,114 @@
 <div class="tasks-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      <a routerLink="/tasks" class="nav-link active">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/metrics" class="nav-link">Metrics</a>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>✓ Tasks</h1>
+        <p class="subtitle">Track family chores and earn rewards</p>
+      </div>
+      @if (isParentMode()) {
+        <button class="btn-create-task" (click)="toggleCreateForm()">
+          {{ showCreateForm() ? '✕ Cancel' : '+ New Task' }}
+        </button>
+      }
     </div>
-  </nav>
 
-  <div class="tasks-container">
-  <div class="tasks-header">
-    <h1>Task Management</h1>
-    @if (isParentMode()) {
-      <button class="btn btn-primary" (click)="toggleCreateForm()">
-        {{ showCreateForm() ? 'Cancel' : '+ New Task' }}
-      </button>
-    }
-  </div>
-
-  <!-- Filter Bar -->
-  <div class="filter-bar">
-    <label>Filter by Status:</label>
-    <select [value]="filterStatus()" (change)="onFilterChange($any($event.target).value)" class="filter-select">
-      <option value="all">All Tasks</option>
-      <option value="pending">Pending</option>
-      <option value="in_progress">In Progress</option>
-      <option value="completed">Completed</option>
-    </select>
-    
-    <div class="stats-summary">
-      <span>Total: {{ stats().total }}</span>
-      <span>Completed: {{ stats().completed }}</span>
-      <span>Pending: {{ stats().pending }}</span>
-      <span>Rate: {{ stats().completionRate | number:'1.0-0' }}%</span>
+    <!-- Stats Cards -->
+    <div class="stats-section">
+      <div class="stats-cards">
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().total }}</span>
+          <span class="stat-label">Total Tasks</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().completed }}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().pending }}</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().completionRate | number:'1.0-0' }}%</span>
+          <span class="stat-label">Completion Rate</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Create Task Form -->
-  @if (showCreateForm()) {
-    <div class="create-form">
-      <h2>Create New Task</h2>
-      <form (ngSubmit)="createTask()">
-        <div class="form-group">
-          <label for="title">Title *</label>
-          <input
-            type="text"
-            id="title"
-            [(ngModel)]="newTask.title"
-            name="title"
-            class="form-control"
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="filters">
+        <button 
+          (click)="onFilterChange('all')" 
+          class="filter-btn" 
+          [class.active]="filterStatus() === 'all'"
+        >
+          All Tasks
+        </button>
+        <button 
+          (click)="onFilterChange('pending')" 
+          class="filter-btn" 
+          [class.active]="filterStatus() === 'pending'"
+        >
+          Pending
+        </button>
+        <button 
+          (click)="onFilterChange('in_progress')" 
+          class="filter-btn" 
+          [class.active]="filterStatus() === 'in_progress'"
+        >
+          In Progress
+        </button>
+        <button 
+          (click)="onFilterChange('completed')" 
+          class="filter-btn" 
+          [class.active]="filterStatus() === 'completed'"
+        >
+          Completed
+        </button>
+      </div>
+      
+      <div class="filters">
+        <button 
+          (click)="setAssigneeFilter(null)" 
+          class="filter-btn" 
+          [class.active]="filterAssignee() === null"
+        >
+          All Members
+        </button>
+        @for (member of familyMembers(); track member.id) {
+          <button 
+            (click)="setAssigneeFilter(member.id)" 
+            class="filter-btn" 
+            [class.active]="filterAssignee() === member.id"
+          >
+            <span class="assignee-avatar" [style.background]="member.color">
+              {{ member.username.charAt(0) }}
+            </span>
+            {{ member.username }}
+          </button>
+        }
+      </div>
+      
+      <div class="filters">
+        <button (click)="toggleGroupByAssignee()" class="filter-btn">
+          {{ groupByAssignee() ? '🔲 Show All' : '👥 Group by Assignee' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Create Task Form -->
+    @if (showCreateForm()) {
+      <div class="task-form-card">
+        <h3>Create New Task</h3>
+        <form (ngSubmit)="createTask()">
+          <div class="form-group">
+            <label for="title">Title *</label>
+            <input
+              type="text"
+              id="title"
+              [(ngModel)]="newTask.title"
+              name="title"
+              class="form-control"
             required
           />
         </div>
@@ -108,6 +163,23 @@
             />
           </div>
         </div>
+        
+        <div class="form-group">
+          <label for="assignee">Assign To</label>
+          <select
+            id="assignee"
+            [(ngModel)]="newTask.assignedUserId"
+            name="assignedUserId"
+            class="form-control"
+          >
+            <option [value]="undefined">Unassigned</option>
+            @for (member of familyMembers(); track member.id) {
+              <option [value]="member.id">
+                {{ member.username }}
+              </option>
+            }
+          </select>
+        </div>
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Create Task</button>
@@ -135,29 +207,40 @@
 
   <!-- Tasks List -->
   @if (!loading()) {
-    <div class="tasks-list">
+    <div class="tasks-grid">
       @for (task of sortedTasks(); track task.id) {
-        <div class="task-card" [class]="getPriorityClass(task.priority)">
+        <div 
+          class="task-card" 
+          [class.completed]="task.status === 'completed'"
+          [style.border-left]="'6px solid ' + getAssigneeColor(task.assignedUserId)"
+        >
           <div class="task-header">
-            <h3>{{ task.title }}</h3>
-            <span class="badge" [class]="getStatusBadge(task.status)">
-              {{ task.status }}
-            </span>
+            <span class="task-priority" [class]="task.priority">{{ task.priority }}</span>
           </div>
+          
+          <h3 class="task-title">{{ task.title }}</h3>
 
           @if (task.description) {
             <p class="task-description">{{ task.description }}</p>
           }
 
           <div class="task-meta">
-            <span class="priority-badge">Priority: {{ task.priority }}</span>
             @if (task.rewardPoints && task.rewardPoints > 0) {
-              <span class="points-badge">
+              <span class="task-points">
                 🏆 {{ task.rewardPoints }} points
               </span>
             }
-            @if (task.category) {
-              <span class="category-badge">{{ task.category }}</span>
+            
+            @if (task.assignedUserId) {
+              <div class="task-assignee">
+                <span 
+                  class="assignee-avatar" 
+                  [style.background]="getAssigneeColor(task.assignedUserId)"
+                >
+                  {{ getAssigneeInitial(task.assignedUserId) }}
+                </span>
+                <span>{{ getAssigneeName(task.assignedUserId) }}</span>
+              </div>
             }
           </div>
 
@@ -165,23 +248,25 @@
             @if (isParentMode()) {
               @if (task.status !== 'completed') {
                 <button
-                  class="btn btn-success"
+                  class="btn-icon btn-complete"
                   (click)="completeTask(task)"
                 >
                   ✓ Complete
                 </button>
               }
-              <button class="btn btn-danger" (click)="deleteTask(task.id)">
-                Delete
+              <button class="btn-icon btn-delete" (click)="deleteTask(task.id)">
+                🗑️ Delete
               </button>
             } @else {
-              <span class="silent-mode-notice">🔒 Silent Mode - Actions disabled</span>
+              <span class="silent-mode-notice">🔒 Silent Mode</span>
             }
           </div>
         </div>
       } @empty {
         <div class="empty-state">
-          <p>No tasks found. Create your first task to get started!</p>
+          <div class="empty-icon">✓</div>
+          <h3>No tasks found</h3>
+          <p>Create your first task to get started!</p>
         </div>
       }
     </div>

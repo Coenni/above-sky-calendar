@@ -1,0 +1,334 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.rewards-page {
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  background: linear-gradient(to bottom, $color-cream 0%, $color-warm-white 100%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.3) 100%);
+  border-radius: $radius-2xl;
+  border: 3px dashed $color-sage-green;
+  animation: fadeIn 0.5s ease-out;
+  
+  h1 {
+    color: $color-soft-brown;
+    font-size: $font-size-4xl;
+    margin: 0;
+    font-family: $font-heading;
+    text-shadow: 2px 2px 0 rgba(white, 0.5);
+  }
+  
+  .subtitle {
+    color: $color-soft-brown;
+    font-size: $font-size-lg;
+    margin: $spacing-sm 0 0 0;
+  }
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &-primary {
+    background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &-secondary {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Points Summary
+.points-summary {
+  margin-bottom: $spacing-2xl;
+}
+
+.points-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+  padding: $spacing-2xl;
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  max-width: 400px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-mustard, 0.1) 0%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.points-icon {
+  font-size: 4rem;
+}
+
+.points-label {
+  font-size: $font-size-base;
+  color: $color-gray;
+  margin-bottom: $spacing-xs;
+}
+
+.points-value {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+}
+
+// Filters
+.filters {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+}
+
+.search-box,
+.category-filter {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+// Rewards Grid
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-xl;
+  margin-bottom: $spacing-2xl;
+}
+
+.reward-card {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  transition: all $transition-base;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: $shadow-2xl;
+  }
+}
+
+.reward-image {
+  height: 200px;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.3) 0%, rgba($color-mint, 0.3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.reward-placeholder {
+  font-size: 80px;
+}
+
+.reward-content {
+  padding: $spacing-xl;
+}
+
+.reward-name {
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: 0 0 $spacing-md 0;
+}
+
+.reward-description {
+  color: $color-gray;
+  margin: $spacing-md 0;
+  line-height: $line-height-relaxed;
+}
+
+.reward-points {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: rgba($color-mustard, 0.2);
+  border-radius: $radius-full;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+  margin: $spacing-md 0;
+}
+
+.btn-redeem {
+  width: 100%;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: $radius-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  min-height: 48px;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// History Section
+.history-section {
+  h2 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.history-item {
+  background: white;
+  padding: $spacing-xl;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: $spacing-4xl;
+  color: $color-soft-brown;
+  font-size: $font-size-2xl;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .rewards-page {
+    padding: $spacing-lg;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+  
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
