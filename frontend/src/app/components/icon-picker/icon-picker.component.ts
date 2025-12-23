@@ -34,14 +34,8 @@ export class IconPickerComponent {
   get displayedEmojis(): string[] {
     let emojis = this.categories[this.category] || this.categories.all;
     
-    if (this.searchTerm) {
-      // Simple search - in a real app, you might use emoji names/descriptions
-      return emojis.filter((emoji) => {
-        // This is a placeholder - real implementation would search by emoji name
-        return true;
-      });
-    }
-    
+    // Note: Full search implementation would require emoji name/keyword data
+    // For now, filtering is disabled until emoji metadata is available
     return emojis;
   }
 
@@ -50,7 +44,7 @@ export class IconPickerComponent {
   }
 
   selectIcon(emoji: string): void {
-    this.selectedIcon = emoji;
+    this.selectedIcon = emoji || undefined;
     this.iconSelected.emit(emoji);
     this.isOpen = false;
   }

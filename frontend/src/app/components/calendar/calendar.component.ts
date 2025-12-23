@@ -153,10 +153,11 @@ export class CalendarComponent implements OnInit {
     const dates: Date[] = [];
     const startOfWeek = new Date(selected);
     const day = startOfWeek.getDay();
-    // Adjust to Monday if not already
+    // Adjust to Monday: Sunday (0) goes back 6 days, other days go to current week's Monday
     const diff = day === 0 ? -6 : 1 - day;
     startOfWeek.setDate(startOfWeek.getDate() + diff);
     
+    // Get Monday through Friday (5 working days)
     for (let i = 0; i < 5; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
