@@ -1,5 +1,6 @@
 package com.abovesky.calendar.dto;
 
+import com.abovesky.calendar.entity.MealType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class MealDto {
     private String recipe;
     private String ingredients;
     private LocalDate assignedDate;
+    private MealType mealType;
     private String dietaryTags;
     private String imageUrl;
     private Boolean isFavorite;

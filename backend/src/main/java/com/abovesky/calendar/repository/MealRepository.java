@@ -14,4 +14,5 @@ public interface MealRepository extends JpaRepository<Meal, Long> {
     List<Meal> findByCategory(String category);
     List<Meal> findByIsFavorite(Boolean isFavorite);
     List<Meal> findByCreatedBy(Long userId);
+    List<Meal> findByNameContainingIgnoreCase(String name);
 }

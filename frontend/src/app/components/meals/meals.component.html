@@ -1,162 +1,237 @@
 <div class="meals-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link active">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      @if (authState.currentUser(); as user) {
-        <div class="user-info">
-          <span>{{ user.username }}</span>
+  <div class="page-header">
+    <div class="header-content">
+      <h1>🍽️ Meal Planner</h1>
+      <p class="subtitle">Plan delicious meals for your family</p>
+    </div>
+    <button (click)="toggleMealForm()" class="btn-add-meal">
+      {{ showMealForm() ? '✕ Cancel' : '+ Add Meal' }}
+    </button>
+  </div>
+
+  <!-- Quick Meal Form -->
+  @if (showMealForm()) {
+    <div class="meal-form-card watercolor-card">
+      <h3>Add New Meal</h3>
+      <form (ngSubmit)="createMeal()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Meal Name</label>
+            <input
+              type="text"
+              id="name"
+              [(ngModel)]="newMeal.name"
+              name="name"
+              required
+              class="form-input"
+              placeholder="e.g., Spaghetti Bolognese"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="category">Meal Type</label>
+            <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-input">
+              <option value="breakfast">☕ Breakfast</option>
+              <option value="lunch">🍱 Lunch</option>
+              <option value="dinner">🍽️ Dinner</option>
+              <option value="snack">🍪 Snack</option>
+            </select>
+          </div>
         </div>
-      }
-    </div>
-  </nav>
 
-  <div class="container">
-    <div class="header">
-      <div class="header-content">
-        <h1>Meal Planner</h1>
-        <p class="subtitle">Plan your family meals for the week</p>
-      </div>
-      <div class="header-actions">
-        <button (click)="toggleMealForm()" class="btn btn-primary">
-          {{ showMealForm() ? 'Cancel' : 'Add Meal' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Quick Meal Form -->
-    @if (showMealForm()) {
-      <div class="meal-form-card">
-        <h3>Add New Meal</h3>
-        <form (ngSubmit)="createMeal()">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="name">Meal Name</label>
-              <input
-                type="text"
-                id="name"
-                [(ngModel)]="newMeal.name"
-                name="name"
-                required
-                class="form-control"
-                placeholder="e.g., Spaghetti Bolognese"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="category">Meal Type</label>
-              <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-control">
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="snack">Snack</option>
-              </select>
-            </div>
+        <div class="form-group">
+          <label for="imageUrl">Image URL (optional)</label>
+          <div class="image-url-group">
+            <input
+              type="url"
+              id="imageUrl"
+              [(ngModel)]="newMeal.imageUrl"
+              name="imageUrl"
+              class="form-input"
+              placeholder="https://example.com/meal-image.jpg"
+            />
+            @if (newMeal.imageUrl) {
+              <button type="button" (click)="previewImage()" class="btn-preview">
+                👁️ Preview
+              </button>
+            }
           </div>
-
-          <div class="form-group">
-            <label for="ingredients">Ingredients (optional)</label>
-            <textarea
-              id="ingredients"
-              [(ngModel)]="newMeal.ingredients"
-              name="ingredients"
-              rows="2"
-              class="form-control"
-              placeholder="List ingredients..."
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="recipe">Recipe Notes (optional)</label>
-            <textarea
-              id="recipe"
-              [(ngModel)]="newMeal.recipe"
-              name="recipe"
-              rows="3"
-              class="form-control"
-              placeholder="Cooking instructions..."
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" [(ngModel)]="newMeal.isFavorite" name="isFavorite" />
-              Mark as Favorite
-            </label>
-          </div>
-
-          <button type="submit" class="btn btn-primary">Add Meal</button>
-        </form>
-      </div>
-    }
-
-    <!-- Week Navigation -->
-    <div class="week-navigation">
-      <button (click)="previousWeek()" class="btn btn-secondary">
-        ← Previous Week
-      </button>
-      <div class="week-info">
-        <h3>{{ getWeekDateRange() }}</h3>
-      </div>
-      <button (click)="currentWeek()" class="btn btn-secondary">
-        Today
-      </button>
-      <button (click)="nextWeek()" class="btn btn-secondary">
-        Next Week →
-      </button>
-    </div>
-
-    @if (loading()) {
-      <div class="loading">Loading meals...</div>
-    }
-
-    <!-- Weekly Meal Grid -->
-    @if (!loading()) {
-      <div class="weekly-grid">
-        <div class="grid-header">
-          <div class="meal-type-column">Meal Type</div>
-          @for (day of daysOfWeek; track day; let i = $index) {
-            <div class="day-column">
-              <div class="day-name">{{ day }}</div>
-              <div class="day-date">{{ getDateForDay(i) | date:'MMM d' }}</div>
+          @if (showImagePreview() && newMeal.imageUrl) {
+            <div class="image-preview">
+              <img [src]="newMeal.imageUrl" alt="Meal preview" (error)="onImageError()" />
             </div>
           }
         </div>
 
-        @for (mealType of mealTypes; track mealType) {
-          <div class="grid-row">
-            <div class="meal-type-label">
-              {{ mealType | titlecase }}
-            </div>
-            @for (day of daysOfWeek; track day; let i = $index) {
-              <div class="meal-cell">
-                <div class="meal-slot">
-                  @for (meal of getMealsByType(i, mealType); track meal.id) {
-                    <div class="meal-item">
-                      <div class="meal-name">{{ meal.name }}</div>
-                      <div class="meal-actions">
-                        <button (click)="deleteMeal(meal.id)" class="btn-icon" title="Delete">
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  } @empty {
-                    <div class="empty-slot">
-                      <span class="empty-text">No meal planned</span>
-                    </div>
-                  }
-                </div>
+        <div class="form-group">
+          <label for="ingredients">Ingredients (optional)</label>
+          <textarea
+            id="ingredients"
+            [(ngModel)]="newMeal.ingredients"
+            name="ingredients"
+            rows="2"
+            class="form-input"
+            placeholder="List ingredients..."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="recipe">Recipe Notes (optional)</label>
+          <textarea
+            id="recipe"
+            [(ngModel)]="newMeal.recipe"
+            name="recipe"
+            rows="3"
+            class="form-input"
+            placeholder="Cooking instructions..."
+          ></textarea>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="newMeal.isFavorite" name="isFavorite" />
+            ⭐ Mark as Favorite
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit">Add Meal</button>
+      </form>
+    </div>
+  }
+
+  <!-- Search and Filters -->
+  <div class="meal-controls">
+    <div class="search-bar">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+        placeholder="🔍 Search meals..."
+        class="search-input"
+      />
+      @if (searchQuery()) {
+        <button (click)="clearSearch()" class="btn-clear-search">✕</button>
+      }
+    </div>
+
+    <div class="category-filters">
+      <button
+        (click)="filterByCategory('')"
+        class="filter-btn"
+        [class.active]="selectedCategory() === ''"
+      >
+        All
+      </button>
+      <button
+        (click)="filterByCategory('breakfast')"
+        class="filter-btn"
+        [class.active]="selectedCategory() === 'breakfast'"
+      >
+        ☕ Breakfast
+      </button>
+      <button
+        (click)="filterByCategory('lunch')"
+        class="filter-btn"
+        [class.active]="selectedCategory() === 'lunch'"
+      >
+        🍱 Lunch
+      </button>
+      <button
+        (click)="filterByCategory('dinner')"
+        class="filter-btn"
+        [class.active]="selectedCategory() === 'dinner'"
+      >
+        🍽️ Dinner
+      </button>
+      <button
+        (click)="filterByCategory('snack')"
+        class="filter-btn"
+        [class.active]="selectedCategory() === 'snack'"
+      >
+        🍪 Snack
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Loading meals...</div>
+  }
+
+  <!-- Meals Grid -->
+  @if (!loading()) {
+    <div class="meals-grid">
+      @for (meal of filteredMeals(); track meal.id) {
+        <div class="meal-card watercolor-card">
+          <div class="meal-image">
+            @if (meal.imageUrl) {
+              <img [src]="meal.imageUrl" [alt]="meal.name" (error)="setDefaultImage($event)" />
+            } @else {
+              <div class="meal-placeholder">
+                <span class="meal-icon">{{ getMealIcon(meal.category) }}</span>
               </div>
             }
+            @if (meal.isFavorite) {
+              <span class="favorite-badge">⭐</span>
+            }
           </div>
-        }
+
+          <div class="meal-content">
+            <h3 class="meal-name">{{ meal.name }}</h3>
+            <div class="meal-meta">
+              <span class="meal-category">{{ getMealIcon(meal.category) }} {{ meal.category | titlecase }}</span>
+            </div>
+
+            <div class="meal-actions">
+              <button (click)="editMeal(meal)" class="btn-icon" title="Edit">
+                ✏️ Edit
+              </button>
+              <button (click)="deleteMeal(meal.id)" class="btn-icon btn-delete" title="Delete">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">🍽️</div>
+          <h3>No meals found</h3>
+          <p>{{ searchQuery() ? 'Try a different search term' : 'Add your first meal to get started!' }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalMeals() > pageSize) {
+      <div class="pagination">
+        <div class="pagination-info">
+          Showing {{ paginationStart() }}-{{ paginationEnd() }} of {{ totalMeals() }} meals
+        </div>
+        <div class="pagination-controls">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage() === 0"
+            class="btn-page"
+          >
+            ← Previous
+          </button>
+          @for (page of pageNumbers(); track page) {
+            <button
+              (click)="goToPage(page)"
+              class="btn-page"
+              [class.active]="page === currentPage()"
+            >
+              {{ page + 1 }}
+            </button>
+          }
+          <button
+            (click)="nextPage()"
+            [disabled]="(currentPage() + 1) * pageSize >= totalMeals()"
+            class="btn-page"
+          >
+            Next →
+          </button>
+        </div>
       </div>
     }
-  </div>
+  }
 </div>

@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+@if (showSidebar() && authState.isAuthenticated()) {
+  <app-sidebar></app-sidebar>
+}
+
+<div class="app-layout" [class.with-sidebar]="showSidebar() && authState.isAuthenticated()">
+  <router-outlet></router-outlet>
+</div>

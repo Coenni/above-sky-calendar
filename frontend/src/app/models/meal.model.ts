@@ -5,6 +5,7 @@ export interface Meal {
   recipe?: string;
   ingredients?: string; // JSON string
   assignedDate?: Date;
+  mealType?: string; // 'BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'
   dietaryTags?: string;
   imageUrl?: string;
   isFavorite: boolean;

@@ -1,31 +1,12 @@
 <div class="dashboard">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link active">Dashboard</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/metrics" class="nav-link">Metrics</a>
-      <a routerLink="/settings" class="nav-link">Settings</a>
-      @if (currentUser(); as user) {
-        <div class="user-info">
-          <span class="mode-badge">{{ modeIcon() }}</span>
-          <span>{{ user.username }}</span>
-          <button (click)="logout()" class="btn btn-logout">Logout</button>
-        </div>
-      }
-    </div>
-  </nav>
-
   <div class="container">
     <div class="header">
-      <h1>Dashboard</h1>
+      <div class="header-content">
+        <h1>🏠 Dashboard</h1>
+        <p class="subtitle">Welcome back, {{ currentUser()?.username }}!</p>
+      </div>
       <button (click)="toggleCreateForm()" class="btn btn-primary">
-        {{ showCreateForm() ? 'Cancel' : 'Create Event' }}
+        {{ showCreateForm() ? '✕ Cancel' : '+ Create Event' }}
       </button>
     </div>
 

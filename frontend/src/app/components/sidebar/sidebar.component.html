@@ -1,0 +1,56 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed()">
+  <!-- Hamburger Menu for Mobile -->
+  <button class="sidebar-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+    <span class="hamburger-icon">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+  <!-- User Profile -->
+  @if (authState.currentUser(); as user) {
+    <div class="sidebar-profile">
+      <div class="profile-avatar">
+        {{ user.username.charAt(0).toUpperCase() }}
+      </div>
+      @if (!isCollapsed()) {
+        <div class="profile-info">
+          <div class="profile-name">{{ user.username }}</div>
+          <div class="profile-role">Parent</div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Navigation Items -->
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.route) {
+      <a 
+        [routerLink]="item.route" 
+        class="nav-item"
+        [class.active]="isActiveRoute(item.route)"
+        [attr.title]="isCollapsed() ? item.label : null"
+      >
+        <span class="nav-icon">{{ item.icon }}</span>
+        @if (!isCollapsed()) {
+          <span class="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Logout Button -->
+  <div class="sidebar-footer">
+    <button 
+      class="nav-item logout-btn" 
+      (click)="logout()"
+      [attr.title]="isCollapsed() ? 'Logout' : null"
+    >
+      <span class="nav-icon">🚪</span>
+      @if (!isCollapsed()) {
+        <span class="nav-label">Logout</span>
+      }
+    </button>
+  </div>
+</aside>

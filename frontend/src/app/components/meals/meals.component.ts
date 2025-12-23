@@ -12,7 +12,7 @@ import { Meal } from '../../models/meal.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './meals.component.html',
-  styleUrls: ['./meals.component.css']
+  styleUrls: ['./meals.component.scss']
 })
 export class MealsComponent implements OnInit {
   // Inject services using inject()
@@ -22,65 +22,92 @@ export class MealsComponent implements OnInit {
   
   // Expose signals to template
   readonly meals = this.mealsState.meals;
-  readonly weekMeals = this.mealsState.weekMeals;
   readonly loading = this.mealsState.loading;
   readonly error = this.mealsState.error;
-  readonly selectedWeek = this.mealsState.selectedWeek;
-  readonly breakfastMeals = this.mealsState.breakfastMeals;
-  readonly lunchMeals = this.mealsState.lunchMeals;
-  readonly dinnerMeals = this.mealsState.dinnerMeals;
-  readonly snackMeals = this.mealsState.snackMeals;
   
   // Local component state
   showMealForm = signal(false);
-  
-  daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+  searchQuery = signal('');
+  selectedCategory = signal('');
+  currentPage = signal(0);
+  pageSize = 12;
+  showImagePreview = signal(false);
   
   newMeal: Meal = {
     name: '',
     category: 'dinner',
     recipe: '',
     ingredients: '',
-    isFavorite: false
+    isFavorite: false,
+    imageUrl: ''
   };
   
-  // Computed signals for meal organization
-  readonly weeklyMealsMap = computed(() => {
-    const weekStart = this.selectedWeek();
-    const mealsMap = new Map<string, Meal[]>();
+  // Computed properties
+  readonly filteredMeals = computed(() => {
+    let filtered = this.meals();
     
-    // Initialize all days with empty arrays
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + i);
-      const key = this.formatDate(date);
-      mealsMap.set(key, []);
+    // Filter by search query
+    const query = this.searchQuery().toLowerCase();
+    if (query) {
+      filtered = filtered.filter(m => 
+        m.name?.toLowerCase().includes(query) ||
+        m.ingredients?.toLowerCase().includes(query)
+      );
     }
     
-    // Fill in meals
-    this.weekMeals().forEach(meal => {
-      if (meal.assignedDate) {
-        const key = this.formatDate(new Date(meal.assignedDate));
-        const dayMeals = mealsMap.get(key) || [];
-        dayMeals.push(meal);
-        mealsMap.set(key, dayMeals);
-      }
-    });
+    // Filter by category
+    const category = this.selectedCategory();
+    if (category) {
+      filtered = filtered.filter(m => m.category === category);
+    }
     
-    return mealsMap;
+    // Paginate
+    const start = this.currentPage() * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
+  });
+  
+  readonly totalMeals = computed(() => {
+    let filtered = this.meals();
+    
+    const query = this.searchQuery().toLowerCase();
+    if (query) {
+      filtered = filtered.filter(m => 
+        m.name?.toLowerCase().includes(query) ||
+        m.ingredients?.toLowerCase().includes(query)
+      );
+    }
+    
+    const category = this.selectedCategory();
+    if (category) {
+      filtered = filtered.filter(m => m.category === category);
+    }
+    
+    return filtered.length;
+  });
+  
+  readonly pageNumbers = computed(() => {
+    const total = this.totalMeals();
+    const pages = Math.ceil(total / this.pageSize);
+    return Array.from({ length: pages }, (_, i) => i);
+  });
+  
+  readonly paginationEnd = computed(() => {
+    return Math.min((this.currentPage() + 1) * this.pageSize, this.totalMeals());
+  });
+  
+  readonly paginationStart = computed(() => {
+    return (this.currentPage() * this.pageSize) + 1;
   });
 
   async ngOnInit(): Promise<void> {
-    await this.loadWeeklyMeals();
+    await this.loadAllMeals();
   }
 
-  async loadWeeklyMeals(): Promise<void> {
+  async loadAllMeals(): Promise<void> {
     this.mealsState.setLoading(true);
     this.mealsState.setError(null);
     try {
-      const startDate = this.selectedWeek();
-      const meals = await this.mealsApi.getWeeklyMeals(startDate);
+      const meals = await this.mealsApi.getAllMeals();
       this.mealsState.setMeals(meals);
     } catch (error) {
       console.error('Error loading meals:', error);
@@ -90,45 +117,9 @@ export class MealsComponent implements OnInit {
     }
   }
 
-  formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
-  getDateForDay(dayIndex: number): Date {
-    const weekStart = this.selectedWeek();
-    const date = new Date(weekStart);
-    date.setDate(weekStart.getDate() + dayIndex);
-    return date;
-  }
-
-  getMealsForDay(dayIndex: number): Meal[] {
-    const date = this.getDateForDay(dayIndex);
-    const key = this.formatDate(date);
-    return this.weeklyMealsMap().get(key) || [];
-  }
-
-  getMealsByType(dayIndex: number, mealType: string): Meal[] {
-    const dayMeals = this.getMealsForDay(dayIndex);
-    return dayMeals.filter(m => m.category === mealType);
-  }
-
-  async previousWeek(): Promise<void> {
-    this.mealsState.previousWeek();
-    await this.loadWeeklyMeals();
-  }
-
-  async nextWeek(): Promise<void> {
-    this.mealsState.nextWeek();
-    await this.loadWeeklyMeals();
-  }
-
-  async currentWeek(): Promise<void> {
-    this.mealsState.setSelectedWeek(new Date());
-    await this.loadWeeklyMeals();
-  }
-
   toggleMealForm(): void {
     this.showMealForm.update(v => !v);
+    this.showImagePreview.set(false);
     if (this.showMealForm()) {
       const currentUser = this.authState.currentUser();
       this.newMeal = {
@@ -137,6 +128,7 @@ export class MealsComponent implements OnInit {
         recipe: '',
         ingredients: '',
         isFavorite: false,
+        imageUrl: '',
         createdBy: currentUser?.id
       };
     }
@@ -172,10 +164,61 @@ export class MealsComponent implements OnInit {
     }
   }
 
-  getWeekDateRange(): string {
-    const weekStart = this.selectedWeek();
-    const end = new Date(weekStart);
-    end.setDate(weekStart.getDate() + 6);
-    return `${weekStart.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+  editMeal(meal: Meal): void {
+    // TODO: Implement edit functionality
+    console.log('Edit meal:', meal);
+  }
+
+  onSearchChange(): void {
+    this.currentPage.set(0); // Reset to first page on search
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.currentPage.set(0);
+  }
+
+  filterByCategory(category: string): void {
+    this.selectedCategory.set(category);
+    this.currentPage.set(0);
+  }
+
+  previousPage(): void {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  nextPage(): void {
+    if ((this.currentPage() + 1) * this.pageSize < this.totalMeals()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  goToPage(page: number): void {
+    this.currentPage.set(page);
+  }
+
+  getMealIcon(category: string): string {
+    const icons: Record<string, string> = {
+      breakfast: '☕',
+      lunch: '🍱',
+      dinner: '🍽️',
+      snack: '🍪'
+    };
+    return icons[category] || '🍽️';
+  }
+
+  previewImage(): void {
+    this.showImagePreview.update(v => !v);
+  }
+
+  onImageError(): void {
+    this.showImagePreview.set(false);
+    alert('Unable to load image. Please check the URL.');
+  }
+
+  setDefaultImage(event: any): void {
+    event.target.style.display = 'none';
   }
 }
