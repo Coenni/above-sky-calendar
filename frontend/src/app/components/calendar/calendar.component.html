@@ -1,26 +1,8 @@
 <div class="calendar-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/calendar" class="nav-link active">Calendar</a>
-      @if (authState.currentUser()) {
-        <div class="user-info">
-          <span>{{ authState.currentUser()?.username }}</span>
-        </div>
-      }
-    </div>
-  </nav>
-
   <div class="container">
     <div class="header">
       <div class="header-content">
-        <h1>Calendar</h1>
+        <h1>📅 Calendar</h1>
         <p class="subtitle">Manage your family events</p>
       </div>
     </div>
