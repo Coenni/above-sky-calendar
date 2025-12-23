@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -50,6 +51,22 @@ public class User {
 
     @Column(length = 5)
     private String preferredLocale = "en"; // Default language: English
+
+    // Additional family member fields
+    @Column(length = 512)
+    private String photo; // Photo/avatar URL or path
+
+    @Column
+    private LocalDate dateOfBirth; // Date of birth
+
+    @Column(length = 50)
+    private String role; // Role in family: Parent, Child, etc.
+
+    @Column(length = 50)
+    private String phone; // Phone number
+
+    @Column(length = 50)
+    private String gender; // Gender: Male, Female, Other, Prefer not to say
 
     // Parent Mode / Silent Mode fields
     @Column

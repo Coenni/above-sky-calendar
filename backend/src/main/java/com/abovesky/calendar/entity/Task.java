@@ -30,7 +30,10 @@ public class Task {
     private LocalDateTime dueDate;
 
     @Column
-    private Long assignedUserId; // Family member assigned to this task
+    private Long assignedUserId; // Family member assigned to this task (deprecated - use assigneeId)
+
+    @Column
+    private Long assigneeId; // Family member assigned to this task (foreign key to users)
 
     @Column(nullable = false)
     private String priority = "medium"; // high, medium, low
