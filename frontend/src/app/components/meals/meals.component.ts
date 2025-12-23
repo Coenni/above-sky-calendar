@@ -27,6 +27,8 @@ export class MealsComponent implements OnInit {
   
   // Local component state
   showMealForm = signal(false);
+  showEditModal = signal(false);
+  editingMeal = signal<Meal | null>(null);
   searchQuery = signal('');
   selectedCategory = signal('');
   currentPage = signal(0);
@@ -165,8 +167,27 @@ export class MealsComponent implements OnInit {
   }
 
   editMeal(meal: Meal): void {
-    // TODO: Implement edit functionality
-    console.log('Edit meal:', meal);
+    this.editingMeal.set({ ...meal }); // Create a copy to edit
+    this.showEditModal.set(true);
+  }
+
+  closeEditModal(): void {
+    this.showEditModal.set(false);
+    this.editingMeal.set(null);
+  }
+
+  async saveEditedMeal(): Promise<void> {
+    const meal = this.editingMeal();
+    if (!meal || !meal.id) return;
+
+    try {
+      const updated = await this.mealsApi.updateMeal(meal.id, meal);
+      this.mealsState.updateMeal(meal.id, updated);
+      this.closeEditModal();
+    } catch (error) {
+      console.error('Error updating meal:', error);
+      alert('Failed to update meal');
+    }
   }
 
   onSearchChange(): void {

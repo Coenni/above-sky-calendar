@@ -29,13 +29,41 @@
           </div>
 
           <div class="form-group">
-            <label for="category">Meal Type</label>
-            <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-input">
-              <option value="breakfast">☕ Breakfast</option>
-              <option value="lunch">🍱 Lunch</option>
-              <option value="dinner">🍽️ Dinner</option>
-              <option value="snack">🍪 Snack</option>
-            </select>
+            <label>Meal Type</label>
+            <div class="category-buttons">
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="newMeal.category === 'breakfast'"
+                (click)="newMeal.category = 'breakfast'"
+              >
+                ☕<br>Breakfast
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="newMeal.category === 'lunch'"
+                (click)="newMeal.category = 'lunch'"
+              >
+                🍱<br>Lunch
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="newMeal.category === 'dinner'"
+                (click)="newMeal.category = 'dinner'"
+              >
+                🍽️<br>Dinner
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="newMeal.category === 'snack'"
+                (click)="newMeal.category = 'snack'"
+              >
+                🍪<br>Snack
+              </button>
+            </div>
           </div>
         </div>
 
@@ -233,5 +261,110 @@
         </div>
       </div>
     }
+  }
+
+  <!-- Edit Modal -->
+  @if (showEditModal() && editingMeal()) {
+    <div class="modal-overlay" (click)="closeEditModal()">
+      <div class="modal-content watercolor-card" (click)="$event.stopPropagation()">
+        <h2>Edit Meal</h2>
+        <form (ngSubmit)="saveEditedMeal()">
+          <div class="form-group">
+            <label for="editName">Meal Name</label>
+            <input
+              type="text"
+              id="editName"
+              [(ngModel)]="editingMeal()!.name"
+              name="editName"
+              class="form-input"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Meal Type</label>
+            <div class="category-buttons">
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="editingMeal()!.category === 'breakfast'"
+                (click)="editingMeal()!.category = 'breakfast'"
+              >
+                ☕<br>Breakfast
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="editingMeal()!.category === 'lunch'"
+                (click)="editingMeal()!.category = 'lunch'"
+              >
+                🍱<br>Lunch
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="editingMeal()!.category === 'dinner'"
+                (click)="editingMeal()!.category = 'dinner'"
+              >
+                🍽️<br>Dinner
+              </button>
+              <button
+                type="button"
+                class="category-btn"
+                [class.active]="editingMeal()!.category === 'snack'"
+                (click)="editingMeal()!.category = 'snack'"
+              >
+                🍪<br>Snack
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editImageUrl">Image URL</label>
+            <input
+              type="url"
+              id="editImageUrl"
+              [(ngModel)]="editingMeal()!.imageUrl"
+              name="editImageUrl"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editIngredients">Ingredients</label>
+            <textarea
+              id="editIngredients"
+              [(ngModel)]="editingMeal()!.ingredients"
+              name="editIngredients"
+              rows="3"
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="editRecipe">Recipe Notes</label>
+            <textarea
+              id="editRecipe"
+              [(ngModel)]="editingMeal()!.recipe"
+              name="editRecipe"
+              rows="4"
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="editingMeal()!.isFavorite" name="editIsFavorite" />
+              ⭐ Mark as Favorite
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-submit">Save Changes</button>
+            <button type="button" (click)="closeEditModal()" class="btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
   }
 </div>
