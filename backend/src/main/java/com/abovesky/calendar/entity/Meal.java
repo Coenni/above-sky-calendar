@@ -36,6 +36,10 @@ public class Meal {
     @Column
     private LocalDate assignedDate; // Date assigned in meal planner
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private MealType mealType; // BREAKFAST, LUNCH, DINNER, SNACK
+
     @Column
     private String dietaryTags; // Comma-separated tags: vegetarian, gluten-free, etc.
 

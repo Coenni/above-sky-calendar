@@ -2,8 +2,11 @@ package com.abovesky.calendar.service;
 
 import com.abovesky.calendar.dto.MealDto;
 import com.abovesky.calendar.entity.Meal;
+import com.abovesky.calendar.entity.MealType;
 import com.abovesky.calendar.repository.MealRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,17 @@ public class MealService {
 
     public List<MealDto> getAllMeals() {
         return mealRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public Page<MealDto> getMealsPage(Pageable pageable) {
+        return mealRepository.findAll(pageable)
+                .map(this::convertToDto);
+    }
+
+    public List<MealDto> searchMealsByName(String name) {
+        return mealRepository.findByNameContainingIgnoreCase(name).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -65,6 +79,7 @@ public class MealService {
         meal.setRecipe(mealDto.getRecipe());
         meal.setIngredients(mealDto.getIngredients());
         meal.setAssignedDate(mealDto.getAssignedDate());
+        meal.setMealType(mealDto.getMealType());
         meal.setDietaryTags(mealDto.getDietaryTags());
         meal.setImageUrl(mealDto.getImageUrl());
         meal.setIsFavorite(mealDto.getIsFavorite());
@@ -81,6 +96,24 @@ public class MealService {
         mealRepository.deleteById(id);
     }
 
+    @Transactional
+    public MealDto assignMealToDate(Long id, LocalDate date, MealType mealType) {
+        Meal meal = mealRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
+        
+        meal.setAssignedDate(date);
+        meal.setMealType(mealType);
+        
+        Meal updatedMeal = mealRepository.save(meal);
+        return convertToDto(updatedMeal);
+    }
+
+    public List<MealDto> getMealsForDateRange(LocalDate startDate, LocalDate endDate) {
+        return mealRepository.findByAssignedDateBetween(startDate, endDate).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     private MealDto convertToDto(Meal meal) {
         MealDto dto = new MealDto();
         dto.setId(meal.getId());
@@ -89,6 +122,7 @@ public class MealService {
         dto.setRecipe(meal.getRecipe());
         dto.setIngredients(meal.getIngredients());
         dto.setAssignedDate(meal.getAssignedDate());
+        dto.setMealType(meal.getMealType());
         dto.setDietaryTags(meal.getDietaryTags());
         dto.setImageUrl(meal.getImageUrl());
         dto.setIsFavorite(meal.getIsFavorite());
@@ -106,6 +140,7 @@ public class MealService {
         meal.setRecipe(dto.getRecipe());
         meal.setIngredients(dto.getIngredients());
         meal.setAssignedDate(dto.getAssignedDate());
+        meal.setMealType(dto.getMealType());
         meal.setDietaryTags(dto.getDietaryTags());
         meal.setImageUrl(dto.getImageUrl());
         meal.setIsFavorite(dto.getIsFavorite() != null ? dto.getIsFavorite() : false);
