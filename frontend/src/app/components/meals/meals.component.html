@@ -4,9 +4,14 @@
       <h1>🍽️ Meal Planner</h1>
       <p class="subtitle">Plan delicious meals for your family</p>
     </div>
-    <button (click)="toggleMealForm()" class="btn-add-meal">
-      {{ showMealForm() ? '✕ Cancel' : '+ Add Meal' }}
-    </button>
+    <div class="header-actions">
+      <button (click)="toggleViewMode()" class="btn-view-toggle">
+        {{ viewMode() === 'grid' ? '📅 Calendar View' : '🔲 Grid View' }}
+      </button>
+      <button (click)="toggleMealForm()" class="btn-add-meal">
+        {{ showMealForm() ? '✕ Cancel' : '+ Add Meal' }}
+      </button>
+    </div>
   </div>
 
   <!-- Quick Meal Form -->
@@ -157,8 +162,36 @@
     <div class="loading">Loading meals...</div>
   }
 
-  <!-- Meals Grid -->
-  @if (!loading()) {
+  <!-- Calendar View -->
+  @if (!loading() && viewMode() === 'calendar') {
+    <div class="calendar-view">
+      <ng-template #dayContent let-day="day">
+        @for (assignment of getMealAssignmentsForDate(day.date); track assignment.mealId) {
+          <div class="meal-assignment" (click)="$event.stopPropagation()">
+            <span class="meal-icon">{{ assignment.meal?.icon || '🍽️' }}</span>
+            <span class="meal-name">{{ assignment.meal?.name }}</span>
+            <button 
+              (click)="removeMealAssignment(assignment)" 
+              class="btn-remove-assignment"
+              title="Remove"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      </ng-template>
+      
+      <app-monthly-calendar 
+        [currentDate]="new Date()"
+        [dayContentTemplate]="dayContent"
+        (dateSelected)="onDateSelected($event)"
+      >
+      </app-monthly-calendar>
+    </div>
+  }
+
+  <!-- Grid View (existing) -->
+  @if (!loading() && viewMode() === 'grid') {
     <div class="meals-grid">
       @for (meal of filteredMeals(); track meal.id) {
         <div class="meal-card watercolor-card">
@@ -233,5 +266,39 @@
         </div>
       </div>
     }
+  }
+  
+  <!-- Meal Selector Modal -->
+  @if (showMealSelector() && selectedDate()) {
+    <div class="modal-overlay" (click)="closeMealSelector()">
+      <div class="modal-content watercolor-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Assign Meal for {{ selectedDate()! | date:'mediumDate' }}</h3>
+          <button (click)="closeMealSelector()" class="btn-close">✕</button>
+        </div>
+        
+        <div class="meal-selector-grid">
+          @for (meal of meals(); track meal.id) {
+            <div class="meal-selector-item" (click)="assignMealToDate(meal)">
+              @if (meal.imageUrl) {
+                <img [src]="meal.imageUrl" [alt]="meal.name" class="meal-thumb" />
+              } @else {
+                <div class="meal-thumb-placeholder">
+                  <span class="meal-icon-large">{{ getMealIcon(meal.category) }}</span>
+                </div>
+              }
+              <div class="meal-selector-info">
+                <div class="meal-selector-name">{{ meal.name }}</div>
+                <div class="meal-selector-category">{{ getMealIcon(meal.category) }} {{ meal.category | titlecase }}</div>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-message">
+              No meals available. Create meals first!
+            </div>
+          }
+        </div>
+      </div>
+    </div>
   }
 </div>

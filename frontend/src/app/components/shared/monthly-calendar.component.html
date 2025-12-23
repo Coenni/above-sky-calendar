@@ -1,0 +1,38 @@
+<div class="monthly-calendar watercolor-card">
+  <!-- Month Navigation -->
+  <div class="calendar-header">
+    <button (click)="previousMonth()" class="btn-nav">
+      ← Previous
+    </button>
+    <h3 class="month-title">{{ monthName() }}</h3>
+    <button (click)="nextMonth()" class="btn-nav">
+      Next →
+    </button>
+  </div>
+  
+  <!-- Week Days Header -->
+  <div class="calendar-weekdays">
+    @for (day of weekDays; track day) {
+      <div class="weekday">{{ day }}</div>
+    }
+  </div>
+  
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    @for (day of calendarDays(); track day.date.getTime()) {
+      <div 
+        class="calendar-day"
+        [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday"
+        (click)="onDateClick(day)"
+      >
+        <div class="day-number">{{ day.dayNumber }}</div>
+        <div class="day-content">
+          @if (dayContentTemplate) {
+            <ng-container *ngTemplateOutlet="dayContentTemplate; context: {day: day}"></ng-container>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
