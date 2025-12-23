@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM timbru31/java-node:17-jre-18 AS build
+FROM node:18-alpine AS build
 WORKDIR /build
 
 # Copy frontend package files
