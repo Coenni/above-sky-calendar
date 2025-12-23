@@ -1,24 +1,12 @@
 <div class="tasks-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      <a routerLink="/tasks" class="nav-link active">Tasks</a>
-      <a routerLink="/rewards" class="nav-link">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/metrics" class="nav-link">Metrics</a>
+  <div class="page-header">
+    <div class="header-content">
+      <h1>✓ Tasks</h1>
+      <p class="subtitle">Manage your family tasks and chores</p>
     </div>
-  </nav>
-
-  <div class="tasks-container">
-  <div class="tasks-header">
-    <h1>Task Management</h1>
     @if (isParentMode()) {
-      <button class="btn btn-primary" (click)="toggleCreateForm()">
-        {{ showCreateForm() ? 'Cancel' : '+ New Task' }}
+      <button class="btn-add-task" (click)="toggleCreateForm()">
+        {{ showCreateForm() ? '✕ Cancel' : '+ New Task' }}
       </button>
     }
   </div>
