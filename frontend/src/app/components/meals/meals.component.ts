@@ -35,6 +35,7 @@ export class MealsComponent implements OnInit {
   currentPage = signal(0);
   pageSize = 12;
   showImagePreview = signal(false);
+  editingMeal = signal<Meal | null>(null);
   
   // Calendar view state
   viewMode = signal<'grid' | 'calendar'>('grid');
@@ -127,20 +128,16 @@ export class MealsComponent implements OnInit {
   }
 
   toggleMealForm(): void {
-    this.showMealForm.update(v => !v);
-    this.showImagePreview.set(false);
     if (this.showMealForm()) {
-      const currentUser = this.authState.currentUser();
-      this.newMeal = {
-        name: '',
-        category: 'dinner',
-        recipe: '',
-        ingredients: '',
-        isFavorite: false,
-        imageUrl: '',
-        createdBy: currentUser?.id
-      };
+      // If closing form, reset everything
+      this.resetForm();
+      this.showMealForm.set(false);
+    } else {
+      // If opening form, ensure clean state
+      this.resetForm();
+      this.showMealForm.set(true);
     }
+    this.showImagePreview.set(false);
   }
 
   async createMeal(): Promise<void> {
@@ -150,12 +147,27 @@ export class MealsComponent implements OnInit {
     }
 
     try {
-      const meal = await this.mealsApi.createMeal(this.newMeal);
+      const currentUser = this.authState.currentUser();
+      const mealToCreate = {
+        ...this.newMeal,
+        createdBy: currentUser?.id
+      };
+      
+      const meal = await this.mealsApi.createMeal(mealToCreate);
       this.mealsState.addMeal(meal);
-      this.toggleMealForm();
+      this.resetForm();
+      this.showMealForm.set(false);
     } catch (error) {
       console.error('Error creating meal:', error);
       alert('Failed to create meal');
+    }
+  }
+  
+  async saveMeal(): Promise<void> {
+    if (this.editingMeal()) {
+      await this.updateMeal();
+    } else {
+      await this.createMeal();
     }
   }
 
@@ -174,8 +186,65 @@ export class MealsComponent implements OnInit {
   }
 
   editMeal(meal: Meal): void {
-    // TODO: Implement edit functionality
-    console.log('Edit meal:', meal);
+    this.editingMeal.set(meal);
+    this.newMeal = { ...meal };
+    this.showMealForm.set(true);
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.querySelector('.meal-form-card');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+  
+  async updateMeal(): Promise<void> {
+    const editing = this.editingMeal();
+    if (!editing || !editing.id) return;
+    
+    if (!this.newMeal.name?.trim()) {
+      alert('Please enter a meal name');
+      return;
+    }
+    
+    try {
+      const updatedMeal = {
+        ...editing,
+        ...this.newMeal
+      };
+      
+      await this.mealsApi.updateMeal(editing.id, updatedMeal);
+      
+      // Update the state
+      this.mealsState.setMeals(
+        this.meals().map(m => m.id === editing.id ? updatedMeal : m)
+      );
+      
+      this.resetForm();
+      this.showMealForm.set(false);
+      this.editingMeal.set(null);
+    } catch (error) {
+      console.error('Error updating meal:', error);
+      alert('Failed to update meal');
+    }
+  }
+  
+  resetForm(): void {
+    this.newMeal = {
+      name: '',
+      category: 'dinner',
+      recipe: '',
+      ingredients: '',
+      isFavorite: false,
+      imageUrl: ''
+    };
+    this.editingMeal.set(null);
+  }
+  
+  cancelEdit(): void {
+    this.resetForm();
+    this.showMealForm.set(false);
+    this.editingMeal.set(null);
   }
 
   onSearchChange(): void {

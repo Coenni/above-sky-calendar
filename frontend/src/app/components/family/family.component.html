@@ -13,6 +13,72 @@
     <div class="loading">Loading family members...</div>
   }
 
+  <!-- Add Member Form -->
+  @if (showAddForm() && !loading()) {
+    <div class="add-member-form watercolor-card">
+      <h3>Add Family Member</h3>
+      <form (ngSubmit)="addMember()">
+        <div class="form-group">
+          <label for="username">Name *</label>
+          <input
+            type="text"
+            id="username"
+            [(ngModel)]="newMember.username"
+            name="username"
+            class="form-control"
+            placeholder="Enter member name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newMember.email"
+            name="email"
+            class="form-control"
+            placeholder="Enter email address"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="color">Avatar Color</label>
+          <select
+            id="color"
+            [(ngModel)]="newMember.color"
+            name="color"
+            class="form-control"
+          >
+            <option value="#A8B5A0">Sage Green</option>
+            <option value="#D4906C">Terracotta</option>
+            <option value="#B8D4C1">Mint</option>
+            <option value="#F4C7AB">Peach</option>
+            <option value="#E8B86D">Mustard</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="newMember.isParent"
+              name="isParent"
+            />
+            <span>Parent Account</span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Member</button>
+          <button type="button" (click)="toggleAddForm()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  }
+
   @if (!loading()) {
     <div class="family-grid">
       @for (member of familyMembers(); track member.id) {

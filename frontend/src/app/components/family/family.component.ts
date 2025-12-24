@@ -19,6 +19,14 @@ export class FamilyComponent implements OnInit {
   loading = signal(false);
   showAddForm = signal(false);
   
+  newMember: Partial<User> = {
+    username: '',
+    email: '',
+    isParent: false,
+    color: '#A8B5A0',
+    rewardPoints: 0
+  };
+  
   ngOnInit(): void {
     this.loadFamilyMembers();
   }
@@ -41,6 +49,48 @@ export class FamilyComponent implements OnInit {
   
   toggleAddForm(): void {
     this.showAddForm.update(v => !v);
+    if (!this.showAddForm()) {
+      this.resetForm();
+    }
+  }
+  
+  resetForm(): void {
+    this.newMember = {
+      username: '',
+      email: '',
+      isParent: false,
+      color: '#A8B5A0',
+      rewardPoints: 0
+    };
+  }
+  
+  async addMember(): Promise<void> {
+    if (!this.newMember.username?.trim() || !this.newMember.email?.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    try {
+      // TODO: Replace with actual API call
+      const newUser: User = {
+        id: Date.now(), // Temporary ID generation
+        username: this.newMember.username,
+        email: this.newMember.email,
+        isParent: this.newMember.isParent || false,
+        color: this.newMember.color || '#A8B5A0',
+        rewardPoints: this.newMember.rewardPoints || 0
+      };
+      
+      this.familyMembers.update(members => [...members, newUser]);
+      this.resetForm();
+      this.showAddForm.set(false);
+      
+      // Show success message
+      console.log('Member added successfully:', newUser);
+    } catch (error) {
+      console.error('Error adding family member:', error);
+      alert('Failed to add family member');
+    }
   }
   
   getMemberColor(color?: string): string {

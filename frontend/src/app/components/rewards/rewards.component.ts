@@ -39,6 +39,18 @@ export class RewardsComponent implements OnInit {
   redemptionNotes = signal('');
   searchQuery = signal('');
   showHistory = signal(false);
+  showAddRewardForm = signal(false);
+  showSetGoalForm = signal(false);
+  
+  newReward: Partial<Reward> = {
+    name: '',
+    description: '',
+    pointsRequired: 0,
+    category: '',
+    imageUrl: ''
+  };
+  
+  userGoal = signal<number>(0);
   
   // Computed signals
   readonly filteredBySearch = computed(() => {
@@ -165,5 +177,81 @@ export class RewardsComponent implements OnInit {
 
   getUniqueCategories(): string[] {
     return this.uniqueCategories();
+  }
+  
+  // Add Reward functionality
+  toggleAddRewardForm(): void {
+    this.showAddRewardForm.update(v => !v);
+    if (!this.showAddRewardForm()) {
+      this.resetRewardForm();
+    }
+  }
+  
+  resetRewardForm(): void {
+    this.newReward = {
+      name: '',
+      description: '',
+      pointsRequired: 0,
+      category: '',
+      imageUrl: ''
+    };
+  }
+  
+  async addReward(): Promise<void> {
+    if (!this.newReward.name?.trim() || !this.newReward.pointsRequired) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    try {
+      const reward: Reward = {
+        id: Date.now(), // Temporary ID
+        name: this.newReward.name,
+        description: this.newReward.description || '',
+        pointsRequired: this.newReward.pointsRequired,
+        category: this.newReward.category || 'Other',
+        imageUrl: this.newReward.imageUrl || '',
+        isAvailable: true
+      };
+      
+      // TODO: Replace with actual API call
+      this.rewardsState.setRewards([...this.rewardsState.rewards(), reward]);
+      
+      this.resetRewardForm();
+      this.showAddRewardForm.set(false);
+      console.log('Reward added successfully:', reward);
+    } catch (error) {
+      console.error('Error adding reward:', error);
+      alert('Failed to add reward');
+    }
+  }
+  
+  // Set Goal functionality
+  toggleSetGoalForm(): void {
+    this.showSetGoalForm.update(v => !v);
+    if (this.showSetGoalForm()) {
+      this.userGoal.set(0);
+    }
+  }
+  
+  async setGoal(): Promise<void> {
+    if (this.userGoal() <= 0) {
+      alert('Please enter a valid goal');
+      return;
+    }
+    
+    try {
+      // TODO: Replace with actual API call to save user goal
+      const currentUser = this.authState.currentUser();
+      if (currentUser) {
+        console.log(`Goal set for ${currentUser.username}: ${this.userGoal()} points`);
+        alert(`Goal set successfully! Aim for ${this.userGoal()} points!`);
+        this.showSetGoalForm.set(false);
+        this.userGoal.set(0);
+      }
+    } catch (error) {
+      console.error('Error setting goal:', error);
+      alert('Failed to set goal');
+    }
   }
 }

@@ -140,6 +140,99 @@
   color: $color-soft-brown;
 }
 
+// Add Member Form
+.add-member-form {
+  margin-bottom: $spacing-2xl;
+  animation: slideInTop 0.5s ease-out;
+  
+  h3 {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-xl;
+    font-size: $font-size-2xl;
+  }
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    color: $color-soft-brown;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+  
+  span {
+    color: $color-soft-brown;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  border: 3px solid white;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+  color: white;
+  border: 3px solid white;
+}
+
 .loading {
   text-align: center;
   padding: $spacing-4xl;

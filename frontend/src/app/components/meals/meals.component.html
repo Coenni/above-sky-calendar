@@ -17,8 +17,8 @@
   <!-- Quick Meal Form -->
   @if (showMealForm()) {
     <div class="meal-form-card watercolor-card">
-      <h3>Add New Meal</h3>
-      <form (ngSubmit)="createMeal()">
+      <h3>{{ editingMeal() ? 'Edit Meal' : 'Add New Meal' }}</h3>
+      <form (ngSubmit)="saveMeal()">
         <div class="form-row">
           <div class="form-group">
             <label for="name">Meal Name</label>
@@ -99,7 +99,14 @@
           </label>
         </div>
 
-        <button type="submit" class="btn-submit">Add Meal</button>
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">
+            {{ editingMeal() ? 'Update Meal' : 'Add Meal' }}
+          </button>
+          @if (editingMeal()) {
+            <button type="button" (click)="cancelEdit()" class="btn-cancel">Cancel</button>
+          }
+        </div>
       </form>
     </div>
   }

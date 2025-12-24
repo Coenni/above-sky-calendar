@@ -198,6 +198,12 @@
   }
 }
 
+.form-actions {
+  display: flex;
+  gap: $spacing-md;
+  align-items: center;
+}
+
 .btn-submit {
   padding: $spacing-md $spacing-2xl;
   background: linear-gradient(135deg, $color-mustard 0%, $color-terracotta 100%);
@@ -209,7 +215,26 @@
   cursor: pointer;
   transition: all $transition-base;
   box-shadow: $shadow-md;
-  align-self: flex-start;
+  min-height: 48px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.btn-cancel {
+  padding: $spacing-md $spacing-2xl;
+  background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
   
   &:hover {
     transform: translateY(-2px);

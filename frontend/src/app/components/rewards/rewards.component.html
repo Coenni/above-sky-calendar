@@ -6,6 +6,14 @@
         <p class="subtitle">Redeem your points for awesome rewards!</p>
       </div>
       <div class="header-actions">
+        @if (isParentMode()) {
+          <button (click)="toggleAddRewardForm()" class="btn btn-primary">
+            {{ showAddRewardForm() ? '✕ Cancel' : '+ Add Reward' }}
+          </button>
+        }
+        <button (click)="toggleSetGoalForm()" class="btn btn-secondary">
+          {{ showSetGoalForm() ? '✕ Cancel' : '🎯 Set Goal' }}
+        </button>
         <button (click)="toggleHistory()" class="btn btn-secondary">
           {{ showHistory() ? 'Hide History' : 'View History' }}
         </button>
@@ -21,6 +29,111 @@
         </div>
       </div>
     </div>
+
+    <!-- Add Reward Form -->
+    @if (showAddRewardForm() && isParentMode()) {
+      <div class="reward-form watercolor-card">
+        <h3>Add New Reward</h3>
+        <form (ngSubmit)="addReward()">
+          <div class="form-group">
+            <label for="rewardName">Reward Name *</label>
+            <input
+              type="text"
+              id="rewardName"
+              [(ngModel)]="newReward.name"
+              name="rewardName"
+              class="form-control"
+              placeholder="e.g., Ice Cream Treat"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              [(ngModel)]="newReward.description"
+              name="description"
+              class="form-control"
+              rows="2"
+              placeholder="Describe the reward..."
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pointsRequired">Points Required *</label>
+              <input
+                type="number"
+                id="pointsRequired"
+                [(ngModel)]="newReward.pointsRequired"
+                name="pointsRequired"
+                class="form-control"
+                min="1"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category</label>
+              <input
+                type="text"
+                id="category"
+                [(ngModel)]="newReward.category"
+                name="category"
+                class="form-control"
+                placeholder="e.g., Treats, Activities"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="imageUrl">Image URL (optional)</label>
+            <input
+              type="url"
+              id="imageUrl"
+              [(ngModel)]="newReward.imageUrl"
+              name="imageUrl"
+              class="form-control"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Reward</button>
+            <button type="button" (click)="toggleAddRewardForm()" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Set Goal Form -->
+    @if (showSetGoalForm()) {
+      <div class="goal-form watercolor-card">
+        <h3>🎯 Set Your Points Goal</h3>
+        <p class="goal-description">Set a target to motivate yourself!</p>
+        <form (ngSubmit)="setGoal()">
+          <div class="form-group">
+            <label for="goalPoints">Points Goal *</label>
+            <input
+              type="number"
+              id="goalPoints"
+              [(ngModel)]="userGoal"
+              name="goalPoints"
+              class="form-control"
+              min="1"
+              placeholder="Enter your target points"
+              required
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Set Goal</button>
+            <button type="button" (click)="toggleSetGoalForm()" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    }
 
     @if (!showHistory()) {
       <div class="filters">
