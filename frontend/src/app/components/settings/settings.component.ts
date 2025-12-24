@@ -37,7 +37,15 @@ export class SettingsComponent implements OnInit {
   }
 
   loadMode(): void {
-    this.modeService.getCurrentMode().subscribe({
+    // First try to use cached mode value, then fetch if needed
+    const cachedMode = this.modeService.getCurrentModeValue();
+    if (cachedMode) {
+      this.isParentMode.set(cachedMode.isParentMode);
+      this.hasPinSet.set(cachedMode.hasPinSet);
+    }
+
+    // Fetch fresh data from server
+    this.modeService.getCurrentMode(false).subscribe({
       next: (mode) => {
         this.isParentMode.set(mode.isParentMode);
         this.hasPinSet.set(mode.hasPinSet);

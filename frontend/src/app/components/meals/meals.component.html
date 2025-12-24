@@ -182,7 +182,7 @@
       </ng-template>
       
       <app-monthly-calendar 
-        [currentDate]="new Date()"
+        [currentDate]="getCurrentDate()"
         [dayContentTemplate]="dayContent"
         (dateSelected)="onDateSelected($event)"
       >

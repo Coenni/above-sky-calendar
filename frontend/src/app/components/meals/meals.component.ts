@@ -293,4 +293,8 @@ export class MealsComponent implements OnInit {
       alert('Failed to remove assignment');
     }
   }
+
+  getCurrentDate() {
+    return new Date();
+  }
 }

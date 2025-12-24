@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, shareReplay, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { 
   ModeResponse, 
@@ -16,6 +16,7 @@ export class ModeService {
   private readonly MODE_KEY = 'user_mode';
   private modeSubject = new BehaviorSubject<ModeResponse | null>(null);
   public mode$ = this.modeSubject.asObservable();
+  private modeRequest$: Observable<ModeResponse> | null = null;
 
   constructor(private apiService: ApiService) {
     this.loadModeFromStorage();
@@ -45,12 +46,33 @@ export class ModeService {
   }
 
   /**
-   * Get current mode from the server
+   * Get current mode from the server (with caching to prevent duplicate requests)
    */
-  getCurrentMode(): Observable<ModeResponse> {
-    return this.apiService.get<ModeResponse>('/settings/mode').pipe(
-      tap(mode => this.saveModeToStorage(mode))
+  getCurrentMode(forceRefresh: boolean = false): Observable<ModeResponse> {
+    // If we have cached data and not forcing refresh, return cached data immediately
+    const cachedMode = this.modeSubject.value;
+    if (!forceRefresh && cachedMode) {
+      return of(cachedMode);
+    }
+
+    // If there's already a pending request, return it (shareReplay prevents duplicate calls)
+    if (this.modeRequest$) {
+      return this.modeRequest$;
+    }
+
+    // Create new request and cache it
+    this.modeRequest$ = this.apiService.get<ModeResponse>('/settings/mode').pipe(
+      tap(mode => this.saveModeToStorage(mode)),
+      shareReplay(1),
+      tap(() => {
+        // Clear the cached request after a short delay so subsequent calls can use cache
+        setTimeout(() => {
+          this.modeRequest$ = null;
+        }, 1000);
+      })
     );
+
+    return this.modeRequest$;
   }
 
   /**
