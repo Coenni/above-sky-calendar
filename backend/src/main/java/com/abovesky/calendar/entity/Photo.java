@@ -23,7 +23,7 @@ public class Photo {
     @Column(nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 512)
     private String filePath; // Relative or absolute path to stored file
 
     @Column

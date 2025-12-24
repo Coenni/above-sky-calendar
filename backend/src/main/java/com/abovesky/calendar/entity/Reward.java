@@ -32,7 +32,7 @@ public class Reward {
     @Column
     private String category; // e.g., "treats", "activities", "privileges"
 
-    @Column
+    @Column(length = 512)
     private String imageUrl; // Optional image for the reward
 
     @Column(nullable = false)

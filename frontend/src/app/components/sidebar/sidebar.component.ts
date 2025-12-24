@@ -31,9 +31,10 @@ export class SidebarComponent {
     { label: 'Calendar', route: '/calendar', icon: '📅' },
     { label: 'Tasks', route: '/tasks', icon: '✓' },
     { label: 'Meals', route: '/meals', icon: '🍽️' },
-    { label: 'Rewards', route: '/rewards', icon: '🎁' },
-    { label: 'Lists', route: '/lists', icon: '📝' },
-    { label: 'Photos', route: '/photos', icon: '📸' },
+    { label: 'Rewards', route: '/rewards', icon: '🏆' },
+    { label: 'Lists', route: '/lists', icon: '📋' },
+    { label: 'Photos', route: '/photos', icon: '📷' },
+    { label: 'Family', route: '/family', icon: '👨‍👩‍👧‍👦' },
     { label: 'Settings', route: '/settings', icon: '⚙️' }
   ];
 

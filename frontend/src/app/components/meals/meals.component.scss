@@ -544,3 +544,98 @@
     transform: scale(1.1);
   }
 }
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: bounceIn 0.3s ease-out;
+  
+  h2 {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+}
+
+.btn-cancel {
+  padding: $spacing-md $spacing-2xl;
+  background: #ccc;
+  color: #333;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  
+  &:hover {
+    background: #bbb;
+  }
+}
+
+// Category Icon Buttons
+.category-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: $spacing-md;
+  margin-top: $spacing-sm;
+}
+
+.category-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: $spacing-md;
+  background: white;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-lg;
+  font-size: $font-size-xl;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all $transition-base;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  text-align: center;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+    border-color: $color-terracotta;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    border-color: $color-sage-green;
+    transform: scale(1.05);
+    box-shadow: $shadow-lg;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
