@@ -1,0 +1,667 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.tasks-page {
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  background: linear-gradient(to bottom, $color-cream 0%, $color-warm-white 100%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.3) 100%);
+  border-radius: $radius-2xl;
+  border: 3px dashed $color-sage-green;
+  animation: fadeIn 0.5s ease-out;
+  
+  h1 {
+    color: $color-soft-brown;
+    font-size: $font-size-4xl;
+    margin: 0;
+    font-family: $font-heading;
+    text-shadow: 2px 2px 0 rgba(white, 0.5);
+  }
+  
+  .subtitle {
+    color: $color-soft-brown;
+    font-size: $font-size-lg;
+    margin: $spacing-sm 0 0 0;
+  }
+}
+
+.btn-create-task {
+  padding: $spacing-md $spacing-2xl;
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Stats Cards
+.stats-section {
+  margin-bottom: $spacing-2xl;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-lg;
+}
+
+.stat-card {
+  background: white;
+  padding: $spacing-xl;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  transition: all $transition-base;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+.stat-value {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.stat-label {
+  font-size: $font-size-base;
+  color: $color-gray;
+  font-weight: $font-weight-semibold;
+}
+
+// Filters
+.filters-section {
+  margin-bottom: $spacing-2xl;
+}
+
+.filters {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: $spacing-md $spacing-xl;
+  background: white;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-full;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 44px;
+  
+  &:hover {
+    background: rgba($color-sage-green, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    box-shadow: $shadow-md;
+  }
+}
+
+// Task Form
+.task-form-card {
+  background: white;
+  padding: $spacing-2xl;
+  border-radius: $radius-2xl;
+  margin-bottom: $spacing-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  animation: slideInTop 0.5s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-xl;
+    font-size: $font-size-2xl;
+  }
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    color: $color-soft-brown;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+// Tasks Grid
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-xl;
+}
+
+// Tasks Columns (by assignee)
+.tasks-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-xl;
+  margin-bottom: $spacing-2xl;
+}
+
+.task-column {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.column-header {
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.2) 100%);
+  border-bottom: 3px dashed $color-sage-green;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.column-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  border: 3px solid white;
+  box-shadow: $shadow-md;
+  
+  &.unassigned {
+    background: $color-gray;
+  }
+}
+
+.column-title {
+  flex: 1;
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: 0;
+}
+
+.task-count {
+  background: rgba($color-terracotta, 0.2);
+  color: $color-soft-brown;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+}
+
+.column-tasks {
+  padding: $spacing-md;
+  min-height: 200px;
+  max-height: 600px;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $color-sage-green;
+    border-radius: $radius-full;
+  }
+}
+
+.task-card-compact {
+  background: white;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  border: 2px solid $color-sage-green;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  
+  &.completed {
+    opacity: 0.6;
+    
+    .task-title-compact {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.task-header-compact {
+  margin-bottom: $spacing-xs;
+}
+
+.task-priority-badge {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  
+  &.high {
+    background: rgba($color-red, 0.2);
+    color: $color-red;
+  }
+  
+  &.medium {
+    background: rgba($color-orange, 0.2);
+    color: $color-orange;
+  }
+  
+  &.low {
+    background: rgba($color-green, 0.2);
+    color: $color-green;
+  }
+}
+
+.task-title-compact {
+  color: $color-soft-brown;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  margin: $spacing-xs 0;
+}
+
+.task-points-compact {
+  display: inline-block;
+  font-size: $font-size-xs;
+  color: $color-soft-brown;
+  margin: $spacing-xs 0;
+}
+
+.task-actions-compact {
+  display: flex;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+}
+
+.btn-icon-compact {
+  flex: 1;
+  padding: $spacing-xs $spacing-sm;
+  background: $color-mint;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 32px;
+  
+  &:hover {
+    background: $color-sage-green;
+    color: white;
+  }
+  
+  &.btn-delete {
+    background: rgba($color-terracotta, 0.2);
+    border-color: $color-terracotta;
+    
+    &:hover {
+      background: $color-terracotta;
+    }
+  }
+  
+  &.btn-complete {
+    background: rgba($color-green, 0.2);
+    border-color: $color-green;
+    
+    &:hover {
+      background: $color-green;
+    }
+  }
+}
+
+.empty-column {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $color-gray;
+  font-style: italic;
+}
+
+// Tasks Grid (default view)
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-xl;
+}
+
+.task-card {
+  background: white;
+  padding: $spacing-2xl;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  transition: all $transition-base;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: $shadow-2xl;
+  }
+  
+  &.completed {
+    opacity: 0.7;
+    
+    .task-title {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.task-priority {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  
+  &.high {
+    background: rgba($color-red, 0.2);
+    color: $color-red;
+  }
+  
+  &.medium {
+    background: rgba($color-orange, 0.2);
+    color: $color-orange;
+  }
+  
+  &.low {
+    background: rgba($color-green, 0.2);
+    color: $color-green;
+  }
+}
+
+.task-title {
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: $spacing-sm 0;
+}
+
+.task-description {
+  color: $color-gray;
+  margin: $spacing-md 0;
+  line-height: $line-height-relaxed;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin: $spacing-lg 0;
+}
+
+.task-points {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: rgba($color-mustard, 0.2);
+  border-radius: $radius-full;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  color: $color-soft-brown;
+}
+
+.task-assignee {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
+  background: rgba($color-mint, 0.2);
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+}
+
+.assignee-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $color-sage-green;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.task-actions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+}
+
+.btn-icon {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  background: $color-mint;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-md;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 44px;
+  
+  &:hover {
+    background: $color-sage-green;
+    color: white;
+    transform: translateY(-2px);
+  }
+  
+  &.btn-delete {
+    background: rgba($color-terracotta, 0.2);
+    border-color: $color-terracotta;
+    
+    &:hover {
+      background: $color-terracotta;
+    }
+  }
+  
+  &.btn-complete {
+    background: rgba($color-green, 0.2);
+    border-color: $color-green;
+    
+    &:hover {
+      background: $color-green;
+    }
+  }
+}
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: $spacing-4xl;
+  
+  .empty-icon {
+    font-size: 120px;
+    margin-bottom: $spacing-xl;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-md;
+  }
+  
+  p {
+    color: $color-gray;
+    font-size: $font-size-lg;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .tasks-page {
+    padding: $spacing-lg;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+  
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tasks-columns {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

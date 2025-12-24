@@ -2,15 +2,18 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { format } from 'date-fns';
 import { MealsStateService } from '../../services/state/meals-state.service';
 import { MealsApiService } from '../../services/api/meals-api.service';
 import { AuthStateService } from '../../services/state/auth-state.service';
 import { Meal } from '../../models/meal.model';
+import { MealAssignment } from '../../models/meal-assignment.model';
+import { MonthlyCalendarComponent } from '../shared/monthly-calendar.component';
 
 @Component({
   selector: 'app-meals',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MonthlyCalendarComponent],
   templateUrl: './meals.component.html',
   styleUrls: ['./meals.component.scss']
 })
@@ -32,6 +35,12 @@ export class MealsComponent implements OnInit {
   currentPage = signal(0);
   pageSize = 12;
   showImagePreview = signal(false);
+  
+  // Calendar view state
+  viewMode = signal<'grid' | 'calendar'>('grid');
+  showMealSelector = signal(false);
+  selectedDate = signal<Date | null>(null);
+  mealAssignments = signal<MealAssignment[]>([]);
   
   newMeal: Meal = {
     name: '',
@@ -220,5 +229,72 @@ export class MealsComponent implements OnInit {
 
   setDefaultImage(event: any): void {
     event.target.style.display = 'none';
+  }
+  
+  // Calendar view methods
+  toggleViewMode(): void {
+    this.viewMode.update(v => v === 'grid' ? 'calendar' : 'grid');
+  }
+  
+  onDateSelected(date: Date): void {
+    this.selectedDate.set(date);
+    this.showMealSelector.set(true);
+  }
+  
+  closeMealSelector(): void {
+    this.showMealSelector.set(false);
+    this.selectedDate.set(null);
+  }
+  
+  async assignMealToDate(meal: Meal): Promise<void> {
+    const date = this.selectedDate();
+    if (!date || !meal.id) return;
+    
+    try {
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const assignment: MealAssignment = {
+        mealId: meal.id,
+        assignedDate: dateStr,
+        mealType: meal.category as any,
+        meal: {
+          id: meal.id,
+          name: meal.name,
+          category: meal.category,
+          icon: this.getMealIcon(meal.category),
+          imageUrl: meal.imageUrl
+        }
+      };
+      
+      // Add to local state (in real app, would call API)
+      this.mealAssignments.update(assignments => [...assignments, assignment]);
+      this.closeMealSelector();
+    } catch (error) {
+      console.error('Error assigning meal:', error);
+      alert('Failed to assign meal');
+    }
+  }
+  
+  getMealAssignmentsForDate(date: Date): MealAssignment[] {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return this.mealAssignments().filter(a => a.assignedDate === dateStr);
+  }
+  
+  async removeMealAssignment(assignment: MealAssignment): Promise<void> {
+    if (!confirm('Remove this meal assignment?')) return;
+    
+    try {
+      // Remove from local state (in real app, would call API)
+      this.mealAssignments.update(assignments => 
+        assignments.filter(a => a.id !== assignment.id || 
+          (a.mealId !== assignment.mealId || a.assignedDate !== assignment.assignedDate))
+      );
+    } catch (error) {
+      console.error('Error removing assignment:', error);
+      alert('Failed to remove assignment');
+    }
+  }
+
+  getCurrentDate() {
+    return new Date();
   }
 }

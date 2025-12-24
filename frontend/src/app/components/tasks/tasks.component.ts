@@ -13,7 +13,7 @@ import { Task } from '../../models/task.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './tasks.component.html',
-  styleUrls: ['./tasks.component.css']
+  styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent implements OnInit {
   // Inject services using inject()
@@ -34,6 +34,29 @@ export class TasksComponent implements OnInit {
   
   // Local component state
   showCreateForm = signal(false);
+  filterAssignee = signal<number | null>(null);
+  groupByAssignee = signal(false);
+  
+  // Mock family members (in real app, would come from a service)
+  // Colors from design system: sage green, terracotta, mint, peach
+  familyMembers = signal([
+    { id: 1, username: 'Mom', color: '#A8B5A0' },    // $color-sage-green
+    { id: 2, username: 'Dad', color: '#D4906C' },    // $color-terracotta
+    { id: 3, username: 'Emma', color: '#B8D4C1' },   // $color-mint
+    { id: 4, username: 'Noah', color: '#F4C7AB' }    // $color-peach
+  ]);
+  
+  // Filtered tasks based on assignee selection
+  readonly filteredTasks = computed(() => {
+    const tasks = this.sortedTasks();
+    const assigneeFilter = this.filterAssignee();
+    
+    if (assigneeFilter === null) {
+      return tasks;
+    }
+    
+    return tasks.filter(task => task.assignedUserId === assigneeFilter);
+  });
   
   newTask: Task = {
     title: '',
@@ -145,5 +168,39 @@ export class TasksComponent implements OnInit {
       case 'pending': return 'badge-secondary';
       default: return 'badge-secondary';
     }
+  }
+  
+  // Family member assignment methods
+  setAssigneeFilter(userId: number | null): void {
+    this.filterAssignee.set(userId);
+  }
+  
+  toggleGroupByAssignee(): void {
+    this.groupByAssignee.update(v => !v);
+  }
+  
+  getAssigneeName(userId?: number): string {
+    if (!userId) return 'Unassigned';
+    const member = this.familyMembers().find(m => m.id === userId);
+    return member ? member.username : 'Unknown';
+  }
+  
+  getAssigneeColor(userId?: number): string {
+    if (!userId) return '#9ca3af';
+    const member = this.familyMembers().find(m => m.id === userId);
+    return member ? member.color : '#9ca3af';
+  }
+  
+  getAssigneeInitial(userId?: number): string {
+    const name = this.getAssigneeName(userId);
+    return name.charAt(0).toUpperCase();
+  }
+  
+  getTasksForAssignee(userId: number | null): Task[] {
+    const tasks = this.sortedTasks();
+    if (userId === null) {
+      return tasks.filter(task => !task.assignedUserId);
+    }
+    return tasks.filter(task => task.assignedUserId === userId);
   }
 }

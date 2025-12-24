@@ -1,17 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { User } from '../models/user.model';
 import { ModeService } from './mode.service';
+import { AuthStateService } from './state/auth-state.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'current_user';
+  private readonly TOKEN_KEY = 'token';
+  private readonly USER_KEY = 'currentUser';
+  private authStateService = inject(AuthStateService);
 
   constructor(
     private apiService: ApiService,
@@ -38,8 +40,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    this.authStateService.logout(); // AuthStateService handles localStorage cleanup
     this.modeService.clearMode();
     this.router.navigate(['/login']);
   }
@@ -58,12 +59,16 @@ export class AuthService {
   }
 
   private handleAuthResponse(response: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, response.token);
     const user: User = {
       id: response.id,
       username: response.username,
-      email: response.email
+      email: response.email,
+      displayName: response.username,
+      rewardPoints: 0,
+      isParent: false
     };
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    
+    // AuthStateService handles localStorage persistence
+    this.authStateService.login(response.token, user);
   }
 }

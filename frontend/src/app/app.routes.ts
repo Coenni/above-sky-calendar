@@ -10,6 +10,7 @@ import { PhotosComponent } from './components/photos/photos.component';
 import { ListsComponent } from './components/lists/lists.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { FamilyComponent } from './components/family/family.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'photos', component: PhotosComponent, canActivate: [authGuard] },
   { path: 'lists', component: ListsComponent, canActivate: [authGuard] },
   { path: 'calendar', component: CalendarComponent, canActivate: [authGuard] },
+  { path: 'family', component: FamilyComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/dashboard' }
 ];

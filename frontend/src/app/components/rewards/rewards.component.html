@@ -1,27 +1,8 @@
 <div class="rewards-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link active">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      @if (authState.currentUser(); as user) {
-        <div class="user-info">
-          <span class="points-badge">{{ userPoints() }} Points</span>
-          <span>{{ user.username }}</span>
-        </div>
-      }
-    </div>
-  </nav>
-
   <div class="container">
     <div class="header">
       <div class="header-content">
-        <h1>Rewards Store</h1>
+        <h1>🏆 Rewards Store</h1>
         <p class="subtitle">Redeem your points for awesome rewards!</p>
       </div>
       <div class="header-actions">

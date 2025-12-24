@@ -12,7 +12,7 @@ import { Photo } from '../../models/photo.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './photos.component.html',
-  styleUrls: ['./photos.component.css']
+  styleUrls: ['./photos.component.scss']
 })
 export class PhotosComponent implements OnInit {
   // Inject services using inject()
