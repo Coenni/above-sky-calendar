@@ -45,7 +45,7 @@ export class RewardsComponent implements OnInit {
   newReward: Partial<Reward> = {
     name: '',
     description: '',
-    pointsRequired: 0,
+    pointsCost: 0,
     category: '',
     imageUrl: ''
   };
@@ -191,14 +191,14 @@ export class RewardsComponent implements OnInit {
     this.newReward = {
       name: '',
       description: '',
-      pointsRequired: 0,
+      pointsCost: 0,
       category: '',
       imageUrl: ''
     };
   }
   
   async addReward(): Promise<void> {
-    if (!this.newReward.name?.trim() || !this.newReward.pointsRequired) {
+    if (!this.newReward.name?.trim() || !this.newReward.pointsCost) {
       alert('Please fill in all required fields');
       return;
     }
@@ -208,10 +208,10 @@ export class RewardsComponent implements OnInit {
         id: Date.now(), // Temporary ID
         name: this.newReward.name,
         description: this.newReward.description || '',
-        pointsRequired: this.newReward.pointsRequired,
+        pointsCost: this.newReward.pointsCost,
         category: this.newReward.category || 'Other',
         imageUrl: this.newReward.imageUrl || '',
-        isAvailable: true
+        isActive: true
       };
       
       // TODO: Replace with actual API call
