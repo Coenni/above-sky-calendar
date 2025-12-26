@@ -4,103 +4,262 @@
       <h1>👨‍👩‍👧‍👦 Family Members</h1>
       <p class="subtitle">Manage your family members</p>
     </div>
-    <button (click)="toggleAddForm()" class="btn-add-member">
-      {{ showAddForm() ? '✕ Cancel' : '+ Add Member' }}
+    <button (click)="toggleMemberForm()" class="btn-add-member">
+      {{ showMemberForm() ? '✕ Cancel' : '+ Add Member' }}
     </button>
   </div>
+
+  <!-- Quick Member Form -->
+  @if (showMemberForm()) {
+    <div class="member-form-card watercolor-card">
+      <h3>Add New Family Member</h3>
+      <form (ngSubmit)="createMember()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">Username *</label>
+            <input
+              type="text"
+              id="username"
+              [(ngModel)]="newMember.username"
+              name="username"
+              required
+              class="form-input"
+              placeholder="e.g., john_doe"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="displayName">Display Name *</label>
+            <input
+              type="text"
+              id="displayName"
+              [(ngModel)]="newMember.displayName"
+              name="displayName"
+              required
+              class="form-input"
+              placeholder="e.g., John"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="newMember.email"
+              name="email"
+              required
+              class="form-input"
+              placeholder="email@example.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="newMember.password"
+              name="password"
+              required
+              class="form-input"
+              placeholder="Enter password"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" [(ngModel)]="newMember.role" name="role" class="form-input">
+              <option value="">Select role</option>
+              <option value="Parent">Parent</option>
+              <option value="Child">Child</option>
+              <option value="Teen">Teen</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dateOfBirth">Date of Birth</label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              [(ngModel)]="newMember.dateOfBirth"
+              name="dateOfBirth"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" [(ngModel)]="newMember.gender" name="gender" class="form-input">
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="color">Color</label>
+            <input
+              type="color"
+              id="color"
+              [(ngModel)]="newMember.color"
+              name="color"
+              class="form-input color-picker"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="photo">Photo URL (optional)</label>
+          <input
+            type="url"
+            id="photo"
+            [(ngModel)]="newMember.photo"
+            name="photo"
+            class="form-input"
+            placeholder="https://example.com/photo.jpg"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="newMember.isParent" name="isParent" />
+            🔑 Has parent privileges
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit">Add Member</button>
+      </form>
+    </div>
+  }
 
   @if (loading()) {
     <div class="loading">Loading family members...</div>
   }
 
-  <!-- Add Member Form -->
-  @if (showAddForm() && !loading()) {
-    <div class="add-member-form watercolor-card">
-      <h3>Add Family Member</h3>
-      <form (ngSubmit)="addMember()">
-        <div class="form-group">
-          <label for="username">Name *</label>
-          <input
-            type="text"
-            id="username"
-            [(ngModel)]="newMember.username"
-            name="username"
-            class="form-control"
-            placeholder="Enter member name"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email *</label>
-          <input
-            type="email"
-            id="email"
-            [(ngModel)]="newMember.email"
-            name="email"
-            class="form-control"
-            placeholder="Enter email address"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="color">Avatar Color</label>
-          <select
-            id="color"
-            [(ngModel)]="newMember.color"
-            name="color"
-            class="form-control"
-          >
-            <option value="#A8B5A0">Sage Green</option>
-            <option value="#D4906C">Terracotta</option>
-            <option value="#B8D4C1">Mint</option>
-            <option value="#F4C7AB">Peach</option>
-            <option value="#E8B86D">Mustard</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="newMember.isParent"
-              name="isParent"
-            />
-            <span>Parent Account</span>
-          </label>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Add Member</button>
-          <button type="button" (click)="toggleAddForm()" class="btn btn-secondary">Cancel</button>
-        </div>
-      </form>
-    </div>
-  }
-
+  <!-- Family Members Grid -->
   @if (!loading()) {
-    <div class="family-grid">
-      @for (member of familyMembers(); track member.id) {
-        <div class="family-card watercolor-card">
-          <div class="member-avatar" [style.background]="getMemberColor(member.color)">
-            {{ member.username.charAt(0).toUpperCase() }}
-          </div>
-          <div class="member-info">
-            <h3 class="member-name">{{ member.username }}</h3>
-            <p class="member-role">{{ member.isParent ? 'Parent' : 'Child' }}</p>
-            @if (member.rewardPoints !== undefined) {
-              <div class="member-points">🏆 {{ member.rewardPoints }} points</div>
+    <div class="members-grid">
+      @for (member of members(); track member.id) {
+        <div class="member-card watercolor-card" [style.borderColor]="member.color || '#ccc'">
+          <div class="member-avatar">
+            @if (member.photo) {
+              <img [src]="member.photo" [alt]="member.displayName" class="avatar-image" />
+            } @else {
+              <div class="avatar-placeholder" [style.backgroundColor]="member.color || '#ccc'">
+                {{ getDefaultAvatar(member.displayName) }}
+              </div>
             }
+            @if (member.isParent) {
+              <span class="parent-badge">👑</span>
+            }
+          </div>
+
+          <div class="member-content">
+            <h3 class="member-name">{{ member.displayName }}</h3>
+            <div class="member-meta">
+              @if (member.role) {
+                <span class="member-role">{{ getRoleIcon(member.role) }} {{ member.role }}</span>
+              }
+              @if (member.age) {
+                <span class="member-age">Age: {{ member.age }}</span>
+              }
+            </div>
+
+            <div class="member-actions">
+              <button (click)="editMember(member)" class="btn-icon" title="Edit">
+                ✏️ Edit
+              </button>
+              <button (click)="deleteMember(member.id)" class="btn-icon btn-delete" title="Delete">
+                🗑️ Delete
+              </button>
+            </div>
           </div>
         </div>
       } @empty {
         <div class="empty-state">
           <div class="empty-icon">👨‍👩‍👧‍👦</div>
-          <h3>No family members found</h3>
+          <h3>No family members yet</h3>
           <p>Add your first family member to get started!</p>
         </div>
       }
+    </div>
+  }
+
+  <!-- Edit Modal -->
+  @if (showEditModal() && editingMember()) {
+    <div class="modal-overlay" (click)="closeEditModal()">
+      <div class="modal-content watercolor-card" (click)="$event.stopPropagation()">
+        <h2>Edit Family Member</h2>
+        <form (ngSubmit)="saveEditedMember()">
+          <div class="form-group">
+            <label for="editDisplayName">Display Name</label>
+            <input
+              type="text"
+              id="editDisplayName"
+              [(ngModel)]="editingMember()!.displayName"
+              name="editDisplayName"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editEmail">Email</label>
+            <input
+              type="email"
+              id="editEmail"
+              [(ngModel)]="editingMember()!.email"
+              name="editEmail"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editRole">Role</label>
+            <select id="editRole" [(ngModel)]="editingMember()!.role" name="editRole" class="form-input">
+              <option value="">Select role</option>
+              <option value="Parent">Parent</option>
+              <option value="Child">Child</option>
+              <option value="Teen">Teen</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editColor">Color</label>
+            <input
+              type="color"
+              id="editColor"
+              [(ngModel)]="editingMember()!.color"
+              name="editColor"
+              class="form-input color-picker"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editPhoto">Photo URL</label>
+            <input
+              type="url"
+              id="editPhoto"
+              [(ngModel)]="editingMember()!.photo"
+              name="editPhoto"
+              class="form-input"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-submit">Save Changes</button>
+            <button type="button" (click)="closeEditModal()" class="btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
   }
 </div>

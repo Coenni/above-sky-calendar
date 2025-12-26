@@ -2708,6 +2708,26 @@ components:
           type: integer
         roles:
           type: string
+        photo:
+          type: string
+          maxLength: 512
+          description: Photo/avatar URL or path
+        dateOfBirth:
+          type: string
+          format: date
+          description: Date of birth
+        role:
+          type: string
+          maxLength: 50
+          description: Role in family (Parent, Child, etc.)
+        phone:
+          type: string
+          maxLength: 50
+          description: Phone number
+        gender:
+          type: string
+          enum: [Male, Female, Other, Prefer not to say]
+          description: Gender
         createdAt:
           type: string
           format: date-time
@@ -2748,6 +2768,26 @@ components:
         isParent:
           type: boolean
           default: false
+        photo:
+          type: string
+          maxLength: 512
+          description: Photo/avatar URL or path
+        dateOfBirth:
+          type: string
+          format: date
+          description: Date of birth
+        role:
+          type: string
+          maxLength: 50
+          description: Role in family (Parent, Child, etc.)
+        phone:
+          type: string
+          maxLength: 50
+          description: Phone number
+        gender:
+          type: string
+          enum: [Male, Female, Other, Prefer not to say]
+          description: Gender
 
     FamilyMemberUpdate:
       type: object
@@ -2766,6 +2806,26 @@ components:
           type: integer
           minimum: 0
           maximum: 150
+        photo:
+          type: string
+          maxLength: 512
+          description: Photo/avatar URL or path
+        dateOfBirth:
+          type: string
+          format: date
+          description: Date of birth
+        role:
+          type: string
+          maxLength: 50
+          description: Role in family (Parent, Child, etc.)
+        phone:
+          type: string
+          maxLength: 50
+          description: Phone number
+        gender:
+          type: string
+          enum: [Male, Female, Other, Prefer not to say]
+          description: Gender
 
     # =========================================================================
     # Common Schemas

@@ -43,7 +43,7 @@ public class Meal {
     @Column
     private String dietaryTags; // Comma-separated tags: vegetarian, gluten-free, etc.
 
-    @Column
+    @Column(length = 512)
     private String imageUrl; // Photo of the meal
 
     @Column

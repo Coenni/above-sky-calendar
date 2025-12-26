@@ -151,3 +151,31 @@
     }
   </div>
 </div>
+
+    <!-- Logout Section -->
+    <div class="settings-section logout-section">
+      <button (click)="logout()" class="btn btn-danger btn-logout">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Logout Confirmation Modal -->
+  @if (showLogoutConfirm()) {
+    <div class="modal-overlay" (click)="closeLogoutConfirm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to logout?</p>
+        
+        <div class="modal-actions">
+          <button (click)="confirmLogout()" class="btn btn-danger">
+            Yes, Logout
+          </button>
+          <button (click)="closeLogoutConfirm()" class="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

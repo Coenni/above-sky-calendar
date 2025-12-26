@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ModeService } from '../../services/mode.service';
 import { ModeSwitchRequest } from '../../models/mode.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -14,6 +15,8 @@ import { ModeSwitchRequest } from '../../models/mode.model';
 })
 export class SettingsComponent implements OnInit {
   private modeService = inject(ModeService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
   
   isParentMode = signal(false);
   hasPinSet = signal(false);
@@ -25,6 +28,7 @@ export class SettingsComponent implements OnInit {
   showPinSetup = signal(false);
   showPinEntry = signal(false);
   showForgotPin = signal(false);
+  showLogoutConfirm = signal(false);
   
   // Form inputs
   pin = signal('');
@@ -201,5 +205,18 @@ export class SettingsComponent implements OnInit {
   openForgotPin(): void {
     this.showPinEntry.set(false);
     this.showForgotPin.set(true);
+  }
+
+  logout(): void {
+    this.showLogoutConfirm.set(true);
+  }
+
+  closeLogoutConfirm(): void {
+    this.showLogoutConfirm.set(false);
+  }
+
+  async confirmLogout(): Promise<void> {
+    await this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

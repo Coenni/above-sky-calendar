@@ -27,6 +27,7 @@ export class SidebarComponent {
   currentRoute = signal('');
 
   navItems: NavItem[] = [
+    { label: 'Dashboard', route: '/dashboard', icon: '🏠' },
     { label: 'Calendar - View and manage events + tasks', route: '/calendar', icon: '📅' },
     { label: 'Tasks - Track family chores', route: '/tasks', icon: '✓' },
     { label: 'Rewards - Redeem points', route: '/rewards', icon: '🏆' },
