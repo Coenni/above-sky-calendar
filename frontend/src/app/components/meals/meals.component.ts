@@ -1,369 +1,55 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { format } from 'date-fns';
-import { MealsStateService } from '../../services/state/meals-state.service';
-import { MealsApiService } from '../../services/api/meals-api.service';
-import { AuthStateService } from '../../services/state/auth-state.service';
+import { Component, OnInit } from '@angular/core';
+import { MealService } from '../../services/meal.service';
 import { Meal } from '../../models/meal.model';
-import { MealAssignment } from '../../models/meal-assignment.model';
-import { MonthlyCalendarComponent } from '../shared/monthly-calendar.component';
 
 @Component({
   selector: 'app-meals',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MonthlyCalendarComponent],
   templateUrl: './meals.component.html',
-  styleUrls: ['./meals.component.scss']
+  styleUrls: ['./meals.component.css']
 })
 export class MealsComponent implements OnInit {
-  // Inject services using inject()
-  private mealsState = inject(MealsStateService);
-  private mealsApi = inject(MealsApiService);
-  protected authState = inject(AuthStateService);
-  
-  // Expose signals to template
-  readonly meals = this.mealsState.meals;
-  readonly loading = this.mealsState.loading;
-  readonly error = this.mealsState.error;
-  
-  // Local component state
-  showMealForm = signal(false);
-  searchQuery = signal('');
-  selectedCategory = signal('');
-  currentPage = signal(0);
-  pageSize = 12;
-  showImagePreview = signal(false);
-  editingMeal = signal<Meal | null>(null);
-  
-  // Calendar view state
-  viewMode = signal<'grid' | 'calendar'>('grid');
-  showMealSelector = signal(false);
-  selectedDate = signal<Date | null>(null);
-  mealAssignments = signal<MealAssignment[]>([]);
-  
-  newMeal: Meal = {
-    name: '',
-    category: 'dinner',
-    recipe: '',
-    ingredients: '',
-    isFavorite: false,
-    imageUrl: ''
-  };
-  
-  // Computed properties
-  readonly filteredMeals = computed(() => {
-    let filtered = this.meals();
-    
-    // Filter by search query
-    const query = this.searchQuery().toLowerCase();
-    if (query) {
-      filtered = filtered.filter(m => 
-        m.name?.toLowerCase().includes(query) ||
-        m.ingredients?.toLowerCase().includes(query)
-      );
-    }
-    
-    // Filter by category
-    const category = this.selectedCategory();
-    if (category) {
-      filtered = filtered.filter(m => m.category === category);
-    }
-    
-    // Paginate
-    const start = this.currentPage() * this.pageSize;
-    return filtered.slice(start, start + this.pageSize);
-  });
-  
-  readonly totalMeals = computed(() => {
-    let filtered = this.meals();
-    
-    const query = this.searchQuery().toLowerCase();
-    if (query) {
-      filtered = filtered.filter(m => 
-        m.name?.toLowerCase().includes(query) ||
-        m.ingredients?.toLowerCase().includes(query)
-      );
-    }
-    
-    const category = this.selectedCategory();
-    if (category) {
-      filtered = filtered.filter(m => m.category === category);
-    }
-    
-    return filtered.length;
-  });
-  
-  readonly pageNumbers = computed(() => {
-    const total = this.totalMeals();
-    const pages = Math.ceil(total / this.pageSize);
-    return Array.from({ length: pages }, (_, i) => i);
-  });
-  
-  readonly paginationEnd = computed(() => {
-    return Math.min((this.currentPage() + 1) * this.pageSize, this.totalMeals());
-  });
-  
-  readonly paginationStart = computed(() => {
-    return (this.currentPage() * this.pageSize) + 1;
-  });
+  meals: Meal[] = [];
+  loading = false;
+  error: string | null = null;
 
-  async ngOnInit(): Promise<void> {
-    await this.loadAllMeals();
-  }
-
-  async loadAllMeals(): Promise<void> {
-    this.mealsState.setLoading(true);
-    this.mealsState.setError(null);
-    try {
-      const meals = await this.mealsApi.getAllMeals();
-      this.mealsState.setMeals(meals);
-    } catch (error) {
-      console.error('Error loading meals:', error);
-      this.mealsState.setError('Failed to load meals');
-    } finally {
-      this.mealsState.setLoading(false);
-    }
-  }
-
-  toggleMealForm(): void {
-    if (this.showMealForm()) {
-      // If closing form, reset everything
-      this.resetForm();
-      this.showMealForm.set(false);
-    } else {
-      // If opening form, ensure clean state
-      this.resetForm();
-      this.showMealForm.set(true);
-    }
-    this.showImagePreview.set(false);
-  }
-
-  async createMeal(): Promise<void> {
-    if (!this.newMeal.name) {
-      alert('Please enter a meal name');
-      return;
-    }
-
-    try {
-      const currentUser = this.authState.currentUser();
-      const mealToCreate = {
-        ...this.newMeal,
-        createdBy: currentUser?.id
-      };
-      
-      const meal = await this.mealsApi.createMeal(mealToCreate);
-      this.mealsState.addMeal(meal);
-      this.resetForm();
-      this.showMealForm.set(false);
-    } catch (error) {
-      console.error('Error creating meal:', error);
-      alert('Failed to create meal');
-    }
-  }
-  
-  async saveMeal(): Promise<void> {
-    if (this.editingMeal()) {
-      await this.updateMeal();
-    } else {
-      await this.createMeal();
-    }
-  }
-
-  async deleteMeal(id: number | undefined): Promise<void> {
-    if (!id || !confirm('Are you sure you want to delete this meal?')) {
-      return;
-    }
-
-    try {
-      await this.mealsApi.deleteMeal(id);
-      this.mealsState.removeMeal(id);
-    } catch (error) {
-      console.error('Error deleting meal:', error);
-      alert('Failed to delete meal');
-    }
-  }
-
-  editMeal(meal: Meal): void {
-    this.editingMeal.set(meal);
-    this.newMeal = { ...meal };
-    this.showMealForm.set(true);
-    // Scroll to form
-    setTimeout(() => {
-      const formElement = document.querySelector('.meal-form-card');
-      if (formElement) {
-        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
-  }
-  
-  async updateMeal(): Promise<void> {
-    const editing = this.editingMeal();
-    if (!editing || !editing.id) return;
-    
-    if (!this.newMeal.name?.trim()) {
-      alert('Please enter a meal name');
-      return;
-    }
-    
-    try {
-      const updatedMeal = {
-        ...editing,
-        ...this.newMeal
-      };
-      
-      await this.mealsApi.updateMeal(editing.id, updatedMeal);
-      
-      // Update the state
-      this.mealsState.setMeals(
-        this.meals().map(m => m.id === editing.id ? updatedMeal : m)
-      );
-      
-      this.resetForm();
-      this.showMealForm.set(false);
-      this.editingMeal.set(null);
-    } catch (error) {
-      console.error('Error updating meal:', error);
-      alert('Failed to update meal');
-    }
-  }
-  
-  resetForm(): void {
-    this.newMeal = {
-      name: '',
-      category: 'dinner',
-      recipe: '',
-      ingredients: '',
-      isFavorite: false,
-      imageUrl: ''
-    };
-    this.editingMeal.set(null);
-  }
-  
-  cancelEdit(): void {
-    this.resetForm();
-    this.showMealForm.set(false);
-    this.editingMeal.set(null);
-  }
-
-  onSearchChange(): void {
-    this.currentPage.set(0); // Reset to first page on search
-  }
-
-  clearSearch(): void {
-    this.searchQuery.set('');
-    this.currentPage.set(0);
-  }
-
-  filterByCategory(category: string): void {
-    this.selectedCategory.set(category);
-    this.currentPage.set(0);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() > 0) {
-      this.currentPage.update(p => p - 1);
-    }
-  }
-
-  nextPage(): void {
-    if ((this.currentPage() + 1) * this.pageSize < this.totalMeals()) {
-      this.currentPage.update(p => p + 1);
-    }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage.set(page);
-  }
-
-  getMealIcon(category: string): string {
-    const icons: Record<string, string> = {
-      breakfast: '☕',
-      lunch: '🍱',
-      dinner: '🍽️',
-      snack: '🍪'
-    };
-    return icons[category] || '🍽️';
-  }
-
-  previewImage(): void {
-    this.showImagePreview.update(v => !v);
-  }
-
-  onImageError(): void {
-    this.showImagePreview.set(false);
-    alert('Unable to load image. Please check the URL.');
-  }
-
-  setDefaultImage(event: any): void {
-    event.target.style.display = 'none';
-  }
-  
-  // Calendar view methods
-  toggleViewMode(): void {
-    this.viewMode.update(v => v === 'grid' ? 'calendar' : 'grid');
-  }
-  
-  onDateSelected(date: Date): void {
-    this.selectedDate.set(date);
-    this.showMealSelector.set(true);
-  }
-  
-  closeMealSelector(): void {
-    this.showMealSelector.set(false);
-    this.selectedDate.set(null);
-  }
-  
-  async assignMealToDate(meal: Meal): Promise<void> {
-    const date = this.selectedDate();
-    if (!date || !meal.id) return;
-    
-    try {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const assignment: MealAssignment = {
-        mealId: meal.id,
-        assignedDate: dateStr,
-        mealType: meal.category as any,
-        meal: {
-          id: meal.id,
-          name: meal.name,
-          category: meal.category,
-          icon: this.getMealIcon(meal.category),
-          imageUrl: meal.imageUrl
-        }
-      };
-      
-      // Add to local state (in real app, would call API)
-      this.mealAssignments.update(assignments => [...assignments, assignment]);
-      this.closeMealSelector();
-    } catch (error) {
-      console.error('Error assigning meal:', error);
-      alert('Failed to assign meal');
-    }
-  }
-  
-  getMealAssignmentsForDate(date: Date): MealAssignment[] {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return this.mealAssignments().filter(a => a.assignedDate === dateStr);
-  }
-  
-  async removeMealAssignment(assignment: MealAssignment): Promise<void> {
-    if (!confirm('Remove this meal assignment?')) return;
-    
-    try {
-      // Remove from local state (in real app, would call API)
-      this.mealAssignments.update(assignments => 
-        assignments.filter(a => a.id !== assignment.id || 
-          (a.mealId !== assignment.mealId || a.assignedDate !== assignment.assignedDate))
-      );
-    } catch (error) {
-      console.error('Error removing assignment:', error);
-      alert('Failed to remove assignment');
-    }
-  }
-
-  getCurrentDate() {
+  get today(): Date {
     return new Date();
+  }
+
+  constructor(private mealService: MealService) {}
+
+  ngOnInit(): void {
+    this.loadMeals();
+  }
+
+  loadMeals(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.mealService.getMeals().subscribe({
+      next: (meals) => {
+        this.meals = meals;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.error = 'Failed to load meals';
+        this.loading = false;
+        console.error('Error loading meals:', error);
+      }
+    });
+  }
+
+  deleteMeal(id: number): void {
+    if (confirm('Are you sure you want to delete this meal?')) {
+      this.mealService.deleteMeal(id).subscribe({
+        next: () => {
+          this.loadMeals();
+        },
+        error: (error) => {
+          this.error = 'Failed to delete meal';
+          console.error('Error deleting meal:', error);
+        }
+      });
+    }
   }
 }
