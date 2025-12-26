@@ -115,14 +115,14 @@
   label {
     color: $color-soft-brown;
     font-weight: $font-weight-semibold;
-    font-size: $font-size-md;
+    font-size: $font-size-base;
   }
   
   .form-input {
     padding: $spacing-md;
     border: 2px solid $color-sage-green;
     border-radius: $radius-lg;
-    font-size: $font-size-md;
+    font-size: $font-size-base;
     background: white;
     transition: all $transition-base;
     
