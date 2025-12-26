@@ -33,9 +33,8 @@ export class TasksComponent implements OnInit {
   readonly isParentMode = computed(() => this.modeService.isParentMode());
   
   // Local component state
-  showCreateForm = signal(false);
-  filterAssignee = signal<number | null>(null);
-  groupByAssignee = signal(false);
+  showCreateModal = signal(false);
+  editingTask = signal<Task | null>(null);
   
   // Mock family members (in real app, would come from a service)
   // Colors from design system: sage green, terracotta, mint, peach
@@ -46,17 +45,7 @@ export class TasksComponent implements OnInit {
     { id: 4, username: 'Noah', color: '#F4C7AB' }    // $color-peach
   ]);
   
-  // Filtered tasks based on assignee selection
-  readonly filteredTasks = computed(() => {
-    const tasks = this.sortedTasks();
-    const assigneeFilter = this.filterAssignee();
-    
-    if (assigneeFilter === null) {
-      return tasks;
-    }
-    
-    return tasks.filter(task => task.assignedUserId === assigneeFilter);
-  });
+
   
   newTask: Task = {
     title: '',
@@ -85,39 +74,54 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onFilterChange(newFilter: string): void {
-    this.tasksState.setFilter(newFilter);
+  toggleCreateModal(): void {
+    this.showCreateModal.set(true);
+    this.editingTask.set(null);
+    const currentUser = this.authState.currentUser();
+    this.newTask = {
+      title: '',
+      description: '',
+      priority: 'medium',
+      status: 'pending',
+      rewardPoints: 0,
+      orderIndex: 0,
+      createdBy: currentUser?.id,
+      assignedUserId: undefined // Default to unassigned
+    };
   }
 
-  toggleCreateForm(): void {
-    this.showCreateForm.update(v => !v);
-    if (this.showCreateForm()) {
-      const currentUser = this.authState.currentUser();
-      this.newTask = {
-        title: '',
-        description: '',
-        priority: 'medium',
-        status: 'pending',
-        rewardPoints: 0,
-        orderIndex: 0,
-        createdBy: currentUser?.id
-      };
-    }
+  closeModal(): void {
+    this.showCreateModal.set(false);
+    this.editingTask.set(null);
   }
 
-  async createTask(): Promise<void> {
+  openEditModal(task: Task): void {
+    this.editingTask.set(task);
+    this.newTask = { ...task };
+    this.showCreateModal.set(true);
+  }
+
+  async saveTask(): Promise<void> {
     if (!this.newTask.title) {
       alert('Please enter a task title');
       return;
     }
 
     try {
-      const task = await this.tasksApi.createTask(this.newTask);
-      this.tasksState.addTask(task);
-      this.toggleCreateForm();
+      const editingTask = this.editingTask();
+      if (editingTask && editingTask.id) {
+        // Update existing task
+        const updatedTask = await this.tasksApi.updateTask(editingTask.id, this.newTask);
+        this.tasksState.updateTask(editingTask.id, updatedTask);
+      } else {
+        // Create new task
+        const task = await this.tasksApi.createTask(this.newTask);
+        this.tasksState.addTask(task);
+      }
+      this.closeModal();
     } catch (error) {
-      console.error('Error creating task:', error);
-      alert('Failed to create task');
+      console.error('Error saving task:', error);
+      alert('Failed to save task');
     }
   }
 
@@ -171,14 +175,6 @@ export class TasksComponent implements OnInit {
   }
   
   // Family member assignment methods
-  setAssigneeFilter(userId: number | null): void {
-    this.filterAssignee.set(userId);
-  }
-  
-  toggleGroupByAssignee(): void {
-    this.groupByAssignee.update(v => !v);
-  }
-  
   getAssigneeName(userId?: number): string {
     if (!userId) return 'Unassigned';
     const member = this.familyMembers().find(m => m.id === userId);

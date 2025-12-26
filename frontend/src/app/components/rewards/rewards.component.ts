@@ -7,6 +7,7 @@ import { RewardsApiService } from '../../services/api/rewards-api.service';
 import { AuthStateService } from '../../services/state/auth-state.service';
 import { ModeService } from '../../services/mode.service';
 import { Reward } from '../../models/reward.model';
+import { Goal } from '../../models/goal.model';
 
 @Component({
   selector: 'app-rewards',
@@ -39,8 +40,21 @@ export class RewardsComponent implements OnInit {
   redemptionNotes = signal('');
   searchQuery = signal('');
   showHistory = signal(false);
-  showAddRewardForm = signal(false);
-  showSetGoalForm = signal(false);
+  showAddRewardModal = signal(false);
+  showEditRewardModal = signal(false);
+  showSetGoalModal = signal(false);
+  editingReward = signal<Reward | null>(null);
+  
+  // Mock family members (in real app, would come from a service)
+  familyMembers = signal([
+    { id: 1, username: 'Mom', color: '#A8B5A0' },
+    { id: 2, username: 'Dad', color: '#D4906C' },
+    { id: 3, username: 'Emma', color: '#B8D4C1' },
+    { id: 4, username: 'Noah', color: '#F4C7AB' }
+  ]);
+  
+  // Goals
+  goals = signal<Goal[]>([]);
   
   newReward: Partial<Reward> = {
     name: '',
@@ -50,7 +64,14 @@ export class RewardsComponent implements OnInit {
     imageUrl: ''
   };
   
-  userGoal = signal<number>(0);
+  newGoal: Partial<Goal> = {
+    userId: 0,
+    rewardId: 0,
+    targetPoints: 0,
+    period: 'week',
+    currentPoints: 0,
+    isActive: true
+  };
   
   // Computed signals
   readonly filteredBySearch = computed(() => {
@@ -180,11 +201,24 @@ export class RewardsComponent implements OnInit {
   }
   
   // Add Reward functionality
-  toggleAddRewardForm(): void {
-    this.showAddRewardForm.update(v => !v);
-    if (!this.showAddRewardForm()) {
+  toggleAddRewardModal(): void {
+    this.showAddRewardModal.update(v => !v);
+    if (this.showAddRewardModal()) {
       this.resetRewardForm();
     }
+  }
+  
+  openEditRewardModal(reward: Reward): void {
+    this.editingReward.set(reward);
+    this.newReward = { ...reward };
+    this.showEditRewardModal.set(true);
+  }
+  
+  closeRewardModal(): void {
+    this.showAddRewardModal.set(false);
+    this.showEditRewardModal.set(false);
+    this.editingReward.set(null);
+    this.resetRewardForm();
   }
   
   resetRewardForm(): void {
@@ -197,61 +231,157 @@ export class RewardsComponent implements OnInit {
     };
   }
   
-  async addReward(): Promise<void> {
+  async saveReward(): Promise<void> {
     if (!this.newReward.name?.trim() || !this.newReward.pointsCost) {
       alert('Please fill in all required fields');
       return;
     }
     
     try {
-      const reward: Reward = {
-        id: Date.now(), // Temporary ID
-        name: this.newReward.name,
-        description: this.newReward.description || '',
-        pointsCost: this.newReward.pointsCost,
-        category: this.newReward.category || 'Other',
-        imageUrl: this.newReward.imageUrl || '',
-        isActive: true
-      };
+      const editingReward = this.editingReward();
       
-      // TODO: Replace with actual API call
-      this.rewardsState.setRewards([...this.rewardsState.rewards(), reward]);
+      if (editingReward && editingReward.id) {
+        // Update existing reward
+        const updatedReward: Reward = {
+          ...editingReward,
+          name: this.newReward.name,
+          description: this.newReward.description || '',
+          pointsCost: this.newReward.pointsCost,
+          category: this.newReward.category || 'Other',
+          imageUrl: this.newReward.imageUrl || ''
+        };
+        
+        const rewards = this.rewardsState.rewards();
+        const index = rewards.findIndex(r => r.id === editingReward.id);
+        if (index !== -1) {
+          rewards[index] = updatedReward;
+          this.rewardsState.setRewards([...rewards]);
+        }
+      } else {
+        // Create new reward
+        const reward: Reward = {
+          id: Date.now(), // Temporary ID
+          name: this.newReward.name,
+          description: this.newReward.description || '',
+          pointsCost: this.newReward.pointsCost,
+          category: this.newReward.category || 'Other',
+          imageUrl: this.newReward.imageUrl || '',
+          isActive: true
+        };
+        
+        this.rewardsState.setRewards([...this.rewardsState.rewards(), reward]);
+      }
       
-      this.resetRewardForm();
-      this.showAddRewardForm.set(false);
-      console.log('Reward added successfully:', reward);
+      this.closeRewardModal();
     } catch (error) {
-      console.error('Error adding reward:', error);
-      alert('Failed to add reward');
+      console.error('Error saving reward:', error);
+      alert('Failed to save reward');
     }
   }
   
-  // Set Goal functionality
-  toggleSetGoalForm(): void {
-    this.showSetGoalForm.update(v => !v);
-    if (this.showSetGoalForm()) {
-      this.userGoal.set(0);
-    }
-  }
-  
-  async setGoal(): Promise<void> {
-    if (this.userGoal() <= 0) {
-      alert('Please enter a valid goal');
+  async deleteReward(reward: Reward): Promise<void> {
+    if (!confirm(`Are you sure you want to delete "${reward.name}"?`)) {
       return;
     }
     
     try {
-      // TODO: Replace with actual API call to save user goal
-      const currentUser = this.authState.currentUser();
-      if (currentUser) {
-        console.log(`Goal set for ${currentUser.username}: ${this.userGoal()} points`);
-        alert(`Goal set successfully! Aim for ${this.userGoal()} points!`);
-        this.showSetGoalForm.set(false);
-        this.userGoal.set(0);
-      }
+      const rewards = this.rewardsState.rewards().filter(r => r.id !== reward.id);
+      this.rewardsState.setRewards(rewards);
+      this.closeRewardModal();
+    } catch (error) {
+      console.error('Error deleting reward:', error);
+      alert('Failed to delete reward');
+    }
+  }
+  
+  // Set Goal functionality
+  toggleSetGoalModal(): void {
+    this.showSetGoalModal.update(v => !v);
+    if (this.showSetGoalModal()) {
+      this.resetGoalForm();
+    }
+  }
+  
+  resetGoalForm(): void {
+    this.newGoal = {
+      userId: 0,
+      rewardId: 0,
+      targetPoints: 0,
+      period: 'week',
+      currentPoints: 0,
+      isActive: true
+    };
+  }
+  
+  async saveGoal(): Promise<void> {
+    if (!this.newGoal.userId || !this.newGoal.rewardId) {
+      alert('Please select an assignee and a reward');
+      return;
+    }
+    
+    try {
+      const reward = this.rewards().find(r => r.id === this.newGoal.rewardId);
+      const member = this.familyMembers().find(m => m.id === this.newGoal.userId);
+      
+      const goal: Goal = {
+        id: Date.now(),
+        userId: this.newGoal.userId!,
+        userName: member?.username,
+        rewardId: this.newGoal.rewardId!,
+        rewardName: reward?.name,
+        targetPoints: reward?.pointsCost || 0,
+        period: this.newGoal.period!,
+        currentPoints: 0,
+        isActive: true,
+        createdAt: new Date()
+      };
+      
+      this.goals.update(goals => [...goals, goal]);
+      this.showSetGoalModal.set(false);
+      this.resetGoalForm();
     } catch (error) {
       console.error('Error setting goal:', error);
       alert('Failed to set goal');
     }
+  }
+  
+  getGoalProgress(goal: Goal): number {
+    if (goal.targetPoints === 0) return 0;
+    return Math.min(100, (goal.currentPoints / goal.targetPoints) * 100);
+  }
+  
+  canClaimGoal(goal: Goal): boolean {
+    return goal.isActive && goal.currentPoints >= goal.targetPoints;
+  }
+  
+  async claimGoal(goal: Goal): Promise<void> {
+    if (!this.canClaimGoal(goal)) {
+      alert('Not enough points to claim this goal');
+      return;
+    }
+    
+    if (!confirm('Claim this reward?')) {
+      return;
+    }
+    
+    try {
+      // Mark goal as completed
+      this.goals.update(goals => 
+        goals.map(g => g.id === goal.id ? { ...g, isActive: false, completedAt: new Date() } : g)
+      );
+      
+      alert('Goal claimed successfully!');
+    } catch (error) {
+      console.error('Error claiming goal:', error);
+      alert('Failed to claim goal');
+    }
+  }
+  
+  deleteGoal(goal: Goal): void {
+    if (!confirm('Delete this goal?')) {
+      return;
+    }
+    
+    this.goals.update(goals => goals.filter(g => g.id !== goal.id));
   }
 }
