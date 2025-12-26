@@ -92,6 +92,11 @@ export class RewardsComponent implements OnInit {
     return Array.from(categories) as string[];
   });
 
+  // Computed signal for active goals
+  readonly activeGoals = computed(() => {
+    return this.goals().filter(g => g.isActive);
+  });
+
   async ngOnInit(): Promise<void> {
     const currentUser = this.authState.currentUser();
     if (currentUser) {
@@ -427,5 +432,12 @@ export class RewardsComponent implements OnInit {
     }
     
     this.goals.update(goals => goals.filter(g => g.id !== goal.id));
+  }
+
+  // Helper method to get family member color
+  getFamilyMemberColor(userId: number | undefined): string {
+    if (!userId) return '#9ca3af';
+    const member = this.familyMembers().find(m => m.id === userId);
+    return member?.color || '#9ca3af';
   }
 }

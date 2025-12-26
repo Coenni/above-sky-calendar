@@ -31,16 +31,16 @@
     </div>
 
     <!-- Active Goals Section -->
-    @if (goals().filter(g => g.isActive).length > 0) {
+    @if (activeGoals().length > 0) {
       <div class="goals-section">
         <h2>Active Goals</h2>
         <div class="goals-grid">
-          @for (goal of goals().filter(g => g.isActive); track goal.id) {
+          @for (goal of activeGoals(); track goal.id) {
             <div class="goal-card">
               <div class="goal-header">
                 <div class="goal-assignee">
                   <span class="assignee-avatar" 
-                    [style.background]="familyMembers().find(m => m.id === goal.userId)?.color || '#9ca3af'">
+                    [style.background]="getFamilyMemberColor(goal.userId)">
                     {{ goal.userName?.charAt(0) || '?' }}
                   </span>
                   <span class="assignee-name">{{ goal.userName }}</span>
