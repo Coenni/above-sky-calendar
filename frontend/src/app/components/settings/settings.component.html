@@ -1,4 +1,15 @@
 <div class="settings">
+  <nav class="navbar">
+    <div class="navbar-brand">Above Sky Calendar</div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+      <a routerLink="/calendar" class="nav-link">Calendar</a>
+      <a routerLink="/tasks" class="nav-link">Tasks</a>
+      <a routerLink="/rewards" class="nav-link">Rewards</a>
+      <a routerLink="/settings" class="nav-link active">Settings</a>
+    </div>
+  </nav>
+
   <div class="container">
     <h1>Settings</h1>
 
@@ -150,6 +161,7 @@
       </div>
     }
   </div>
+</div>
 
     <!-- Logout Section -->
     <div class="settings-section logout-section">
@@ -158,7 +170,6 @@
       </button>
     </div>
   </div>
-</div>
 
   <!-- Logout Confirmation Modal -->
   @if (showLogoutConfirm()) {
@@ -179,4 +190,3 @@
     </div>
   }
 </div>
-
