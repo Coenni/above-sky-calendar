@@ -65,8 +65,8 @@ export class RewardsComponent implements OnInit {
   });
   
   newGoal = signal<Partial<Goal>>({
-    userId: 0,
-    rewardId: 0,
+    userId: -1,
+    rewardId: -1,
     targetPoints: 0,
     period: 'week',
     currentPoints: 0,
@@ -305,8 +305,8 @@ export class RewardsComponent implements OnInit {
   
   resetGoalForm(): void {
     this.newGoal.set({
-      userId: 0,
-      rewardId: 0,
+      userId: -1,
+      rewardId: -1,
       targetPoints: 0,
       period: 'week',
       currentPoints: 0,
@@ -324,7 +324,10 @@ export class RewardsComponent implements OnInit {
   }
   
   updateRewardPoints(value: string | number): void {
-    this.newReward.update(r => ({ ...r, pointsCost: typeof value === 'string' ? parseInt(value, 10) : value }));
+    const points = typeof value === 'string' ? parseInt(value, 10) : value;
+    if (!isNaN(points)) {
+      this.newReward.update(r => ({ ...r, pointsCost: points }));
+    }
   }
   
   updateRewardCategory(value: string): void {
@@ -336,7 +339,10 @@ export class RewardsComponent implements OnInit {
   }
   
   updateGoalUserId(value: string | number): void {
-    this.newGoal.update(g => ({ ...g, userId: typeof value === 'string' ? parseInt(value, 10) : value }));
+    const userId = typeof value === 'string' ? parseInt(value, 10) : value;
+    if (!isNaN(userId)) {
+      this.newGoal.update(g => ({ ...g, userId }));
+    }
   }
   
   updateGoalPeriod(value: string): void {
@@ -344,12 +350,15 @@ export class RewardsComponent implements OnInit {
   }
   
   updateGoalRewardId(value: string | number): void {
-    this.newGoal.update(g => ({ ...g, rewardId: typeof value === 'string' ? parseInt(value, 10) : value }));
+    const rewardId = typeof value === 'string' ? parseInt(value, 10) : value;
+    if (!isNaN(rewardId)) {
+      this.newGoal.update(g => ({ ...g, rewardId }));
+    }
   }
   
   async saveGoal(): Promise<void> {
     const goalData = this.newGoal();
-    if (!goalData.userId || !goalData.rewardId) {
+    if (!goalData.userId || goalData.userId <= 0 || !goalData.rewardId || goalData.rewardId <= 0) {
       alert('Please select an assignee and a reward');
       return;
     }

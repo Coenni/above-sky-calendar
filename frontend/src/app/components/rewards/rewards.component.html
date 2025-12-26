@@ -329,7 +329,7 @@
               class="form-control"
               required
             >
-              <option [value]="0">Select family member...</option>
+              <option [value]="-1">Select family member...</option>
               @for (member of familyMembers(); track member.id) {
                 <option [value]="member.id">
                   {{ member.username }}
@@ -364,7 +364,7 @@
               class="form-control"
               required
             >
-              <option [value]="0">Select reward...</option>
+              <option [value]="-1">Select reward...</option>
               @for (reward of rewards(); track reward.id) {
                 <option [value]="reward.id">
                   {{ reward.name }} ({{ reward.pointsCost }} points)

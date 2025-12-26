@@ -175,9 +175,9 @@
               name="assignedUserId"
               class="form-control"
             >
-              <option [value]="undefined">Unassigned</option>
+              <option [ngValue]="null">Unassigned</option>
               @for (member of familyMembers(); track member.id) {
-                <option [value]="member.id">
+                <option [ngValue]="member.id">
                   {{ member.username }}
                 </option>
               }
