@@ -257,7 +257,15 @@
   border-bottom: 3px dashed $color-sage-green;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: $spacing-md;
+}
+
+.column-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
 }
 
 .column-avatar {
@@ -279,20 +287,32 @@
 }
 
 .column-title {
-  flex: 1;
   color: $color-soft-brown;
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;
   margin: 0;
 }
 
-.task-count {
-  background: rgba($color-terracotta, 0.2);
-  color: $color-soft-brown;
-  padding: $spacing-xs $spacing-md;
-  border-radius: $radius-full;
+.btn-add-task {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  border: 3px solid white;
+  font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    transform: translateY(-2px) rotate(-5deg);
+    box-shadow: $shadow-lg;
+  }
 }
 
 .column-tasks {
@@ -319,6 +339,7 @@
   margin-bottom: $spacing-md;
   transition: all $transition-base;
   position: relative;
+  cursor: pointer;
   
   &:hover {
     transform: translateY(-2px);
@@ -334,37 +355,18 @@
   }
 }
 
-.task-header-compact {
-  margin-bottom: $spacing-xs;
-}
-
-.task-priority-badge {
-  padding: $spacing-xs $spacing-sm;
-  border-radius: $radius-full;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-bold;
-  
-  &.high {
-    background: rgba($color-red, 0.2);
-    color: $color-red;
-  }
-  
-  &.medium {
-    background: rgba($color-orange, 0.2);
-    color: $color-orange;
-  }
-  
-  &.low {
-    background: rgba($color-green, 0.2);
-    color: $color-green;
-  }
-}
-
 .task-title-compact {
   color: $color-soft-brown;
   font-size: $font-size-base;
   font-weight: $font-weight-bold;
+  margin: 0 0 $spacing-xs 0;
+}
+
+.task-description-compact {
+  color: $color-gray;
+  font-size: $font-size-sm;
   margin: $spacing-xs 0;
+  line-height: $line-height-relaxed;
 }
 
 .task-points-compact {
@@ -372,49 +374,6 @@
   font-size: $font-size-xs;
   color: $color-soft-brown;
   margin: $spacing-xs 0;
-}
-
-.task-actions-compact {
-  display: flex;
-  gap: $spacing-xs;
-  margin-top: $spacing-sm;
-}
-
-.btn-icon-compact {
-  flex: 1;
-  padding: $spacing-xs $spacing-sm;
-  background: $color-mint;
-  border: 2px solid $color-sage-green;
-  border-radius: $radius-sm;
-  cursor: pointer;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  transition: all $transition-base;
-  color: $color-soft-brown;
-  min-height: 32px;
-  
-  &:hover {
-    background: $color-sage-green;
-    color: white;
-  }
-  
-  &.btn-delete {
-    background: rgba($color-terracotta, 0.2);
-    border-color: $color-terracotta;
-    
-    &:hover {
-      background: $color-terracotta;
-    }
-  }
-  
-  &.btn-complete {
-    background: rgba($color-green, 0.2);
-    border-color: $color-green;
-    
-    &:hover {
-      background: $color-green;
-    }
-  }
 }
 
 .empty-column {
@@ -644,6 +603,139 @@
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-2xl;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: slideInTop 0.3s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.modal-header {
+  padding: $spacing-xl;
+  border-bottom: 3px dashed $color-sage-green;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.1) 0%, rgba($color-mint, 0.1) 100%);
+  
+  h2 {
+    margin: 0;
+    color: $color-soft-brown;
+    font-size: $font-size-2xl;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: $font-size-3xl;
+  color: $color-soft-brown;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+  border-radius: 50%;
+  
+  &:hover {
+    background: rgba($color-terracotta, 0.2);
+    color: $color-terracotta;
+  }
+}
+
+.modal-body {
+  padding: $spacing-2xl;
+}
+
+.modal-footer {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  border-top: 3px dashed $color-sage-green;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.05) 0%, rgba($color-mint, 0.05) 100%);
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &-primary {
+    background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &-secondary {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
 }
 
 @keyframes fadeIn {

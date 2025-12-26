@@ -5,191 +5,7 @@
         <h1>✓ Tasks</h1>
         <p class="subtitle">Track family chores and earn rewards</p>
       </div>
-      @if (isParentMode()) {
-        <button class="btn-create-task" (click)="toggleCreateForm()">
-          {{ showCreateForm() ? '✕ Cancel' : '+ New Task' }}
-        </button>
-      }
     </div>
-
-    <!-- Stats Cards -->
-    <div class="stats-section">
-      <div class="stats-cards">
-        <div class="stat-card">
-          <span class="stat-value">{{ stats().total }}</span>
-          <span class="stat-label">Total Tasks</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value">{{ stats().completed }}</span>
-          <span class="stat-label">Completed</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value">{{ stats().pending }}</span>
-          <span class="stat-label">Pending</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value">{{ stats().completionRate | number:'1.0-0' }}%</span>
-          <span class="stat-label">Completion Rate</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filters Section -->
-    <div class="filters-section">
-      <div class="filters">
-        <button 
-          (click)="onFilterChange('all')" 
-          class="filter-btn" 
-          [class.active]="filterStatus() === 'all'"
-        >
-          All Tasks
-        </button>
-        <button 
-          (click)="onFilterChange('pending')" 
-          class="filter-btn" 
-          [class.active]="filterStatus() === 'pending'"
-        >
-          Pending
-        </button>
-        <button 
-          (click)="onFilterChange('in_progress')" 
-          class="filter-btn" 
-          [class.active]="filterStatus() === 'in_progress'"
-        >
-          In Progress
-        </button>
-        <button 
-          (click)="onFilterChange('completed')" 
-          class="filter-btn" 
-          [class.active]="filterStatus() === 'completed'"
-        >
-          Completed
-        </button>
-      </div>
-      
-      <div class="filters">
-        <button 
-          (click)="setAssigneeFilter(null)" 
-          class="filter-btn" 
-          [class.active]="filterAssignee() === null"
-        >
-          All Members
-        </button>
-        @for (member of familyMembers(); track member.id) {
-          <button 
-            (click)="setAssigneeFilter(member.id)" 
-            class="filter-btn" 
-            [class.active]="filterAssignee() === member.id"
-          >
-            <span class="assignee-avatar" [style.background]="member.color">
-              {{ member.username.charAt(0) }}
-            </span>
-            {{ member.username }}
-          </button>
-        }
-      </div>
-      
-      <div class="filters">
-        <button (click)="toggleGroupByAssignee()" class="filter-btn">
-          {{ groupByAssignee() ? '🔲 Show All' : '👥 Group by Assignee' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Create Task Form -->
-    @if (showCreateForm()) {
-      <div class="task-form-card">
-        <h3>Create New Task</h3>
-        <form (ngSubmit)="createTask()">
-          <div class="form-group">
-            <label for="title">Title *</label>
-            <input
-              type="text"
-              id="title"
-              [(ngModel)]="newTask.title"
-              name="title"
-              class="form-control"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea
-            id="description"
-            [(ngModel)]="newTask.description"
-            name="description"
-            class="form-control"
-            rows="3"
-          ></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="priority">Priority</label>
-            <select
-              id="priority"
-              [(ngModel)]="newTask.priority"
-              name="priority"
-              class="form-control"
-            >
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="rewardPoints">Reward Points</label>
-            <input
-              type="number"
-              id="rewardPoints"
-              [(ngModel)]="newTask.rewardPoints"
-              name="rewardPoints"
-              class="form-control"
-              min="0"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="category">Category</label>
-            <input
-              type="text"
-              id="category"
-              [(ngModel)]="newTask.category"
-              name="category"
-              class="form-control"
-              placeholder="e.g., Chores, Homework"
-            />
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="assignee">Assign To</label>
-          <select
-            id="assignee"
-            [(ngModel)]="newTask.assignedUserId"
-            name="assignedUserId"
-            class="form-control"
-          >
-            <option [value]="null">Unassigned</option>
-            @for (member of familyMembers(); track member.id) {
-              <option [value]="member.id">
-                {{ member.username }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Create Task</button>
-          <button type="button" class="btn btn-secondary" (click)="toggleCreateForm()">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  }
 
   <!-- Loading Spinner -->
   @if (loading()) {
@@ -205,154 +21,189 @@
     </div>
   }
 
-  <!-- Tasks List -->
+  <!-- Tasks Columns (Kanban View) -->
   @if (!loading()) {
-    <!-- Column View by Assignee -->
-    @if (groupByAssignee()) {
-      <div class="tasks-columns">
-        <!-- Unassigned Column -->
+    <div class="tasks-columns">
+      <!-- Unassigned Column -->
+      <div class="task-column">
+        <div class="column-header">
+          <div class="column-info">
+            <div class="column-avatar unassigned">?</div>
+            <h3 class="column-title">Unassigned Tasks</h3>
+          </div>
+          @if (isParentMode()) {
+            <button class="btn-add-task" (click)="toggleCreateModal()">+</button>
+          }
+        </div>
+        <div class="column-tasks">
+          @for (task of getTasksForAssignee(null); track task.id) {
+            <div 
+              class="task-card-compact" 
+              [class.completed]="task.status === 'completed'"
+              (click)="openEditModal(task)"
+            >
+              <h4 class="task-title-compact">{{ task.title }}</h4>
+              @if (task.description) {
+                <p class="task-description-compact">{{ task.description }}</p>
+              }
+              @if (task.rewardPoints && task.rewardPoints > 0) {
+                <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
+              }
+            </div>
+          }
+          @if (getTasksForAssignee(null).length === 0) {
+            <div class="empty-column">No unassigned tasks</div>
+          }
+        </div>
+      </div>
+      
+      <!-- Family Member Columns -->
+      @for (member of familyMembers(); track member.id) {
         <div class="task-column">
           <div class="column-header">
-            <div class="column-avatar unassigned">?</div>
-            <h3 class="column-title">Unassigned</h3>
-            <span class="task-count">{{ getTasksForAssignee(null).length }}</span>
-          </div>
-          <div class="column-tasks">
-            @for (task of getTasksForAssignee(null); track task.id) {
-              <div 
-                class="task-card-compact" 
-                [class.completed]="task.status === 'completed'"
-              >
-                <div class="task-header-compact">
-                  <span class="task-priority-badge" [class]="task.priority">{{ task.priority }}</span>
-                </div>
-                <h4 class="task-title-compact">{{ task.title }}</h4>
-                @if (task.rewardPoints && task.rewardPoints > 0) {
-                  <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
-                }
-                <div class="task-actions-compact">
-                  @if (isParentMode() && task.status !== 'completed') {
-                    <button class="btn-icon-compact btn-complete" (click)="completeTask(task)">✓</button>
-                  }
-                  @if (isParentMode()) {
-                    <button class="btn-icon-compact btn-delete" (click)="deleteTask(task.id)">🗑️</button>
-                  }
-                </div>
-              </div>
-            }
-            @if (getTasksForAssignee(null).length === 0) {
-              <div class="empty-column">No unassigned tasks</div>
-            }
-          </div>
-        </div>
-        
-        <!-- Family Member Columns -->
-        @for (member of familyMembers(); track member.id) {
-          <div class="task-column">
-            <div class="column-header">
+            <div class="column-info">
               <div class="column-avatar" [style.background]="member.color">
                 {{ member.username.charAt(0) }}
               </div>
               <h3 class="column-title">{{ member.username }}</h3>
-              <span class="task-count">{{ getTasksForAssignee(member.id).length }}</span>
-            </div>
-            <div class="column-tasks">
-              @for (task of getTasksForAssignee(member.id); track task.id) {
-                <div 
-                  class="task-card-compact" 
-                  [class.completed]="task.status === 'completed'"
-                  [style.border-left]="'4px solid ' + member.color"
-                >
-                  <div class="task-header-compact">
-                    <span class="task-priority-badge" [class]="task.priority">{{ task.priority }}</span>
-                  </div>
-                  <h4 class="task-title-compact">{{ task.title }}</h4>
-                  @if (task.rewardPoints && task.rewardPoints > 0) {
-                    <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
-                  }
-                  <div class="task-actions-compact">
-                    @if (isParentMode() && task.status !== 'completed') {
-                      <button class="btn-icon-compact btn-complete" (click)="completeTask(task)">✓</button>
-                    }
-                    @if (isParentMode()) {
-                      <button class="btn-icon-compact btn-delete" (click)="deleteTask(task.id)">🗑️</button>
-                    }
-                  </div>
-                </div>
-              }
-              @if (getTasksForAssignee(member.id).length === 0) {
-                <div class="empty-column">No tasks assigned</div>
-              }
             </div>
           </div>
-        }
-      </div>
-    } @else {
-      <!-- Grid View (default) -->
-      <div class="tasks-grid">
-        @for (task of filteredTasks(); track task.id) {
-        <div 
-          class="task-card" 
-          [class.completed]="task.status === 'completed'"
-          [style.border-left]="'6px solid ' + getAssigneeColor(task.assignedUserId)"
-        >
-          <div class="task-header">
-            <span class="task-priority" [class]="task.priority">{{ task.priority }}</span>
-          </div>
-          
-          <h3 class="task-title">{{ task.title }}</h3>
-
-          @if (task.description) {
-            <p class="task-description">{{ task.description }}</p>
-          }
-
-          <div class="task-meta">
-            @if (task.rewardPoints && task.rewardPoints > 0) {
-              <span class="task-points">
-                🏆 {{ task.rewardPoints }} points
-              </span>
-            }
-            
-            @if (task.assignedUserId) {
-              <div class="task-assignee">
-                <span 
-                  class="assignee-avatar" 
-                  [style.background]="getAssigneeColor(task.assignedUserId)"
-                >
-                  {{ getAssigneeInitial(task.assignedUserId) }}
-                </span>
-                <span>{{ getAssigneeName(task.assignedUserId) }}</span>
+          <div class="column-tasks">
+            @for (task of getTasksForAssignee(member.id); track task.id) {
+              <div 
+                class="task-card-compact" 
+                [class.completed]="task.status === 'completed'"
+                [style.border-left]="'4px solid ' + member.color"
+                (click)="openEditModal(task)"
+              >
+                <h4 class="task-title-compact">{{ task.title }}</h4>
+                @if (task.description) {
+                  <p class="task-description-compact">{{ task.description }}</p>
+                }
+                @if (task.rewardPoints && task.rewardPoints > 0) {
+                  <span class="task-points-compact">🏆 {{ task.rewardPoints }}</span>
+                }
               </div>
             }
-          </div>
-
-          <div class="task-actions">
-            @if (isParentMode()) {
-              @if (task.status !== 'completed') {
-                <button
-                  class="btn-icon btn-complete"
-                  (click)="completeTask(task)"
-                >
-                  ✓ Complete
-                </button>
-              }
-              <button class="btn-icon btn-delete" (click)="deleteTask(task.id)">
-                🗑️ Delete
-              </button>
-            } @else {
-              <span class="silent-mode-notice">🔒 Silent Mode</span>
+            @if (getTasksForAssignee(member.id).length === 0) {
+              <div class="empty-column">No tasks assigned</div>
             }
           </div>
         </div>
-      } @empty {
-        <div class="empty-state">
-          <div class="empty-icon">✓</div>
-          <h3>No tasks found</h3>
-          <p>Create your first task to get started!</p>
-        </div>
       }
+    </div>
+  }
+
+  <!-- Task Modal -->
+  @if (showCreateModal()) {
+    <div class="modal-overlay" (click)="closeModal()"></div>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>{{ editingTask() ? 'Edit Task' : 'Create New Task' }}</h2>
+        <button class="modal-close" (click)="closeModal()">&times;</button>
       </div>
-    }
+      <div class="modal-body">
+        <form (ngSubmit)="saveTask()">
+          <div class="form-group">
+            <label for="title">Title *</label>
+            <input
+              type="text"
+              id="title"
+              [(ngModel)]="newTask.title"
+              name="title"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              [(ngModel)]="newTask.description"
+              name="description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select
+                id="priority"
+                [(ngModel)]="newTask.priority"
+                name="priority"
+                class="form-control"
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="rewardPoints">Reward Points</label>
+              <input
+                type="number"
+                id="rewardPoints"
+                [(ngModel)]="newTask.rewardPoints"
+                name="rewardPoints"
+                class="form-control"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <input
+              type="text"
+              id="category"
+              [(ngModel)]="newTask.category"
+              name="category"
+              class="form-control"
+              placeholder="e.g., Chores, Homework"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="assignee">Assign To</label>
+            <select
+              id="assignee"
+              [(ngModel)]="newTask.assignedUserId"
+              name="assignedUserId"
+              class="form-control"
+            >
+              <option [ngValue]="null">Unassigned</option>
+              @for (member of familyMembers(); track member.id) {
+                <option [ngValue]="member.id">
+                  {{ member.username }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+              Cancel
+            </button>
+            @if (editingTask()) {
+              <button 
+                type="button" 
+                class="btn btn-danger" 
+                (click)="deleteTask(editingTask()?.id); closeModal()"
+              >
+                Delete
+              </button>
+            }
+            <button type="submit" class="btn btn-primary">
+              {{ editingTask() ? 'Save Changes' : 'Create Task' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   }
 </div>
 </div>
