@@ -56,22 +56,22 @@ export class RewardsComponent implements OnInit {
   // Goals
   goals = signal<Goal[]>([]);
   
-  newReward: Partial<Reward> = {
+  newReward = signal<Partial<Reward>>({
     name: '',
     description: '',
     pointsCost: 0,
     category: '',
     imageUrl: ''
-  };
+  });
   
-  newGoal: Partial<Goal> = {
+  newGoal = signal<Partial<Goal>>({
     userId: 0,
     rewardId: 0,
     targetPoints: 0,
     period: 'week',
     currentPoints: 0,
     isActive: true
-  };
+  });
   
   // Computed signals
   readonly filteredBySearch = computed(() => {
@@ -210,7 +210,7 @@ export class RewardsComponent implements OnInit {
   
   openEditRewardModal(reward: Reward): void {
     this.editingReward.set(reward);
-    this.newReward = { ...reward };
+    this.newReward.set({ ...reward });
     this.showEditRewardModal.set(true);
   }
   
@@ -222,17 +222,18 @@ export class RewardsComponent implements OnInit {
   }
   
   resetRewardForm(): void {
-    this.newReward = {
+    this.newReward.set({
       name: '',
       description: '',
       pointsCost: 0,
       category: '',
       imageUrl: ''
-    };
+    });
   }
   
   async saveReward(): Promise<void> {
-    if (!this.newReward.name?.trim() || !this.newReward.pointsCost) {
+    const reward = this.newReward();
+    if (!reward.name?.trim() || !reward.pointsCost) {
       alert('Please fill in all required fields');
       return;
     }
@@ -244,11 +245,11 @@ export class RewardsComponent implements OnInit {
         // Update existing reward
         const updatedReward: Reward = {
           ...editingReward,
-          name: this.newReward.name,
-          description: this.newReward.description || '',
-          pointsCost: this.newReward.pointsCost,
-          category: this.newReward.category || 'Other',
-          imageUrl: this.newReward.imageUrl || ''
+          name: reward.name,
+          description: reward.description || '',
+          pointsCost: reward.pointsCost,
+          category: reward.category || 'Other',
+          imageUrl: reward.imageUrl || ''
         };
         
         const rewards = this.rewardsState.rewards();
@@ -259,17 +260,17 @@ export class RewardsComponent implements OnInit {
         }
       } else {
         // Create new reward
-        const reward: Reward = {
+        const newRewardObj: Reward = {
           id: Date.now(), // Temporary ID
-          name: this.newReward.name,
-          description: this.newReward.description || '',
-          pointsCost: this.newReward.pointsCost,
-          category: this.newReward.category || 'Other',
-          imageUrl: this.newReward.imageUrl || '',
+          name: reward.name,
+          description: reward.description || '',
+          pointsCost: reward.pointsCost,
+          category: reward.category || 'Other',
+          imageUrl: reward.imageUrl || '',
           isActive: true
         };
         
-        this.rewardsState.setRewards([...this.rewardsState.rewards(), reward]);
+        this.rewardsState.setRewards([...this.rewardsState.rewards(), newRewardObj]);
       }
       
       this.closeRewardModal();
@@ -303,34 +304,68 @@ export class RewardsComponent implements OnInit {
   }
   
   resetGoalForm(): void {
-    this.newGoal = {
+    this.newGoal.set({
       userId: 0,
       rewardId: 0,
       targetPoints: 0,
       period: 'week',
       currentPoints: 0,
       isActive: true
-    };
+    });
+  }
+  
+  // Helper methods for form binding
+  updateRewardName(value: string): void {
+    this.newReward.update(r => ({ ...r, name: value }));
+  }
+  
+  updateRewardDescription(value: string): void {
+    this.newReward.update(r => ({ ...r, description: value }));
+  }
+  
+  updateRewardPoints(value: string | number): void {
+    this.newReward.update(r => ({ ...r, pointsCost: typeof value === 'string' ? parseInt(value, 10) : value }));
+  }
+  
+  updateRewardCategory(value: string): void {
+    this.newReward.update(r => ({ ...r, category: value }));
+  }
+  
+  updateRewardImageUrl(value: string): void {
+    this.newReward.update(r => ({ ...r, imageUrl: value }));
+  }
+  
+  updateGoalUserId(value: string | number): void {
+    this.newGoal.update(g => ({ ...g, userId: typeof value === 'string' ? parseInt(value, 10) : value }));
+  }
+  
+  updateGoalPeriod(value: string): void {
+    this.newGoal.update(g => ({ ...g, period: value as 'day' | 'week' | 'month' }));
+  }
+  
+  updateGoalRewardId(value: string | number): void {
+    this.newGoal.update(g => ({ ...g, rewardId: typeof value === 'string' ? parseInt(value, 10) : value }));
   }
   
   async saveGoal(): Promise<void> {
-    if (!this.newGoal.userId || !this.newGoal.rewardId) {
+    const goalData = this.newGoal();
+    if (!goalData.userId || !goalData.rewardId) {
       alert('Please select an assignee and a reward');
       return;
     }
     
     try {
-      const reward = this.rewards().find(r => r.id === this.newGoal.rewardId);
-      const member = this.familyMembers().find(m => m.id === this.newGoal.userId);
+      const reward = this.rewards().find(r => r.id === goalData.rewardId);
+      const member = this.familyMembers().find(m => m.id === goalData.userId);
       
       const goal: Goal = {
         id: Date.now(),
-        userId: this.newGoal.userId!,
+        userId: goalData.userId!,
         userName: member?.username,
-        rewardId: this.newGoal.rewardId!,
+        rewardId: goalData.rewardId!,
         rewardName: reward?.name,
         targetPoints: reward?.pointsCost || 0,
-        period: this.newGoal.period!,
+        period: goalData.period!,
         currentPoints: 0,
         isActive: true,
         createdAt: new Date()

@@ -232,7 +232,8 @@
             <input
               type="text"
               id="rewardName"
-              [(ngModel)]="newReward.name"
+              [ngModel]="newReward().name"
+              (ngModelChange)="updateRewardName($event)"
               name="rewardName"
               class="form-control"
               placeholder="e.g., Ice Cream Treat"
@@ -244,7 +245,8 @@
             <label for="description">Description</label>
             <textarea
               id="description"
-              [(ngModel)]="newReward.description"
+              [ngModel]="newReward().description"
+              (ngModelChange)="updateRewardDescription($event)"
               name="description"
               class="form-control"
               rows="3"
@@ -258,7 +260,8 @@
               <input
                 type="number"
                 id="pointsCost"
-                [(ngModel)]="newReward.pointsCost"
+                [ngModel]="newReward().pointsCost"
+                (ngModelChange)="updateRewardPoints($event)"
                 name="pointsCost"
                 class="form-control"
                 min="1"
@@ -271,7 +274,8 @@
               <input
                 type="text"
                 id="category"
-                [(ngModel)]="newReward.category"
+                [ngModel]="newReward().category"
+                (ngModelChange)="updateRewardCategory($event)"
                 name="category"
                 class="form-control"
                 placeholder="e.g., Treats, Activities"
@@ -284,7 +288,8 @@
             <input
               type="url"
               id="imageUrl"
-              [(ngModel)]="newReward.imageUrl"
+              [ngModel]="newReward().imageUrl"
+              (ngModelChange)="updateRewardImageUrl($event)"
               name="imageUrl"
               class="form-control"
               placeholder="https://example.com/image.jpg"
@@ -318,7 +323,8 @@
             <label for="goalAssignee">Assignee *</label>
             <select
               id="goalAssignee"
-              [(ngModel)]="newGoal.userId"
+              [ngModel]="newGoal().userId"
+              (ngModelChange)="updateGoalUserId($event)"
               name="goalAssignee"
               class="form-control"
               required
@@ -336,7 +342,8 @@
             <label for="goalPeriod">Period *</label>
             <select
               id="goalPeriod"
-              [(ngModel)]="newGoal.period"
+              [ngModel]="newGoal().period"
+              (ngModelChange)="updateGoalPeriod($event)"
               name="goalPeriod"
               class="form-control"
               required
@@ -351,7 +358,8 @@
             <label for="goalReward">Reward *</label>
             <select
               id="goalReward"
-              [(ngModel)]="newGoal.rewardId"
+              [ngModel]="newGoal().rewardId"
+              (ngModelChange)="updateGoalRewardId($event)"
               name="goalReward"
               class="form-control"
               required
