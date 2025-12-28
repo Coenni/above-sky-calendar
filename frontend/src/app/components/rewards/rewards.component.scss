@@ -1,0 +1,743 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.rewards-page {
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  background: linear-gradient(to bottom, $color-cream 0%, $color-warm-white 100%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.3) 100%);
+  border-radius: $radius-2xl;
+  border: 3px dashed $color-sage-green;
+  animation: fadeIn 0.5s ease-out;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+  
+  h1 {
+    color: $color-soft-brown;
+    font-size: $font-size-4xl;
+    margin: 0;
+    font-family: $font-heading;
+    text-shadow: 2px 2px 0 rgba(white, 0.5);
+  }
+  
+  .subtitle {
+    color: $color-soft-brown;
+    font-size: $font-size-lg;
+    margin: $spacing-sm 0 0 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &-primary {
+    background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &-secondary {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Points Summary
+.points-summary {
+  margin-bottom: $spacing-2xl;
+}
+
+.points-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+  padding: $spacing-2xl;
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: min(400px, 100%);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-mustard, 0.1) 0%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.points-icon {
+  font-size: 4rem;
+}
+
+.points-label {
+  font-size: $font-size-base;
+  color: $color-gray;
+  margin-bottom: $spacing-xs;
+}
+
+.points-value {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+}
+
+// Forms
+.reward-form,
+.goal-form {
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-2xl;
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  animation: slideInTop 0.5s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-md;
+    font-size: $font-size-2xl;
+  }
+}
+
+.goal-description {
+  color: $color-gray;
+  margin-bottom: $spacing-xl;
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    color: $color-soft-brown;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+}
+
+.watercolor-card {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+// Filters
+.filters {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+}
+
+.search-box,
+.category-filter {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+// Rewards Grid
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-xl;
+  margin-bottom: $spacing-2xl;
+}
+
+.reward-card {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  transition: all $transition-base;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: $shadow-2xl;
+  }
+}
+
+.reward-image {
+  height: 200px;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.3) 0%, rgba($color-mint, 0.3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.reward-placeholder {
+  font-size: 80px;
+}
+
+.reward-content {
+  padding: $spacing-xl;
+}
+
+.reward-name {
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: 0 0 $spacing-md 0;
+}
+
+.reward-description {
+  color: $color-gray;
+  margin: $spacing-md 0;
+  line-height: $line-height-relaxed;
+}
+
+.reward-points {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: rgba($color-mustard, 0.2);
+  border-radius: $radius-full;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+  margin: $spacing-md 0;
+}
+
+.btn-redeem {
+  width: 100%;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: $radius-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  min-height: 48px;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// History Section
+.history-section {
+  h2 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.history-item {
+  background: white;
+  padding: $spacing-xl;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: $spacing-4xl;
+  color: $color-soft-brown;
+  font-size: $font-size-2xl;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .rewards-page {
+    padding: $spacing-lg;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+  
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Goals Section
+.goals-section {
+  margin-bottom: $spacing-2xl;
+  
+  h2 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-xl;
+}
+
+.goal-card {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  padding: $spacing-xl;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.goal-assignee {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.assignee-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  border: 3px solid white;
+  box-shadow: $shadow-md;
+}
+
+.assignee-name {
+  color: $color-soft-brown;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-lg;
+}
+
+.btn-delete-goal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba($color-terracotta, 0.2);
+  border: 2px solid $color-terracotta;
+  color: $color-terracotta;
+  cursor: pointer;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  transition: all $transition-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: $color-terracotta;
+    color: white;
+  }
+}
+
+.goal-reward {
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: $spacing-sm 0;
+}
+
+.goal-period {
+  color: $color-gray;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.goal-progress {
+  margin-bottom: $spacing-lg;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 24px;
+  background: rgba($color-sage-green, 0.2);
+  border-radius: $radius-full;
+  overflow: hidden;
+  border: 2px solid $color-sage-green;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+  transition: width 0.3s ease;
+  border-radius: $radius-full;
+}
+
+.progress-text {
+  text-align: center;
+  margin-top: $spacing-sm;
+  color: $color-soft-brown;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+}
+
+.btn-success {
+  width: 100%;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: 3px solid white;
+}
+
+// Reward Actions
+.reward-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.reward-actions {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.btn-icon-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+  color: white;
+  border: 2px solid white;
+  cursor: pointer;
+  font-size: $font-size-base;
+  transition: all $transition-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-md;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+  
+  &.btn-danger-sm {
+    background: linear-gradient(135deg, $color-terracotta 0%, #dc3545 100%);
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-2xl;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: slideInTop 0.3s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+}
+
+.modal-header {
+  padding: $spacing-xl;
+  border-bottom: 3px dashed $color-sage-green;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.1) 0%, rgba($color-mint, 0.1) 100%);
+  
+  h2 {
+    margin: 0;
+    color: $color-soft-brown;
+    font-size: $font-size-2xl;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: $font-size-3xl;
+  color: $color-soft-brown;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+  border-radius: 50%;
+  
+  &:hover {
+    background: rgba($color-terracotta, 0.2);
+    color: $color-terracotta;
+  }
+}
+
+.modal-body {
+  padding: $spacing-2xl;
+}
+
+.modal-footer {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  border-top: 3px dashed $color-sage-green;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.05) 0%, rgba($color-mint, 0.05) 100%);
+  justify-content: flex-end;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

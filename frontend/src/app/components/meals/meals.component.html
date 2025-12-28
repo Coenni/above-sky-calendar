@@ -4,16 +4,21 @@
       <h1>🍽️ Meal Planner</h1>
       <p class="subtitle">Plan delicious meals for your family</p>
     </div>
-    <button (click)="toggleMealForm()" class="btn-add-meal">
-      {{ showMealForm() ? '✕ Cancel' : '+ Add Meal' }}
-    </button>
+    <div class="header-actions">
+      <button (click)="toggleViewMode()" class="btn-view-toggle">
+        {{ viewMode() === 'grid' ? '📅 Calendar View' : '🔲 Grid View' }}
+      </button>
+      <button (click)="toggleMealForm()" class="btn-add-meal">
+        {{ showMealForm() ? '✕ Cancel' : '+ Add Meal' }}
+      </button>
+    </div>
   </div>
 
   <!-- Quick Meal Form -->
   @if (showMealForm()) {
     <div class="meal-form-card watercolor-card">
-      <h3>Add New Meal</h3>
-      <form (ngSubmit)="createMeal()">
+      <h3>{{ editingMeal() ? 'Edit Meal' : 'Add New Meal' }}</h3>
+      <form (ngSubmit)="saveMeal()">
         <div class="form-row">
           <div class="form-group">
             <label for="name">Meal Name</label>
@@ -29,41 +34,13 @@
           </div>
 
           <div class="form-group">
-            <label>Meal Type</label>
-            <div class="category-buttons">
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="newMeal.category === 'breakfast'"
-                (click)="newMeal.category = 'breakfast'"
-              >
-                ☕<br>Breakfast
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="newMeal.category === 'lunch'"
-                (click)="newMeal.category = 'lunch'"
-              >
-                🍱<br>Lunch
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="newMeal.category === 'dinner'"
-                (click)="newMeal.category = 'dinner'"
-              >
-                🍽️<br>Dinner
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="newMeal.category === 'snack'"
-                (click)="newMeal.category = 'snack'"
-              >
-                🍪<br>Snack
-              </button>
-            </div>
+            <label for="category">Meal Type</label>
+            <select id="category" [(ngModel)]="newMeal.category" name="category" class="form-input">
+              <option value="breakfast">☕ Breakfast</option>
+              <option value="lunch">🍱 Lunch</option>
+              <option value="dinner">🍽️ Dinner</option>
+              <option value="snack">🍪 Snack</option>
+            </select>
           </div>
         </div>
 
@@ -122,7 +99,14 @@
           </label>
         </div>
 
-        <button type="submit" class="btn-submit">Add Meal</button>
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">
+            {{ editingMeal() ? 'Update Meal' : 'Add Meal' }}
+          </button>
+          @if (editingMeal()) {
+            <button type="button" (click)="cancelEdit()" class="btn-cancel">Cancel</button>
+          }
+        </div>
       </form>
     </div>
   }
@@ -185,8 +169,36 @@
     <div class="loading">Loading meals...</div>
   }
 
-  <!-- Meals Grid -->
-  @if (!loading()) {
+  <!-- Calendar View -->
+  @if (!loading() && viewMode() === 'calendar') {
+    <div class="calendar-view">
+      <ng-template #dayContent let-day="day">
+        @for (assignment of getMealAssignmentsForDate(day.date); track assignment.mealId) {
+          <div class="meal-assignment" (click)="$event.stopPropagation()">
+            <span class="meal-icon">{{ assignment.meal?.icon || '🍽️' }}</span>
+            <span class="meal-name">{{ assignment.meal?.name }}</span>
+            <button 
+              (click)="removeMealAssignment(assignment)" 
+              class="btn-remove-assignment"
+              title="Remove"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      </ng-template>
+      
+      <app-monthly-calendar 
+        [currentDate]="getCurrentDate()"
+        [dayContentTemplate]="dayContent"
+        (dateSelected)="onDateSelected($event)"
+      >
+      </app-monthly-calendar>
+    </div>
+  }
+
+  <!-- Grid View (existing) -->
+  @if (!loading() && viewMode() === 'grid') {
     <div class="meals-grid">
       @for (meal of filteredMeals(); track meal.id) {
         <div class="meal-card watercolor-card">
@@ -262,108 +274,37 @@
       </div>
     }
   }
-
-  <!-- Edit Modal -->
-  @if (showEditModal() && editingMeal()) {
-    <div class="modal-overlay" (click)="closeEditModal()">
+  
+  <!-- Meal Selector Modal -->
+  @if (showMealSelector() && selectedDate()) {
+    <div class="modal-overlay" (click)="closeMealSelector()">
       <div class="modal-content watercolor-card" (click)="$event.stopPropagation()">
-        <h2>Edit Meal</h2>
-        <form (ngSubmit)="saveEditedMeal()">
-          <div class="form-group">
-            <label for="editName">Meal Name</label>
-            <input
-              type="text"
-              id="editName"
-              [(ngModel)]="editingMeal()!.name"
-              name="editName"
-              class="form-input"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Meal Type</label>
-            <div class="category-buttons">
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="editingMeal()!.category === 'breakfast'"
-                (click)="editingMeal()!.category = 'breakfast'"
-              >
-                ☕<br>Breakfast
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="editingMeal()!.category === 'lunch'"
-                (click)="editingMeal()!.category = 'lunch'"
-              >
-                🍱<br>Lunch
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="editingMeal()!.category === 'dinner'"
-                (click)="editingMeal()!.category = 'dinner'"
-              >
-                🍽️<br>Dinner
-              </button>
-              <button
-                type="button"
-                class="category-btn"
-                [class.active]="editingMeal()!.category === 'snack'"
-                (click)="editingMeal()!.category = 'snack'"
-              >
-                🍪<br>Snack
-              </button>
+        <div class="modal-header">
+          <h3>Assign Meal for {{ selectedDate()! | date:'mediumDate' }}</h3>
+          <button (click)="closeMealSelector()" class="btn-close">✕</button>
+        </div>
+        
+        <div class="meal-selector-grid">
+          @for (meal of meals(); track meal.id) {
+            <div class="meal-selector-item" (click)="assignMealToDate(meal)">
+              @if (meal.imageUrl) {
+                <img [src]="meal.imageUrl" [alt]="meal.name" class="meal-thumb" />
+              } @else {
+                <div class="meal-thumb-placeholder">
+                  <span class="meal-icon-large">{{ getMealIcon(meal.category) }}</span>
+                </div>
+              }
+              <div class="meal-selector-info">
+                <div class="meal-selector-name">{{ meal.name }}</div>
+                <div class="meal-selector-category">{{ getMealIcon(meal.category) }} {{ meal.category | titlecase }}</div>
+              </div>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label for="editImageUrl">Image URL</label>
-            <input
-              type="url"
-              id="editImageUrl"
-              [(ngModel)]="editingMeal()!.imageUrl"
-              name="editImageUrl"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editIngredients">Ingredients</label>
-            <textarea
-              id="editIngredients"
-              [(ngModel)]="editingMeal()!.ingredients"
-              name="editIngredients"
-              rows="3"
-              class="form-input"
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="editRecipe">Recipe Notes</label>
-            <textarea
-              id="editRecipe"
-              [(ngModel)]="editingMeal()!.recipe"
-              name="editRecipe"
-              rows="4"
-              class="form-input"
-            ></textarea>
-          </div>
-
-          <div class="form-group checkbox-group">
-            <label>
-              <input type="checkbox" [(ngModel)]="editingMeal()!.isFavorite" name="editIsFavorite" />
-              ⭐ Mark as Favorite
-            </label>
-          </div>
-
-          <div class="modal-actions">
-            <button type="submit" class="btn-submit">Save Changes</button>
-            <button type="button" (click)="closeEditModal()" class="btn-cancel">Cancel</button>
-          </div>
-        </form>
+          } @empty {
+            <div class="empty-message">
+              No meals available. Create meals first!
+            </div>
+          }
+        </div>
       </div>
     </div>
   }

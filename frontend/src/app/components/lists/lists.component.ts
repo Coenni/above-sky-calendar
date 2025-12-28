@@ -12,7 +12,7 @@ import { FamilyList, ListItem } from '../../models/list.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './lists.component.html',
-  styleUrls: ['./lists.component.css']
+  styleUrls: ['./lists.component.scss']
 })
 export class ListsComponent implements OnInit {
   // Inject services using inject()

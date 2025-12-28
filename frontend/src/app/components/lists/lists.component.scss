@@ -1,0 +1,343 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.lists-page {
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  background: linear-gradient(to bottom, $color-cream 0%, $color-warm-white 100%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.3) 100%);
+  border-radius: $radius-2xl;
+  border: 3px dashed $color-sage-green;
+  animation: fadeIn 0.5s ease-out;
+  
+  h1 {
+    color: $color-soft-brown;
+    font-size: $font-size-4xl;
+    margin: 0;
+    font-family: $font-heading;
+    text-shadow: 2px 2px 0 rgba(white, 0.5);
+  }
+  
+  .subtitle {
+    color: $color-soft-brown;
+    font-size: $font-size-lg;
+    margin: $spacing-sm 0 0 0;
+  }
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &-primary {
+    background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Lists Grid
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-xl;
+}
+
+.list-card {
+  background: white;
+  padding: $spacing-2xl;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  transition: all $transition-base;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: $shadow-2xl;
+  }
+  
+  &.active {
+    border-color: $color-terracotta;
+  }
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.list-icon {
+  font-size: $font-size-3xl;
+}
+
+.list-title {
+  color: $color-soft-brown;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: $spacing-md 0;
+}
+
+.list-progress {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-md 0;
+  
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba($color-sage-green, 0.2);
+    border-radius: $radius-full;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $color-sage-green 0%, $color-mint 100%);
+      transition: width $transition-base;
+    }
+  }
+  
+  .progress-text {
+    font-size: $font-size-sm;
+    color: $color-gray;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.list-stats {
+  display: flex;
+  gap: $spacing-lg;
+  margin-top: $spacing-md;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-gray;
+}
+
+// List Items
+.list-items {
+  margin-top: $spacing-xl;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  background: white;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+  
+  &:hover {
+    background: rgba($color-mint, 0.1);
+  }
+  
+  &.completed {
+    opacity: 0.6;
+    
+    .item-text {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.item-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: rgba($color-sage-green, 0.2);
+  }
+  
+  &.checked {
+    background: $color-sage-green;
+    color: white;
+    
+    &::after {
+      content: '✓';
+      font-weight: bold;
+    }
+  }
+}
+
+.item-text {
+  flex: 1;
+  color: $color-soft-brown;
+}
+
+.item-category {
+  padding: $spacing-xs $spacing-sm;
+  background: rgba($color-mustard, 0.2);
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  color: $color-soft-brown;
+}
+
+.btn-delete-item {
+  background: rgba($color-terracotta, 0.2);
+  border: none;
+  border-radius: $radius-sm;
+  padding: $spacing-xs $spacing-sm;
+  cursor: pointer;
+  color: $color-terracotta;
+  transition: all $transition-base;
+  min-width: 40px;
+  min-height: 40px;
+  
+  &:hover {
+    background: $color-terracotta;
+    color: white;
+  }
+}
+
+// Add Item Form
+.add-item-form {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.form-control {
+  flex: 1;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+.btn-add-item {
+  padding: $spacing-md $spacing-xl;
+  background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: $radius-md;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  min-height: 48px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: $spacing-4xl;
+  
+  .empty-icon {
+    font-size: 120px;
+    margin-bottom: $spacing-xl;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-md;
+  }
+  
+  p {
+    color: $color-gray;
+    font-size: $font-size-lg;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .lists-page {
+    padding: $spacing-lg;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+  
+  .lists-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-item-form {
+    flex-direction: column;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

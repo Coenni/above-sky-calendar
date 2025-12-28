@@ -155,7 +155,7 @@
               <img [src]="member.photo" [alt]="member.displayName" class="avatar-image" />
             } @else {
               <div class="avatar-placeholder" [style.backgroundColor]="member.color || '#ccc'">
-                {{ getDefaultAvatar(member.displayName) }}
+                {{ getDefaultAvatar(member) }}
               </div>
             }
             @if (member.isParent) {
@@ -259,6 +259,45 @@
             <button type="button" (click)="closeEditModal()" class="btn-cancel">Cancel</button>
           </div>
         </form>
+      </div>
+    </div>
+  }
+
+  <!-- PIN Entry Modal -->
+  @if (showPinModal()) {
+    <div class="modal-overlay" (click)="cancelPinEntry()">
+      <div class="modal-content watercolor-card pin-modal" (click)="$event.stopPropagation()">
+        <h2>🔒 Enter Parent PIN</h2>
+        <p class="pin-message">Enter your 4-digit PIN to access parent mode</p>
+        
+        <form (ngSubmit)="submitPin()">
+          <div class="form-group">
+            <input
+              type="password"
+              [(ngModel)]="pin"
+              name="pin"
+              class="form-input pin-input"
+              placeholder="****"
+              maxlength="4"
+              pattern="[0-9]{4}"
+              autocomplete="off"
+              autofocus
+            />
+          </div>
+
+          @if (pinError()) {
+            <div class="error-message">{{ pinError() }}</div>
+          }
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-submit">Activate Parent Mode</button>
+            <button type="button" (click)="cancelPinEntry()" class="btn-cancel">Cancel</button>
+          </div>
+        </form>
+
+        <p class="pin-help">
+          Need help? Set up or reset your PIN in Settings.
+        </p>
       </div>
     </div>
   }

@@ -1,0 +1,133 @@
+@import '../../../styles/variables';
+
+.monthly-calendar {
+  padding: $spacing-xl;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xl;
+}
+
+.month-title {
+  color: $color-soft-brown;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  margin: 0;
+}
+
+.btn-nav {
+  padding: $spacing-md $spacing-lg;
+  background: $color-mint;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-md;
+  cursor: pointer;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 44px;
+  
+  &:hover {
+    background: $color-sage-green;
+    color: white;
+    transform: translateY(-2px);
+  }
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 2px dashed $color-sage-green;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+  font-size: $font-size-sm;
+  text-transform: uppercase;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: $spacing-sm;
+}
+
+.calendar-day {
+  min-height: 100px;
+  padding: $spacing-sm;
+  background: white;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  position: relative;
+  
+  &:hover {
+    background: rgba($color-mint, 0.3);
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  
+  &.other-month {
+    opacity: 0.4;
+    background: rgba($color-gray, 0.1);
+  }
+  
+  &.today {
+    border-color: $color-terracotta;
+    border-width: 3px;
+    background: rgba($color-peach, 0.2);
+  }
+}
+
+.day-number {
+  font-weight: $font-weight-bold;
+  color: $color-soft-brown;
+  margin-bottom: $spacing-xs;
+  font-size: $font-size-base;
+}
+
+.day-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-height: 40px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 80px;
+    padding: $spacing-xs;
+  }
+  
+  .day-number {
+    font-size: $font-size-sm;
+  }
+  
+  .btn-nav {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+  }
+  
+  .month-title {
+    font-size: $font-size-xl;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-day {
+    min-height: 60px;
+  }
+  
+  .weekday {
+    font-size: $font-size-xs;
+  }
+}

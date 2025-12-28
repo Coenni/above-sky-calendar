@@ -1,0 +1,353 @@
+@import '../../../styles/variables';
+@import '../../../styles/animations';
+
+.photos-page {
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  background: linear-gradient(to bottom, $color-cream 0%, $color-warm-white 100%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.2) 0%, rgba($color-mint, 0.3) 100%);
+  border-radius: $radius-2xl;
+  border: 3px dashed $color-sage-green;
+  animation: fadeIn 0.5s ease-out;
+  
+  h1 {
+    color: $color-soft-brown;
+    font-size: $font-size-4xl;
+    margin: 0;
+    font-family: $font-heading;
+    text-shadow: 2px 2px 0 rgba(white, 0.5);
+  }
+  
+  .subtitle {
+    color: $color-soft-brown;
+    font-size: $font-size-lg;
+    margin: $spacing-sm 0 0 0;
+  }
+}
+
+.btn {
+  padding: $spacing-md $spacing-2xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $shadow-md;
+  min-height: 48px;
+  
+  &-primary {
+    background: linear-gradient(135deg, $color-terracotta 0%, $color-peach 100%);
+    color: white;
+    border: 3px solid white;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Upload Form
+.upload-form-card {
+  background: white;
+  padding: $spacing-2xl;
+  border-radius: $radius-2xl;
+  margin-bottom: $spacing-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+  animation: slideInTop 0.5s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-xl;
+    font-size: $font-size-2xl;
+  }
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    color: $color-soft-brown;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  background: white;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-terracotta;
+    box-shadow: 0 0 0 3px rgba($color-terracotta, 0.2);
+  }
+}
+
+// Filters
+.filters {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: $spacing-md $spacing-xl;
+  background: white;
+  border: 3px solid $color-sage-green;
+  border-radius: $radius-full;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 44px;
+  
+  &:hover {
+    background: rgba($color-sage-green, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, $color-sage-green 0%, $color-mint 100%);
+    color: white;
+    box-shadow: $shadow-md;
+  }
+}
+
+// Photos Grid
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-xl;
+}
+
+.photo-card {
+  background: white;
+  border-radius: $radius-2xl;
+  border: 3px solid $color-sage-green;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  transition: all $transition-base;
+  position: relative;
+  cursor: pointer;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    background: linear-gradient(135deg, 
+      rgba($color-sage-green, 0.1) 0%, 
+      rgba($color-mint, 0.1) 50%, 
+      rgba($color-peach, 0.1) 100%);
+    border-radius: $radius-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: $shadow-2xl;
+  }
+}
+
+.photo-image {
+  height: 250px;
+  background: linear-gradient(135deg, rgba($color-sage-green, 0.3) 0%, rgba($color-mint, 0.3) 100%);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.photo-content {
+  padding: $spacing-xl;
+}
+
+.photo-caption {
+  color: $color-soft-brown;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-sm;
+}
+
+.photo-date {
+  color: $color-gray;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-md;
+}
+
+.photo-tags {
+  display: flex;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+}
+
+.photo-tag {
+  padding: $spacing-xs $spacing-sm;
+  background: rgba($color-sage-green, 0.2);
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  color: $color-soft-brown;
+}
+
+.photo-actions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.btn-icon {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  background: $color-mint;
+  border: 2px solid $color-sage-green;
+  border-radius: $radius-md;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  color: $color-soft-brown;
+  min-height: 44px;
+  
+  &:hover {
+    background: $color-sage-green;
+    color: white;
+    transform: translateY(-2px);
+  }
+  
+  &.btn-delete {
+    background: rgba($color-terracotta, 0.2);
+    border-color: $color-terracotta;
+    
+    &:hover {
+      background: $color-terracotta;
+    }
+  }
+}
+
+// Photo Modal
+.photo-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+  animation: fadeIn 0.3s ease-out;
+  
+  img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-2xl;
+  }
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: $spacing-4xl;
+  
+  .empty-icon {
+    font-size: 120px;
+    margin-bottom: $spacing-xl;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    color: $color-soft-brown;
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-md;
+  }
+  
+  p {
+    color: $color-gray;
+    font-size: $font-size-lg;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .photos-page {
+    padding: $spacing-lg;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+  
+  .photos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

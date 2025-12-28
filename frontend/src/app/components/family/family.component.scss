@@ -115,14 +115,14 @@
   label {
     color: $color-soft-brown;
     font-weight: $font-weight-semibold;
-    font-size: $font-size-md;
+    font-size: $font-size-base;
   }
   
   .form-input {
     padding: $spacing-md;
     border: 2px solid $color-sage-green;
     border-radius: $radius-lg;
-    font-size: $font-size-md;
+    font-size: $font-size-base;
     background: white;
     transition: all $transition-base;
     
@@ -367,5 +367,45 @@
   
   &:hover {
     background: #bbb;
+  }
+}
+
+// PIN Modal Styles
+.pin-modal {
+  max-width: 400px;
+  text-align: center;
+
+  h2 {
+    margin-bottom: $spacing-sm;
+  }
+
+  .pin-message {
+    color: $color-soft-brown;
+    margin-bottom: $spacing-xl;
+    font-size: $font-size-base;
+  }
+
+  .pin-input {
+    font-size: $font-size-2xl;
+    text-align: center;
+    letter-spacing: 0.5em;
+    font-weight: $font-weight-bold;
+    padding: $spacing-lg;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    background: #ffebee;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    margin: $spacing-md 0;
+    font-size: $font-size-sm;
+  }
+
+  .pin-help {
+    margin-top: $spacing-lg;
+    font-size: $font-size-sm;
+    color: $color-soft-brown;
+    opacity: 0.7;
   }
 }

@@ -1,30 +1,19 @@
 <div class="rewards-page">
-  <nav class="navbar">
-    <div class="navbar-brand">Above Sky Calendar</div>
-    <div class="navbar-menu">
-      <a routerLink="/dashboard" class="nav-link">Dashboard</a>
-      <a routerLink="/tasks" class="nav-link">Tasks</a>
-      <a routerLink="/rewards" class="nav-link active">Rewards</a>
-      <a routerLink="/meals" class="nav-link">Meals</a>
-      <a routerLink="/photos" class="nav-link">Photos</a>
-      <a routerLink="/lists" class="nav-link">Lists</a>
-      <a routerLink="/calendar" class="nav-link">Calendar</a>
-      @if (authState.currentUser(); as user) {
-        <div class="user-info">
-          <span class="points-badge">{{ userPoints() }} Points</span>
-          <span>{{ user.username }}</span>
-        </div>
-      }
-    </div>
-  </nav>
-
   <div class="container">
     <div class="header">
       <div class="header-content">
-        <h1>Rewards Store</h1>
+        <h1>🏆 Rewards Store</h1>
         <p class="subtitle">Redeem your points for awesome rewards!</p>
       </div>
       <div class="header-actions">
+        @if (isParentMode()) {
+          <button (click)="toggleAddRewardModal()" class="btn btn-primary">
+            + Add Reward
+          </button>
+        }
+        <button (click)="toggleSetGoalModal()" class="btn btn-secondary">
+          🎯 Set Goal
+        </button>
         <button (click)="toggleHistory()" class="btn btn-secondary">
           {{ showHistory() ? 'Hide History' : 'View History' }}
         </button>
@@ -40,6 +29,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Active Goals Section -->
+    @if (activeGoals().length > 0) {
+      <div class="goals-section">
+        <h2>Active Goals</h2>
+        <div class="goals-grid">
+          @for (goal of activeGoals(); track goal.id) {
+            <div class="goal-card">
+              <div class="goal-header">
+                <div class="goal-assignee">
+                  <span class="assignee-avatar" 
+                    [style.background]="getFamilyMemberColor(goal.userId)">
+                    {{ goal.userName?.charAt(0) || '?' }}
+                  </span>
+                  <span class="assignee-name">{{ goal.userName }}</span>
+                </div>
+                <button class="btn-delete-goal" (click)="deleteGoal(goal)">✕</button>
+              </div>
+              <h3 class="goal-reward">{{ goal.rewardName }}</h3>
+              <div class="goal-period">{{ goal.period === 'day' ? 'Daily' : goal.period === 'week' ? 'Weekly' : 'Monthly' }} Goal</div>
+              <div class="goal-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="getGoalProgress(goal)"></div>
+                </div>
+                <div class="progress-text">
+                  {{ goal.currentPoints }} / {{ goal.targetPoints }} points
+                </div>
+              </div>
+              @if (canClaimGoal(goal)) {
+                <button class="btn btn-success" (click)="claimGoal(goal)">
+                  🎉 Claim Reward
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
 
     @if (!showHistory()) {
       <div class="filters">
@@ -122,17 +149,24 @@
                       <span class="points-icon">⭐</span>
                       <span class="points-text">{{ reward.pointsCost }} points</span>
                     </div>
-                    @if (isParentMode()) {
-                      <button 
-                        (click)="openRedeemModal(reward)" 
-                        class="btn btn-primary btn-sm"
-                        [disabled]="!canAfford(reward)"
-                      >
-                        {{ canAfford(reward) ? 'Redeem' : 'Not Enough Points' }}
-                      </button>
-                    } @else {
-                      <span class="silent-mode-notice">🔒 Silent Mode</span>
-                    }
+                    <div class="reward-actions">
+                      @if (isParentMode()) {
+                        <button 
+                          (click)="openEditRewardModal(reward)" 
+                          class="btn-icon-sm"
+                          title="Edit"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          (click)="deleteReward(reward)" 
+                          class="btn-icon-sm btn-danger-sm"
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
@@ -179,6 +213,175 @@
       <div class="modal-footer">
         <button (click)="closeRedeemModal()" class="btn btn-secondary">Cancel</button>
         <button (click)="confirmRedemption()" class="btn btn-primary">Confirm Redemption</button>
+      </div>
+    </div>
+  }
+
+  <!-- Add/Edit Reward Modal -->
+  @if (showAddRewardModal() || showEditRewardModal()) {
+    <div class="modal-overlay" (click)="closeRewardModal()"></div>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>{{ editingReward() ? 'Edit Reward' : 'Add New Reward' }}</h2>
+        <button class="modal-close" (click)="closeRewardModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveReward()">
+          <div class="form-group">
+            <label for="rewardName">Reward Name *</label>
+            <input
+              type="text"
+              id="rewardName"
+              [ngModel]="newReward().name"
+              (ngModelChange)="updateRewardName($event)"
+              name="rewardName"
+              class="form-control"
+              placeholder="e.g., Ice Cream Treat"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              [ngModel]="newReward().description"
+              (ngModelChange)="updateRewardDescription($event)"
+              name="description"
+              class="form-control"
+              rows="3"
+              placeholder="Describe the reward..."
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pointsCost">Points Required *</label>
+              <input
+                type="number"
+                id="pointsCost"
+                [ngModel]="newReward().pointsCost"
+                (ngModelChange)="updateRewardPoints($event)"
+                name="pointsCost"
+                class="form-control"
+                min="1"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category</label>
+              <input
+                type="text"
+                id="category"
+                [ngModel]="newReward().category"
+                (ngModelChange)="updateRewardCategory($event)"
+                name="category"
+                class="form-control"
+                placeholder="e.g., Treats, Activities"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="imageUrl">Image URL (optional)</label>
+            <input
+              type="url"
+              id="imageUrl"
+              [ngModel]="newReward().imageUrl"
+              (ngModelChange)="updateRewardImageUrl($event)"
+              name="imageUrl"
+              class="form-control"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeRewardModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingReward() ? 'Save Changes' : 'Add Reward' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Set Goal Modal -->
+  @if (showSetGoalModal()) {
+    <div class="modal-overlay" (click)="toggleSetGoalModal()"></div>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🎯 Set New Goal</h2>
+        <button class="modal-close" (click)="toggleSetGoalModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveGoal()">
+          <div class="form-group">
+            <label for="goalAssignee">Assignee *</label>
+            <select
+              id="goalAssignee"
+              [ngModel]="newGoal().userId"
+              (ngModelChange)="updateGoalUserId($event)"
+              name="goalAssignee"
+              class="form-control"
+              required
+            >
+              <option [value]="-1">Select family member...</option>
+              @for (member of familyMembers(); track member.id) {
+                <option [value]="member.id">
+                  {{ member.username }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="goalPeriod">Period *</label>
+            <select
+              id="goalPeriod"
+              [ngModel]="newGoal().period"
+              (ngModelChange)="updateGoalPeriod($event)"
+              name="goalPeriod"
+              class="form-control"
+              required
+            >
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="goalReward">Reward *</label>
+            <select
+              id="goalReward"
+              [ngModel]="newGoal().rewardId"
+              (ngModelChange)="updateGoalRewardId($event)"
+              name="goalReward"
+              class="form-control"
+              required
+            >
+              <option [value]="-1">Select reward...</option>
+              @for (reward of rewards(); track reward.id) {
+                <option [value]="reward.id">
+                  {{ reward.name }} ({{ reward.pointsCost }} points)
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="toggleSetGoalModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Save Goal
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   }

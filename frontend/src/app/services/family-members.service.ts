@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-<parameter name="HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FamilyMember, FamilyMemberInput, FamilyMemberUpdate } from '../models/family-member.model';
 import { environment } from '../../environments/environment';

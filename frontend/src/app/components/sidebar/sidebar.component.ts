@@ -28,13 +28,13 @@ export class SidebarComponent {
 
   navItems: NavItem[] = [
     { label: 'Dashboard', route: '/dashboard', icon: '🏠' },
-    { label: 'Calendar', route: '/calendar', icon: '📅' },
-    { label: 'Tasks', route: '/tasks', icon: '✓' },
-    { label: 'Meals', route: '/meals', icon: '🍽️' },
-    { label: 'Rewards', route: '/rewards', icon: '🏆' },
-    { label: 'Lists', route: '/lists', icon: '📋' },
-    { label: 'Photos', route: '/photos', icon: '📷' },
-    { label: 'Family', route: '/family', icon: '👨‍👩‍👧‍👦' },
+    { label: 'Calendar - View and manage events + tasks', route: '/calendar', icon: '📅' },
+    { label: 'Tasks - Track family chores', route: '/tasks', icon: '✓' },
+    { label: 'Rewards - Redeem points', route: '/rewards', icon: '🏆' },
+    { label: 'Meals - Plan weekly meals', route: '/meals', icon: '🍽️' },
+    { label: 'Photos - Share memories', route: '/photos', icon: '📷' },
+    { label: 'Lists - Shopping & to-do lists', route: '/lists', icon: '📋' },
+    { label: 'Family - Manage family members', route: '/family', icon: '👨‍👩‍👧‍👦' },
     { label: 'Settings', route: '/settings', icon: '⚙️' }
   ];
 
