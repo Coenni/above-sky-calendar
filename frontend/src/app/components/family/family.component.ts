@@ -196,8 +196,11 @@ export class FamilyComponent implements OnInit {
     return icons[role || ''] || '👤';
   }
 
-  getDefaultAvatar(name: string): string {
-    return name.charAt(0).toUpperCase();
+  getDefaultAvatar(member: FamilyMember): string {
+    if (member.displayName == null) {
+      member.displayName = member.username;
+    }
+    return (member.displayName || member.username).charAt(0).toUpperCase();
   }
 
   private getEmptyMemberInput(): FamilyMemberInput {

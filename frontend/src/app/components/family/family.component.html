@@ -155,7 +155,7 @@
               <img [src]="member.photo" [alt]="member.displayName" class="avatar-image" />
             } @else {
               <div class="avatar-placeholder" [style.backgroundColor]="member.color || '#ccc'">
-                {{ getDefaultAvatar(member.displayName) }}
+                {{ getDefaultAvatar(member) }}
               </div>
             }
             @if (member.isParent) {
