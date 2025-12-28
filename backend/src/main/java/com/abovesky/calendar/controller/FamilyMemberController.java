@@ -1,6 +1,7 @@
 package com.abovesky.calendar.controller;
 
 import com.abovesky.calendar.entity.User;
+import com.abovesky.calendar.service.ModeService;
 import com.abovesky.calendar.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class FamilyMemberController {
 
     private final UserService userService;
+    private final ModeService modeService;
 
     @GetMapping
     public ResponseEntity<List<User>> getAllMembers() {
@@ -43,11 +45,8 @@ public class FamilyMemberController {
     @PostMapping
     public ResponseEntity<User> createMember(@RequestBody User newMember, Authentication authentication) {
         try {
-            // Only parents can create new members
-            String username = authentication.getName();
-            User currentUser = userService.findByUsername(username);
-            
-            if (!currentUser.getIsParent()) {
+            // Only users in parent mode can create new members
+            if (!modeService.isParentMode()) {
                 return ResponseEntity.status(403).build(); // Forbidden
             }
             
@@ -67,11 +66,8 @@ public class FamilyMemberController {
             Authentication authentication
     ) {
         try {
-            // Only parents can update members
-            String username = authentication.getName();
-            User currentUser = userService.findByUsername(username);
-            
-            if (!currentUser.getIsParent()) {
+            // Only users in parent mode can update members
+            if (!modeService.isParentMode()) {
                 return ResponseEntity.status(403).build(); // Forbidden
             }
             
@@ -87,15 +83,14 @@ public class FamilyMemberController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id, Authentication authentication) {
         try {
-            // Only parents can delete members
-            String username = authentication.getName();
-            User currentUser = userService.findByUsername(username);
-            
-            if (!currentUser.getIsParent()) {
+            // Only users in parent mode can delete members
+            if (!modeService.isParentMode()) {
                 return ResponseEntity.status(403).build(); // Forbidden
             }
             
             // Don't allow deleting yourself
+            String username = authentication.getName();
+            User currentUser = userService.findByUsername(username);
             if (currentUser.getId().equals(id)) {
                 return ResponseEntity.badRequest().build();
             }
